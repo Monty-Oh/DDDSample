@@ -7,9 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.common.exception.UserDuplicateIdException;
-import plgrim.sample.common.exception.UserDuplicatePhoneNumberException;
-import plgrim.sample.member.controller.dto.user.UserJoinDTO;
+import plgrim.sample.common.exceptions.UserDuplicateIdException;
+import plgrim.sample.common.exceptions.UserDuplicatePhoneNumberException;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.vo.UserBasic;
 

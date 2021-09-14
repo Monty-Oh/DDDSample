@@ -1,4 +1,4 @@
-package plgrim.sample.common.exception;
+package plgrim.sample.common.exceptions;
 
 public class UserNotFoundException extends RuntimeException{
 }

@@ -2,7 +2,7 @@ package plgrim.sample.member.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.exception.UserNotFoundException;
+import plgrim.sample.common.exceptions.UserNotFoundException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.domain.model.entity.User;

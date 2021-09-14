@@ -1,9 +1,8 @@
 package plgrim.sample.member.domain.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.exception.UserNotFoundException;
+import plgrim.sample.common.exceptions.UserNotFoundException;
 import plgrim.sample.common.SHA256;
 import plgrim.sample.member.domain.model.entity.User;
 import plgrim.sample.member.infrastructure.repository.UserRepository;

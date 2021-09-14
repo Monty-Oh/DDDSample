@@ -6,7 +6,9 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
+// 지정한 대상의 JavaDoc에 이 어노테이션의 존재를 표기하도록 지정
 @Documented
+// 
 @Constraint(validatedBy = PasswordValidation.Validator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

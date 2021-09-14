@@ -3,7 +3,7 @@ package plgrim.sample.member.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import plgrim.sample.common.SHA256;
-import plgrim.sample.common.exception.UserNotFoundException;
+import plgrim.sample.common.exceptions.UserNotFoundException;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.entity.User;
 import plgrim.sample.member.domain.model.vo.UserBasic;
