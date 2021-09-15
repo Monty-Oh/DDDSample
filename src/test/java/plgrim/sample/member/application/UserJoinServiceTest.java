@@ -7,8 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.common.exceptions.UserDuplicateIdException;
-import plgrim.sample.common.exceptions.UserDuplicatePhoneNumberException;
+import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.vo.UserBasic;
 
@@ -41,14 +40,14 @@ class UserJoinServiceTest {
     @Test
     void joinUser() {
         String userId = userJoinService.join(userJoinCommand);  // 가입 후 ID 반환받음
-        assertThat(userId).isEqualTo("monty@plgrim.com");   // 반환 값으로 받은 email 비교
+        assertThat(userId).isEqualTo("monty@plgrim.com");       // 반환 값으로 받은 email 비교
     }
 
     @DisplayName("회원가입 실패 - id 중복가입")
     @Test
     void 중복가입_ID() {
         userJoinService.join(userJoinCommand);                  // 가입을 먼저 시켜놓는다.
-        assertThrows(UserDuplicateIdException.class,
+        assertThrows(UserException.class,
                 () -> userJoinService.join(userJoinCommand));   // 이미 가입이 되어있으므로 에러가 나야한다.
     }
 
@@ -69,7 +68,7 @@ class UserJoinServiceTest {
                         .build())
                 .build();
 
-        assertThrows(UserDuplicatePhoneNumberException.class,
+        assertThrows(UserException.class,
                 () -> userJoinService.join(userJoinCommand));   // 이미 가입이 되어있으므로 에러가 나야한다.
     }
 }

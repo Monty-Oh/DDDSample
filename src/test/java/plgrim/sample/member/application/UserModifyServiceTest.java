@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.common.exceptions.UserNotFoundException;
+import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
@@ -80,6 +80,6 @@ class UserModifyServiceTest {
                 .SnsType(Sns.GOOGLE)
                 .build();
 
-        assertThrows(UserNotFoundException.class, () -> userModifyService.modify(userModifyDTO));
+        assertThrows(UserException.class, () -> userModifyService.modify(userModifyDTO));
     }
 }

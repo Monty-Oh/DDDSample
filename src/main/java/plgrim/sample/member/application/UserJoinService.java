@@ -3,10 +3,10 @@ package plgrim.sample.member.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import plgrim.sample.common.SHA256;
-import plgrim.sample.common.exceptions.UserDuplicateIdException;
-import plgrim.sample.common.exceptions.UserDuplicatePhoneNumberException;
+import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
-import plgrim.sample.member.domain.model.entity.User;
+import plgrim.sample.member.domain.model.aggregate.User;
 import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserRepository;
 
@@ -22,10 +22,10 @@ public class UserJoinService {
      */
     public String join(UserJoinCommand userJoinCommand) {
         if (userDomainService.checkDuplicateId(userJoinCommand.getId()))                      // 이미 있으면? 에러
-            throw new UserDuplicateIdException();
+            throw new UserException(ErrorCode.DUPLICATE_ID);
 
         if (userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber()))    // 만약 중복되는 phoneNumber가 있으면? 에러
-            throw new UserDuplicatePhoneNumberException();
+            throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
 
         User user = User.builder()
                 .id(userJoinCommand.getId())

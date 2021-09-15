@@ -7,11 +7,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.common.exceptions.UserNotFoundException;
+import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
-import plgrim.sample.member.domain.model.entity.User;
+import plgrim.sample.member.domain.model.aggregate.User;
 import plgrim.sample.member.domain.model.vo.UserBasic;
 
 import java.time.LocalDate;
@@ -60,7 +60,7 @@ class UserFindServiceTest {
         UserFindByIdDTO userFindByIdDTO = UserFindByIdDTO.builder()         // 테스트 DTO
                 .id("notExist")
                 .build();
-        assertThrows(UserNotFoundException.class,
+        assertThrows(UserException.class,
                 () -> userFindService.findUserById(userFindByIdDTO));       // 조회 실패해야함. 존재하지 않는 데이터
     }
 

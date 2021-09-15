@@ -3,9 +3,10 @@ package plgrim.sample.member.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import plgrim.sample.common.SHA256;
-import plgrim.sample.common.exceptions.UserNotFoundException;
+import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
-import plgrim.sample.member.domain.model.entity.User;
+import plgrim.sample.member.domain.model.aggregate.User;
 import plgrim.sample.member.domain.model.vo.UserBasic;
 import plgrim.sample.member.infrastructure.repository.UserRepository;
 
@@ -23,7 +24,7 @@ public class UserModifyService {
      */
     public String modify(UserModifyDTO userModifyDTO) {
         Optional<User> user = userRepository.findById(userModifyDTO.getId());   // user 조회 후 없으면? 못찾는 에러
-        if (user.isEmpty()) throw new UserNotFoundException();
+        if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
 
         User userModify = User.builder()
                 .id(userModifyDTO.getId())

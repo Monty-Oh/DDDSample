@@ -69,8 +69,8 @@ class UserControllerTest {
         mockMvc.perform(post("/API/user/join")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().string("UserDuplicateIdException"))
+                .andExpect(status().isConflict())
+                .andExpect(content().string("이미 중복된 회원이 존재합니다."))
                 .andDo(print());
     }
 

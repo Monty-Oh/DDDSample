@@ -2,10 +2,11 @@ package plgrim.sample.member.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.exceptions.UserNotFoundException;
+import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
-import plgrim.sample.member.domain.model.entity.User;
+import plgrim.sample.member.domain.model.aggregate.User;
 import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class UserFindService {
     public UserDTO findUserById(UserFindByIdDTO userFindByIdDto) {
         Optional<User> user = userRepository.findById(userFindByIdDto.getId());
 
-        if (user.isEmpty()) throw new UserNotFoundException();  // user가 없으면 에러
+        if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
         return new UserDTO(user.get());
     }
 
@@ -34,7 +35,7 @@ public class UserFindService {
      * */
     public List<User> findUsers() {
         List<User> users = userRepository.findAll();
-        if(users.size() == 0) throw new UserNotFoundException();
+        if(users.size() == 0) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
 
         return users;
     }

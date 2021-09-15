@@ -2,9 +2,10 @@ package plgrim.sample.member.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.exceptions.UserNotFoundException;
+import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.common.SHA256;
-import plgrim.sample.member.domain.model.entity.User;
+import plgrim.sample.member.domain.model.aggregate.User;
 import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class UserDomainService {
     public Boolean compareUserPassword(String id, String password) {
 
         Optional<User> user = userRepository.findById(id);          // id로 조회
-        if (user.isEmpty()) throw new UserNotFoundException();      // user가 없으면 에러
+        if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);      // user가 없으면 에러
 
         return user.get().getPassword().equals(sha256.encrypt(password));
     }

@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import plgrim.sample.common.exceptions.UserDuplicateIdException;
-import plgrim.sample.common.exceptions.UserDuplicatePhoneNumberException;
 import plgrim.sample.member.application.UserFindService;
 import plgrim.sample.member.application.UserJoinService;
 import plgrim.sample.member.application.UserModifyService;
@@ -33,15 +31,7 @@ public class UserController {
      */
     @PostMapping("/join")
     public ResponseEntity<String> join(@Valid @RequestBody UserJoinDTO userJoinDTO) {
-        try {
-            String userId = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
-            return ResponseEntity.ok(userId);
-        } catch (UserDuplicateIdException e) {
-            return ResponseEntity.internalServerError()
-                    .body("UserDuplicateIdException");
-        } catch (UserDuplicatePhoneNumberException e) {
-            return ResponseEntity.internalServerError()
-                    .body("UserDuplicatePhoneNumberException");
-        }
+        String userId = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
+        return ResponseEntity.ok(userId);
     }
 }
