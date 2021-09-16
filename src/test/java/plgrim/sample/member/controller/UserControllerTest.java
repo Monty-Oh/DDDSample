@@ -56,7 +56,7 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("회원가입 실패 - 이름 중복")
+    @DisplayName("회원가입 실패 - ID 중복")
     void join_fail_duplicated_id() throws Exception {
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
@@ -78,26 +78,5 @@ class UserControllerTest {
     @DisplayName("회원가입 실패 - 번호 중복")
     void join_fail_duplicated_phoneNum() throws Exception {
 
-    }
-
-    @Test
-    @DisplayName("회원가입 실패 - 비밀번호 유효성 검사 실패 - 비밀번호는 4자 이상")
-    void join_fail_validated_password() throws Exception {
-        String content = objectMapper.writeValueAsString(
-                UserJoinDTO.builder()
-                        .id("monty@plgrim.com")
-                        .password("123")
-                        .phoneNumber("01040684490")
-                        .address("동대문구")
-                        .gender(Gender.MALE)
-                        .birth(LocalDate.of(1994, 3, 30))
-                        .SnsType(Sns.LOCAL)
-                        .build());
-
-        mockMvc.perform(post("/API/user/join")
-                        .content(content)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is4xxClientError())
-                .andDo(print());
     }
 }

@@ -8,7 +8,6 @@ import java.lang.annotation.*;
 
 // 지정한 대상의 JavaDoc에 이 어노테이션의 존재를 표기하도록 지정
 @Documented
-// 
 @Constraint(validatedBy = PasswordValidation.Validator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
@@ -21,35 +20,29 @@ public @interface PasswordValidation {
     Class<? extends Payload>[] payload() default {};
 
     int min() default 0;
-
     int max() default 2147483647;
 
-    boolean nullable() default false;
-
     class Validator implements ConstraintValidator<PasswordValidation, String> {
-        private int min;
-        private int max;
-        private boolean nullable;
+        private int min;        // 비밀번호 최소 문자
+        private int max;        // 비밀번호 최대 문자
 
         @Override
         public void initialize(PasswordValidation constraintAnnotation) {
             // 어노테이션 등록 시 parameter 초기화
             min = constraintAnnotation.min();
             max = constraintAnnotation.max();
-            nullable = constraintAnnotation.nullable();
         }
 
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
-            // 비밀번호가 비어있는지? 그리고 빈칸이 허용되지 않을 때
-            if (value.isBlank() && !this.nullable) {
+            // 비밀번호가 비어있는지?
+            if (value.isBlank()) {
                 addConstraintViolation(context, "비밀번호를 입력해주세요.");
                 return false;
             }
-
             // 비밀번호의 자릿수가 올바른지?
-            if (value.length() < this.min || value.length() > this.max) {
-                addConstraintViolation(context, String.format("비밀번호는 $d자 ~ $d자 사이로 입력해주세요.", min, max));
+            else if (value.length() < this.min || value.length() > this.max) {
+                addConstraintViolation(context, String.format("비밀번호는 %d자 ~ %d자 사이로 입력해주세요.", this.min, this.max));
                 return false;
             }
 
@@ -58,10 +51,9 @@ public @interface PasswordValidation {
 
         // context에 메세지 설정
         private void addConstraintViolation(ConstraintValidatorContext context, String msg) {
-            //기본 메시지 비활성화
-            context.disableDefaultConstraintViolation();
-            //새로운 메시지 추가
-            context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();
+
+            context.disableDefaultConstraintViolation();                                    //기본 메시지 비활성화
+            context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();     //새로운 메시지 추가
         }
     }
 }

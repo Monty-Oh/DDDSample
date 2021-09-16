@@ -1,4 +1,4 @@
-package plgrim.sample.member.controller.dto;
+package plgrim.sample.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +12,7 @@ import plgrim.sample.member.application.UserModifyService;
 import plgrim.sample.member.application.UserPasswordService;
 import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
+import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 
 import javax.validation.Valid;
 
@@ -34,4 +35,12 @@ public class UserController {
         String userId = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
         return ResponseEntity.ok(userId);
     }
+
+//    /**
+//     * 회원 수정
+//     * */
+//    @PostMapping("modify")
+//    public ResponseEntity<String> modify(@Valid @RequestBody UserModifyDTO userModifyDTO) {
+//
+//    }
 }

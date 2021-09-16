@@ -35,8 +35,7 @@ public class UserFindService {
      * */
     public List<User> findUsers() {
         List<User> users = userRepository.findAll();
-        if(users.size() == 0) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
-
+        if(users.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
         return users;
     }
 }
