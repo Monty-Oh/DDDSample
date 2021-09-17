@@ -9,7 +9,7 @@ import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
-import plgrim.sample.member.domain.model.vo.UserBasic;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
 

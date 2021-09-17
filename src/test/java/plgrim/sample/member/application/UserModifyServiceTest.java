@@ -12,7 +12,7 @@ import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
-import plgrim.sample.member.domain.model.vo.UserBasic;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
 

@@ -7,6 +7,7 @@ import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.controller.validation.IdValidation;
 import plgrim.sample.member.controller.validation.PasswordValidation;
+import plgrim.sample.member.controller.validation.PhoneNumberValidation;
 
 import java.time.LocalDate;
 

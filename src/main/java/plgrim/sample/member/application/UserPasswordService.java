@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import plgrim.sample.common.SHA256;
 import plgrim.sample.member.controller.dto.user.UserComparePasswordDTO;
 import plgrim.sample.member.domain.service.UserDomainService;
-import plgrim.sample.member.infrastructure.repository.UserRepository;
+import plgrim.sample.member.domain.service.UserRepository;
 
 @Service
 @RequiredArgsConstructor

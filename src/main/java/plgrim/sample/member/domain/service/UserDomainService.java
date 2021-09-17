@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.common.SHA256;
-import plgrim.sample.member.domain.model.aggregate.User;
-import plgrim.sample.member.infrastructure.repository.UserRepository;
+import plgrim.sample.member.domain.model.aggregates.User;
 
 import java.util.Optional;
 

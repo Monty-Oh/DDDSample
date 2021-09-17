@@ -1,13 +1,16 @@
 package plgrim.sample.common.exceptions;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import plgrim.sample.common.enums.ErrorCode;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
-public class UserExceptionHandler {
+public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * UserException
      */
@@ -19,14 +22,23 @@ public class UserExceptionHandler {
 
     /**
      * ValidationException
-     * */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> custom(MethodArgumentNotValidException exception) {
-        // body에 메시지 설정
-        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getHttpStatus())
-                .body(exception.getBindingResult()
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return handleExceptionInternal(
+                ex,
+                ex.getBindingResult()
                         .getAllErrors()
                         .get(0)
-                        .getDefaultMessage());
+                        .getDefaultMessage(),
+                headers,
+                status,
+                request);
+//        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getHttpStatus())
+//                .body(ex.getBindingResult()
+//                        .getAllErrors()
+//                        .get(0)
+//                        .getDefaultMessage());
     }
 }

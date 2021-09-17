@@ -1,4 +1,4 @@
-package plgrim.sample.member.domain.model.vo;
+package plgrim.sample.member.domain.model.valueobjects;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

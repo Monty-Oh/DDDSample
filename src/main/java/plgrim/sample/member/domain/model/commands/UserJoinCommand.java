@@ -2,7 +2,7 @@ package plgrim.sample.member.domain.model.commands;
 
 import lombok.Builder;
 import lombok.Getter;
-import plgrim.sample.member.domain.model.vo.UserBasic;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 @Builder
 @Getter

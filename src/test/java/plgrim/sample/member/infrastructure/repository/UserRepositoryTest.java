@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.member.domain.model.aggregate.User;
-import plgrim.sample.member.domain.model.vo.UserBasic;
+import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.service.UserRepository;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -105,6 +106,7 @@ class UserRepositoryTest {
 
         // 회원 리스트 조회
         List<User> users = userRepository.findAll();
+
         // 회원이 제대로 저장되었고, 제대로 조회가 되었는지?
         assertThat(users.size()).isSameAs(3);
     }

@@ -6,8 +6,8 @@ import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
-import plgrim.sample.member.domain.model.aggregate.User;
-import plgrim.sample.member.infrastructure.repository.UserRepository;
+import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.service.UserRepository;
 
 import java.util.List;
 import java.util.Optional;

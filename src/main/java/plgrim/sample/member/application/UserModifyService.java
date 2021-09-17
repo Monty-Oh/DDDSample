@@ -6,9 +6,9 @@ import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
-import plgrim.sample.member.domain.model.aggregate.User;
-import plgrim.sample.member.domain.model.vo.UserBasic;
-import plgrim.sample.member.infrastructure.repository.UserRepository;
+import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.service.UserRepository;
 
 import java.util.Optional;
 

@@ -1,0 +1,8 @@
+userdatasource:
+  example:
+    id: "monty@plgrim.com"
+    password: "12345"
+    phoneNumber: "01040684490"
+    address: "01040684490"
+    gender: "MALE"
+    birth: 1994-03-30

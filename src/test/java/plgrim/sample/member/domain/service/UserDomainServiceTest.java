@@ -6,8 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import plgrim.sample.member.domain.model.aggregate.User;
-import plgrim.sample.member.infrastructure.repository.UserRepository;
+import plgrim.sample.member.domain.model.aggregates.User;
 
 @DisplayName("UserDomainService 테스트")
 @SpringBootTest

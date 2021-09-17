@@ -1,12 +1,12 @@
-package plgrim.sample.member.domain.model.entity;
+package plgrim.sample.member.domain.model.entities;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.member.domain.model.aggregate.User;
-import plgrim.sample.member.domain.model.vo.UserBasic;
+import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
 

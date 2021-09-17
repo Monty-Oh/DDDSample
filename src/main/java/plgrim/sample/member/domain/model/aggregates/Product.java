@@ -1,4 +1,4 @@
-package plgrim.sample.member.domain.model.aggregate;
+package plgrim.sample.member.domain.model.aggregates;
 
 import lombok.*;
 import plgrim.sample.common.enums.Color;

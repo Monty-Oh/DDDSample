@@ -1,7 +1,7 @@
-package plgrim.sample.member.domain.model.aggregate;
+package plgrim.sample.member.domain.model.aggregates;
 
 import lombok.*;
-import plgrim.sample.member.domain.model.vo.UserBasic;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import javax.persistence.*;
 

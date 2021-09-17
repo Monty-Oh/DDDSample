@@ -8,9 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.controller.dto.user.UserComparePasswordDTO;
-import plgrim.sample.member.controller.dto.user.UserJoinDTO;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
-import plgrim.sample.member.domain.model.vo.UserBasic;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
 
