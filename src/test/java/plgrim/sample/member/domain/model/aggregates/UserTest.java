@@ -1,4 +1,4 @@
-package plgrim.sample.member.domain.model.entities;
+package plgrim.sample.member.domain.model.aggregates;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

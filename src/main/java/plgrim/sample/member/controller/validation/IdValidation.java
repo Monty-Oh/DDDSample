@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 @Documented
 @Constraint(validatedBy = IdValidation.Validator.class)
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IdValidation {
     String message() default "";

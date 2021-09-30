@@ -30,7 +30,6 @@ class UserFindServiceTest {
     @Autowired
     UserJoinService userJoinService;                                        // 회원 가입 목적
 
-    // 테스트 데이터
     UserJoinCommand userJoinCommand = UserJoinCommand.builder()
             .id("monty@plgrim.com")
             .password("test")
@@ -42,24 +41,58 @@ class UserFindServiceTest {
                     .snsType(Sns.LOCAL)
                     .build())
             .build();
+    UserJoinCommand userJoinCommand2 = UserJoinCommand.builder()
+            .id("monty@plgrim.com2")
+            .password("test")
+            .phoneNumber("01040684491")
+            .userBasic(UserBasic.builder()
+                    .address("동대문구")
+                    .gender(Gender.MALE)
+                    .birth(LocalDate.of(1994, 3, 30))
+                    .snsType(Sns.LOCAL)
+                    .build())
+            .build();
+    UserJoinCommand userJoinCommand3 = UserJoinCommand.builder()
+            .id("monty@plgrim.com3")
+            .password("test")
+            .phoneNumber("01040684492")
+            .userBasic(UserBasic.builder()
+                    .address("동대문구")
+                    .gender(Gender.MALE)
+                    .birth(LocalDate.of(1994, 3, 30))
+                    .snsType(Sns.LOCAL)
+                    .build())
+            .build();
 
     @DisplayName("유저조회(Id)")
     @Test
     void findUserById() {
-        String userId = userJoinService.join(userJoinCommand);                  // 가입 후 ID 반환받음
-        UserFindByIdDTO userFindByIdDTO = UserFindByIdDTO.builder()         // 이미 저장된 userId로 조회 DTO 생성
+        //  given
+        //  가입 후 ID 반환받음
+        String userId = userJoinService.join(userJoinCommand);
+
+        //  when
+        //  이미 저장된 userId로 조회 DTO 생성
+        UserFindByIdDTO userFindByIdDTO = UserFindByIdDTO.builder()
                 .id(userId)
                 .build();
-        UserDTO userDto = userFindService.findUserById(userFindByIdDTO);    // 조회 실시
-        assertThat(userDto.getId()).isEqualTo("monty@plgrim.com");          // ID 동일한지 체크
+        //  조회 실시
+        UserDTO userDto = userFindService.findUserById(userFindByIdDTO);
+
+        //  then
+        //  ID 동일한지 체크
+        assertThat(userDto.getId()).isEqualTo("monty@plgrim.com");
     }
 
     @DisplayName("유저조회(ID) 실패 - UserNotFound")
     @Test
     void 조회_실패() {
+        // given
         UserFindByIdDTO userFindByIdDTO = UserFindByIdDTO.builder()         // 테스트 DTO
                 .id("notExist")
                 .build();
+
+        // when, then
         assertThrows(UserException.class,
                 () -> userFindService.findUserById(userFindByIdDTO));       // 조회 실패해야함. 존재하지 않는 데이터
     }
@@ -67,8 +100,31 @@ class UserFindServiceTest {
     @DisplayName("유저 목록 조회")
     @Test
     void findUsers() {
-        userJoinService.join(userJoinCommand);              // 테스트 데이터 저장
+        // given
+        // 테스트 데이터 저장
+        userJoinService.join(userJoinCommand);
+        userJoinService.join(userJoinCommand2);
+        userJoinService.join(userJoinCommand3);
+
+        // when
         List<User> users = userFindService.findUsers();
-        System.out.println(users);
+
+        // then
+        assertThat(users.size()).isEqualTo(3);
+    }
+
+    @DisplayName("유저 목록 조회 - page")
+    @Test
+    void findUsersPage() {
+        //  given
+        userJoinService.join(userJoinCommand);
+        userJoinService.join(userJoinCommand2);
+        userJoinService.join(userJoinCommand3);
+
+        //  when
+        List<User> users = userFindService.findUsers(0, 2);
+
+        // then
+        assertThat(users.size()).isEqualTo(2);
     }
 }

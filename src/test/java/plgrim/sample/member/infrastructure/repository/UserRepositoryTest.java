@@ -6,6 +6,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.aggregates.User;
@@ -18,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisplayName("UserRepository 테스트")
 @DataJpaTest
@@ -69,16 +71,28 @@ class UserRepositoryTest {
                 .build();
     }
 
+    @DisplayName("회원 저장")
+    @Test
+    void save() {
+        //given
+        //when
+        User result = userRepository.save(user);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(user);
+    }
+
     @DisplayName("회원 정보 조회(ID)")
     @Test
     void findById() {
-        userRepository.save(user);
-        System.out.println(user);
-        // 저장 후 조회해본다.
-        Optional<User> result = userRepository.findById(user.getId());
-        // 저장을 했는데 결과가 없으면 에러
-        assertFalse(result.isEmpty());
-        // 저장한 user의 ID와 불러온 유저의 정보가 같아야 한다. 내부 값 검증.
+        // given
+        userRepository.save(user);                                      // 저장 후 조회해본다.
+
+        // when
+        Optional<User> result = userRepository.findById(user.getId());  // 저장을 했는데 결과가 없으면 에러
+
+        // then
+        assertFalse(result.isEmpty());                                  // 저장한 user의 ID와 불러온 유저의 정보가 같아야 한다. 내부 값 검증.
         assertThat(result.get())
                 .usingRecursiveComparison()
                 .isEqualTo(user);
@@ -109,6 +123,20 @@ class UserRepositoryTest {
 
         // 회원이 제대로 저장되었고, 제대로 조회가 되었는지?
         assertThat(users.size()).isSameAs(3);
+    }
+
+    @DisplayName("회원 목록 조회 - 페이징")
+    @Test
+    void findAllUserPage() {
+        //  given
+        userRepository.saveAll(Arrays.asList(user, user2, user3));
+
+        //  when
+        Page<User> pages = userRepository.findAll(PageRequest.of(1, 2));
+        List<User> users = pages.getContent();
+
+        //  then
+        assertThat(users.size()).isEqualTo(1);
     }
 
     @DisplayName("회원 정보 수정")

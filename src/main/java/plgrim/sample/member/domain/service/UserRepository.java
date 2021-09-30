@@ -1,5 +1,7 @@
 package plgrim.sample.member.domain.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import plgrim.sample.member.domain.model.aggregates.User;
 
 import java.util.List;
@@ -25,6 +27,11 @@ public interface UserRepository {
      * 회원 조회 - 모두
      * */
     List<User> findAll();
+
+    /**
+     * 회원 목록 조회 - 페이징
+     * */
+    Page<User> findAll(Pageable pageable);
 
     /**
      * 회원 저장

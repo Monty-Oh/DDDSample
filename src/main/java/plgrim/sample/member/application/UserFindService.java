@@ -1,6 +1,7 @@
 package plgrim.sample.member.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
@@ -23,10 +24,15 @@ public class UserFindService {
      * UserDTO로 리턴한다.
      * */
     public UserDTO findUserById(UserFindByIdDTO userFindByIdDto) {
-        Optional<User> user = userRepository.findById(userFindByIdDto.getId());
+        Optional<User> result = userRepository.findById(userFindByIdDto.getId());
 
-        if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
-        return new UserDTO(user.get());
+        if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
+        User user = result.get();
+        return UserDTO.builder()
+                .id(user.getId())
+                .phoneNumber(user.getPhoneNumber())
+                .userBasic(user.getUserBasic())
+                .build();
     }
 
     /**
@@ -35,6 +41,16 @@ public class UserFindService {
      * */
     public List<User> findUsers() {
         List<User> users = userRepository.findAll();
+        if(users.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
+        return users;
+    }
+
+    /**
+     * 회원 목록 조회
+     * Page 객체를 리턴
+     * */
+    public List<User> findUsers(int page, int size) {
+        List<User> users = userRepository.findAll(PageRequest.of(page, size)).getContent();
         if(users.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
         return users;
     }

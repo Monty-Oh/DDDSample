@@ -2,17 +2,18 @@ package plgrim.sample.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import plgrim.sample.member.application.UserFindService;
 import plgrim.sample.member.application.UserJoinService;
 import plgrim.sample.member.application.UserModifyService;
 import plgrim.sample.member.application.UserPasswordService;
 import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
+import plgrim.sample.member.controller.dto.user.UserDTO;
+import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
+import plgrim.sample.member.controller.validation.IdValidation;
 
 import javax.validation.Valid;
 
@@ -34,6 +35,16 @@ public class UserController {
     public ResponseEntity<String> join(@Valid @RequestBody UserJoinDTO userJoinDTO) {
         String userId = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
         return ResponseEntity.ok(userId);
+    }
+
+    /**
+     * 유저 조회
+     * */
+    @GetMapping
+    public ResponseEntity<UserDTO> findUserById(@Valid UserFindByIdDTO userFindByIdDTO) {
+        System.out.println(userFindByIdDTO);
+        UserDTO user = userFindService.findUserById(userFindByIdDTO);
+        return ResponseEntity.ok(user);
     }
 
 //    /**

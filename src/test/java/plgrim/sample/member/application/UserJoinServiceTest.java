@@ -45,7 +45,7 @@ class UserJoinServiceTest {
 
     @DisplayName("회원가입 실패 - id 중복가입")
     @Test
-    void 중복가입_ID() {
+    void joinFailDuplicatedId() {
         userJoinService.join(userJoinCommand);                  // 가입을 먼저 시켜놓는다.
         assertThrows(UserException.class,
                 () -> userJoinService.join(userJoinCommand));   // 이미 가입이 되어있으므로 에러가 나야한다.
@@ -53,7 +53,7 @@ class UserJoinServiceTest {
 
     @DisplayName("회원가입 실패 - phone 중복가입")
     @Test
-    void 중복가입_전화번호() {
+    void joinFailDuplicatePhoneNum() {
         userJoinService.join(userJoinCommand);                  // 가입을 먼저 시켜놓는다.
 
         UserJoinCommand userJoinCommand = UserJoinCommand.builder()     // 전화번호만 같은 테스트 데이터
