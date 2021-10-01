@@ -39,10 +39,11 @@ public class UserController {
 
     /**
      * 유저 조회
+     * 굳이 dto 사용 안해도됨
+     * @PathVariable 사용하기
      * */
     @GetMapping
     public ResponseEntity<UserDTO> findUserById(@Valid UserFindByIdDTO userFindByIdDTO) {
-        System.out.println(userFindByIdDTO);
         UserDTO user = userFindService.findUserById(userFindByIdDTO);
         return ResponseEntity.ok(user);
     }

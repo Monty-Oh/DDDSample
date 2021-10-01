@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.service.UserRepository;
 
-
+// dsl 방식으로 다시 구현해보기
 public interface UserJPARepository extends JpaRepository<User, Long>, UserRepository {
 }

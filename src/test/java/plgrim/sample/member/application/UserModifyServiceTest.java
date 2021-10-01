@@ -1,37 +1,44 @@
 package plgrim.sample.member.application;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import plgrim.sample.common.SHA256;
+import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
-import plgrim.sample.member.controller.dto.user.UserDTO;
-import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
-import plgrim.sample.member.domain.model.commands.UserJoinCommand;
+import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.service.UserRepository;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @DisplayName("UserModifyService 테스트")
-@Transactional
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserModifyServiceTest {
-    @Autowired
+    @Mock
+    UserRepository userRepository;
+
+    @Mock
+    SHA256 sha256;
+
+    @InjectMocks
     UserModifyService userModifyService;
-    @Autowired
-    UserJoinService userJoinService;
-    @Autowired
-    UserFindService userFindService;
 
     // 테스트 데이터
-    UserJoinCommand userJoinCommand = UserJoinCommand.builder()
+    User user = User.builder()
             .id("monty@plgrim.com")
             .password("test")
             .phoneNumber("01040684490")
@@ -43,13 +50,7 @@ class UserModifyServiceTest {
                     .build())
             .build();
 
-
-    @DisplayName("회원정보 수정")
-    @Test
-    void modify() {
-        userJoinService.join(userJoinCommand);                              // 가입 후 수정 시도
-
-        UserModifyDTO userModifyDTO = UserModifyDTO.builder()
+    UserModifyDTO userModifyDTO = UserModifyDTO.builder()
                 .id("monty@plgrim.com")
                 .password("123123213")
                 .phoneNumber("01080140922")
@@ -59,27 +60,30 @@ class UserModifyServiceTest {
                 .SnsType(Sns.GOOGLE)
                 .build();
 
-        String userId = userModifyService.modify(userModifyDTO);
-        UserFindByIdDTO userFindByIdDto = UserFindByIdDTO.builder()     // 해당 id로 다시 조회해서 비교한다.
-                .id(userId)
-                .build();
-        UserDTO userDto = userFindService.findUserById(userFindByIdDto);
-        assertThat(userDto.getPhoneNumber()).isEqualTo("01080140922");
+    @DisplayName("회원정보 수정")
+    @Test
+    void modify() {
+        //  given
+        given(userRepository.findById(userModifyDTO.getId())).willReturn(Optional.of(user));
+        given(userRepository.save(any())).willReturn(null);
+        given(sha256.encrypt(userModifyDTO.getPassword())).willReturn("encrypt password");
+
+        //  when
+        String id = userModifyService.modify(userModifyDTO);
+
+        //  then
+        assertThat(id).isEqualTo(userModifyDTO.getId());
     }
 
     @DisplayName("회원정보 수정 실패 - 없는 회원")
     @Test
-    void 수정실패_없는회원() {
-        UserModifyDTO userModifyDTO = UserModifyDTO.builder()
-                .id("0")
-                .password("123123213")
-                .phoneNumber("01080140922")
-                .address("동탄")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(2021, 9, 9))
-                .SnsType(Sns.GOOGLE)
-                .build();
+    void modifyFailNotUserFound() {
+        //  given
+        given(userRepository.findById(userModifyDTO.getId()))
+//                .willReturn(Optional.empty()) given엔 필요한것만 쓰자
+                .willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
 
+        //  when    //  then
         assertThrows(UserException.class, () -> userModifyService.modify(userModifyDTO));
     }
 }

@@ -25,7 +25,7 @@ public class UserFindService {
      * */
     public UserDTO findUserById(UserFindByIdDTO userFindByIdDto) {
         Optional<User> result = userRepository.findById(userFindByIdDto.getId());
-
+        System.out.println("result = " + result);
         if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
         User user = result.get();
         return UserDTO.builder()

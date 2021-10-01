@@ -27,15 +27,18 @@ public class UserJoinService {
         if (userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber()))    // 만약 중복되는 phoneNumber가 있으면? 에러
             throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
 
+        // 엔티티 객체로 변환
         User user = User.builder()
                 .id(userJoinCommand.getId())
                 .password(sha256.encrypt(userJoinCommand.getPassword()))
                 .phoneNumber(userJoinCommand.getPhoneNumber())
                 .userBasic(userJoinCommand.getUserBasic())
-                .build();                               // 엔티티 객체로 변환
+                .build();
 
-        userRepository.save(user);                      // user 저장
-        return user.getId();                            // userNo 리턴
+        // user 저장
+        userRepository.save(user);
+        // userNo 리턴
+        return user.getId();
     }
 
     

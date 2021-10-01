@@ -18,7 +18,6 @@ public class UserPasswordService {
      * 비밀번호 일치
      */
     public Boolean comparePassword(UserComparePasswordDTO userComparePasswordDto) {
-
         return userDomainService.compareUserPassword(userComparePasswordDto.getId(), userComparePasswordDto.getPassword());
     }
 }
