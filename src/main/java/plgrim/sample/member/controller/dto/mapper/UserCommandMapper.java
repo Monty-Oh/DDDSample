@@ -10,7 +10,7 @@ public class UserCommandMapper {
 
     public UserJoinCommand UserJoinMapper(UserJoinDTO userJoinDTO) {
         return UserJoinCommand.builder()
-                .id(userJoinDTO.getId())
+                .email(userJoinDTO.getEmail())
                 .password(userJoinDTO.getPassword())
                 .phoneNumber(userJoinDTO.getPhoneNumber())
                 .userBasic(UserBasic.builder()

@@ -17,6 +17,7 @@ import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.domain.service.UserRepository;
+import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 
@@ -29,7 +30,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserJoinServiceTest {
     @Mock
-    UserRepository userRepository;
+    UserJPARepository userRepository;
 
     @Mock
     UserDomainService userDomainService;
@@ -47,7 +48,7 @@ class UserJoinServiceTest {
     @BeforeEach
     void setup() {
         userJoinCommand = UserJoinCommand.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("test")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -59,7 +60,7 @@ class UserJoinServiceTest {
                 .build();
 
         user = User.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("encrypted password")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -76,22 +77,22 @@ class UserJoinServiceTest {
     void joinUser() {
         //  given
         given(sha256.encrypt(userJoinCommand.getPassword())).willReturn("encrypted password");
-        given(userDomainService.checkDuplicateId(userJoinCommand.getId())).willReturn(false);
+        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
         given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
 
         //  when
-        String id = userJoinService.join(userJoinCommand);
+        String email = userJoinService.join(userJoinCommand);
 
         //  then
-        assertThat(id).isEqualTo(userJoinCommand.getId());
+        assertThat(email).isEqualTo(userJoinCommand.getEmail());
     }
 
     @DisplayName("회원가입 실패 - id 중복가입")
     @Test
     void joinUserFailDuplicatedId() {
         //  given
-        given(userDomainService.checkDuplicateId(userJoinCommand.getId()))
+        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail()))
                 .willReturn(true)
                 .willThrow(new UserException(ErrorCode.DUPLICATE_ID));
 
@@ -102,7 +103,7 @@ class UserJoinServiceTest {
     @DisplayName("회원가입 실패 - PhoneNum 중복가입")
     @Test
     void joinUserFailDuplicatedPhoneNum() {
-        given(userDomainService.checkDuplicateId(userJoinCommand.getId())).willReturn(false);
+        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
         given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber()))
                 .willReturn(true)
                 .willThrow(new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER));

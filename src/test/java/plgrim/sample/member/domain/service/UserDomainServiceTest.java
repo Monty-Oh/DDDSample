@@ -8,13 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 @DisplayName("UserDomainService 테스트")
 @Transactional
 @SpringBootTest
 class UserDomainServiceTest {
     @Autowired
-    UserRepository userRepository;
+    UserJPARepository userRepository;
     @Autowired
     UserDomainService userDomainService;
 
@@ -23,7 +24,7 @@ class UserDomainServiceTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .phoneNumber("01040684490")
                 .build();
     }
@@ -33,8 +34,8 @@ class UserDomainServiceTest {
     void checkDuplicateId() {
         userRepository.save(user);
 
-        Assertions.assertTrue(userDomainService.checkDuplicateId("monty@plgrim.com"));      // 이미 존재하는 회원
-        Assertions.assertFalse(userDomainService.checkDuplicateId("monty@plgrim.com2"));    // 없는 회원
+        Assertions.assertTrue(userDomainService.checkDuplicateEmail("monty@plgrim.com"));      // 이미 존재하는 회원
+        Assertions.assertFalse(userDomainService.checkDuplicateEmail("monty@plgrim.com2"));    // 없는 회원
     }
 
     @DisplayName("회원 중복 체크 - 전화번호")

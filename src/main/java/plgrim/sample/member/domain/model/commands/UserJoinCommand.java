@@ -7,7 +7,7 @@ import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 @Builder
 @Getter
 public class UserJoinCommand {
-    private String id;
+    private String email;
     private String password;
     private String phoneNumber;
     private UserBasic userBasic;

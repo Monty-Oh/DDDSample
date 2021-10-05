@@ -20,7 +20,7 @@ class UserTest {
     @BeforeEach
     void setup() {
         user = User.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()

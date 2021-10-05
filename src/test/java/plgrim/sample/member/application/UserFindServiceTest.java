@@ -17,9 +17,8 @@ import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.domain.service.UserRepository;
+import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
-import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +32,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserFindServiceTest {
     @Mock
-    UserRepository userRepository;
+    UserJPARepository userRepository;
 
     @InjectMocks
     UserFindService userFindService;
@@ -47,7 +46,7 @@ class UserFindServiceTest {
     @BeforeEach
     void setup() {
         user = User.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -58,7 +57,7 @@ class UserFindServiceTest {
                         .build())
                 .build();
         user2 = User.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -69,7 +68,7 @@ class UserFindServiceTest {
                         .build())
                 .build();
         user3 = User.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -81,34 +80,52 @@ class UserFindServiceTest {
                 .build();
 
         userFindByIdDTO = UserFindByIdDTO.builder()
-                .id(user.getId())
+                .email(user.getEmail())
                 .build();
     }
 
-    @DisplayName("유저조회(Id)")
+    @DisplayName("유저조회(usrNo)")
     @Test
-    void findUserById() {
+    void findUserByUsrNo() {
         //  given
-        given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
+        given(userRepository.findById(1L)).willReturn(Optional.of(User.builder()
+                .usrNo(1L)
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .userBasic(user.getUserBasic())
+                .build()));
 
         //  when
-        UserDTO userDTO = userFindService.findUserById(userFindByIdDTO);
+        UserDTO userDTO = userFindService.findUserByUsrNo(1L);
 
         //  then
-        assertThat(userDTO.getId()).isEqualTo(user.getId());
+        assertThat(userDTO.getEmail()).isEqualTo(user.getEmail());
     }
 
-    @DisplayName("유저조회(ID) 실패 - UserNotFound")
+    @DisplayName("유저조회(email)")
+    @Test
+    void findUserByEmail() {
+        //  given
+        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+
+        //  when
+        UserDTO userDTO = userFindService.findUserByEmail(userFindByIdDTO.getEmail());
+
+        //  then
+        assertThat(userDTO.getEmail()).isEqualTo(user.getEmail());
+    }
+
+    @DisplayName("유저조회(email) 실패 - UserNotFound")
     @Test
     void findUserByIdFailUserNotFound() {
         //  given
-        given(userRepository.findById(user.getId()))
+        given(userRepository.findByEmail(user.getEmail()))
                 .willReturn(Optional.empty())
                 .willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
 
         //  when    //  then
         assertThrows(UserException.class,
-                () -> userFindService.findUserById(userFindByIdDTO));
+                () -> userFindService.findUserByEmail(userFindByIdDTO.getEmail()));
     }
 
     @DisplayName("유저 목록 조회")

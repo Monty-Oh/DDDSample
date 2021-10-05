@@ -16,6 +16,7 @@ import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.service.UserRepository;
+import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -29,7 +30,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserModifyServiceTest {
     @Mock
-    UserRepository userRepository;
+    UserJPARepository userRepository;
 
     @Mock
     SHA256 sha256;
@@ -39,7 +40,7 @@ class UserModifyServiceTest {
 
     // 테스트 데이터
     User user = User.builder()
-            .id("monty@plgrim.com")
+            .email("monty@plgrim.com")
             .password("test")
             .phoneNumber("01040684490")
             .userBasic(UserBasic.builder()
@@ -51,7 +52,7 @@ class UserModifyServiceTest {
             .build();
 
     UserModifyDTO userModifyDTO = UserModifyDTO.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("123123213")
                 .phoneNumber("01080140922")
                 .address("동탄")
@@ -64,7 +65,7 @@ class UserModifyServiceTest {
     @Test
     void modify() {
         //  given
-        given(userRepository.findById(userModifyDTO.getId())).willReturn(Optional.of(user));
+        given(userRepository.findByEmail(userModifyDTO.getEmail())).willReturn(Optional.of(user));
         given(userRepository.save(any())).willReturn(null);
         given(sha256.encrypt(userModifyDTO.getPassword())).willReturn("encrypt password");
 
@@ -72,14 +73,14 @@ class UserModifyServiceTest {
         String id = userModifyService.modify(userModifyDTO);
 
         //  then
-        assertThat(id).isEqualTo(userModifyDTO.getId());
+        assertThat(id).isEqualTo(userModifyDTO.getEmail());
     }
 
     @DisplayName("회원정보 수정 실패 - 없는 회원")
     @Test
     void modifyFailNotUserFound() {
         //  given
-        given(userRepository.findById(userModifyDTO.getId()))
+        given(userRepository.findByEmail(userModifyDTO.getEmail()))
 //                .willReturn(Optional.empty()) given엔 필요한것만 쓰자
                 .willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
 

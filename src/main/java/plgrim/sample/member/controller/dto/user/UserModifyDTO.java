@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.member.controller.validation.EmailValidation;
 
 import java.time.LocalDate;
 
@@ -12,7 +13,8 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class UserModifyDTO {
-    private String id;
+    @EmailValidation
+    private String email;
 
     private String password;
 

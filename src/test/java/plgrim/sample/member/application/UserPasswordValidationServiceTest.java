@@ -27,7 +27,7 @@ class UserPasswordValidationServiceTest {
 
     // 테스트 데이터
     UserJoinCommand userJoinCommand = UserJoinCommand.builder()
-            .id("monty@plgrim.com")
+            .email("monty@plgrim.com")
             .password("test")
             .phoneNumber("01040684490")
             .userBasic(UserBasic.builder()
@@ -43,7 +43,7 @@ class UserPasswordValidationServiceTest {
     void comparePassword() {
         String userId = userJoinService.join(userJoinCommand);                                  // 가입 후 ID 반환받음
         UserComparePasswordDTO userComparePasswordDTO = UserComparePasswordDTO.builder()    // 비밀번호 일치하는 테스트 DTO
-                .id(userId)
+                .email(userId)
                 .password("test")
                 .build();
         assertTrue(userPasswordService.comparePassword(userComparePasswordDTO));            // 일치함
@@ -54,7 +54,7 @@ class UserPasswordValidationServiceTest {
     void 비밀번호_틀림() {
         String userId = userJoinService.join(userJoinCommand);                                  // 가입 후 ID 반환받음
         UserComparePasswordDTO userComparePasswordDTO = UserComparePasswordDTO.builder()    // 비밀번호 불일치하는 테스트 DTO
-                .id(userId)
+                .email(userId)
                 .password("wrongPassword")
                 .build();
         assertFalse(userPasswordService.comparePassword(userComparePasswordDTO));           // 불일치함

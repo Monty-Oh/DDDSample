@@ -12,7 +12,6 @@ import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.domain.service.UserRepository;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -22,11 +21,11 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@DisplayName("UserRepository 테스트")
+@DisplayName("UserJPARepository 테스트")
 @DataJpaTest
-class UserRepositoryTest {
+class UserJPARepositoryTest {
     @Autowired
-    UserRepository userRepository;
+    UserJPARepository userRepository;
 
     User user;
     User user2;
@@ -35,7 +34,7 @@ class UserRepositoryTest {
     @BeforeEach
     void setup() {
         user = User.builder()
-                .id("monty@plgrim.com")
+                .email("monty@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -47,7 +46,7 @@ class UserRepositoryTest {
                 .build();
 
         user2 = User.builder()
-                .id("lizzy@plgrim.com")
+                .email("lizzy@plgrim.com")
                 .password("123456")
                 .phoneNumber("000")
                 .userBasic(UserBasic.builder()
@@ -59,7 +58,7 @@ class UserRepositoryTest {
                 .build();
 
         user3 = User.builder()
-                .id("mandy@plgrim.com")
+                .email("mandy@plgrim.com")
                 .password("123456")
                 .phoneNumber("0000")
                 .userBasic(UserBasic.builder()
@@ -82,14 +81,30 @@ class UserRepositoryTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(user);
     }
 
-    @DisplayName("회원 정보 조회(ID)")
+    @DisplayName("회원 정보 조회(usrNo)")
     @Test
     void findById() {
+        //  given
+        userRepository.save(user);
+
+        //  when
+        Optional<User> result = userRepository.findById(user.getUsrNo());
+
+        //  then
+        assertFalse(result.isEmpty());
+        assertThat(result.get())
+                .usingRecursiveComparison()
+                .isEqualTo(user);
+    }
+
+    @DisplayName("회원 정보 조회(email)")
+    @Test
+    void findByEmail() {
         // given
         userRepository.save(user);                                      // 저장 후 조회해본다.
 
         // when
-        Optional<User> result = userRepository.findById(user.getId());  // 저장을 했는데 결과가 없으면 에러
+        Optional<User> result = userRepository.findByEmail(user.getEmail());  // 저장을 했는데 결과가 없으면 에러
 
         // then
         assertFalse(result.isEmpty());                                  // 저장한 user의 ID와 불러온 유저의 정보가 같아야 한다. 내부 값 검증.
@@ -165,9 +180,9 @@ class UserRepositoryTest {
         // 테스트용 user 정보 저장
         userRepository.save(user);
         // 삭제 시도
-        userRepository.deleteById(user.getId());
+        userRepository.deleteByEmail(user.getEmail());
         // null 이어야 함.
-        Optional<User> result = userRepository.findById(user.getId());
+        Optional<User> result = userRepository.findByEmail(user.getEmail());
         // 비어있으면 (해당 회원 정보가 없으면) 성공
         Assertions.assertTrue(result.isEmpty());
     }

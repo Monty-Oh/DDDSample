@@ -6,9 +6,8 @@ import org.springframework.stereotype.Service;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
-import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.service.UserRepository;
+import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,20 +15,33 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserFindService {
-    private final UserRepository userRepository;        // 리포지토리
+    private final UserJPARepository userRepository;        // 리포지토리
 
     /**
-     * 회원조회 - ID
-     * 파라미터로 받은 ID를 사용해 사용자 정보를 조회.
-     * UserDTO로 리턴한다.
+     * 회원조회 - usrNo
      * */
-    public UserDTO findUserById(UserFindByIdDTO userFindByIdDto) {
-        Optional<User> result = userRepository.findById(userFindByIdDto.getId());
-        System.out.println("result = " + result);
+    public UserDTO findUserByUsrNo(Long usrNo) {
+        Optional<User> result = userRepository.findById(usrNo);
         if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
         User user = result.get();
         return UserDTO.builder()
-                .id(user.getId())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .userBasic(user.getUserBasic())
+                .build();
+    }
+
+    /**
+     * 회원조회 - email
+     * 파라미터로 받은 email를 사용해 사용자 정보를 조회.
+     * UserDTO로 리턴한다.
+     * */
+    public UserDTO findUserByEmail(String email) {
+        Optional<User> result = userRepository.findByEmail(email);
+        if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
+        User user = result.get();
+        return UserDTO.builder()
+                .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .userBasic(user.getUserBasic())
                 .build();

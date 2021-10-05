@@ -14,10 +14,13 @@ import javax.persistence.*;
 public class User {
     /**
      * @PrimaryKey
-     * id, 이메일 기반
+     * USR_NO 자동 생성
      * */
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long usrNo;
+
+    private String email;
 
     @Column(name = "PWD")
     private String password;

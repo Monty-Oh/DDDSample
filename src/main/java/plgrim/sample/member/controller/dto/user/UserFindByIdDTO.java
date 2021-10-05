@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import plgrim.sample.member.controller.validation.IdValidation;
+import plgrim.sample.member.controller.validation.EmailValidation;
 
 @Getter
 @Builder
 @ToString
 @AllArgsConstructor
 public class UserFindByIdDTO {
-    @IdValidation
-    private String id;
+    @EmailValidation
+    private String email;
 }
