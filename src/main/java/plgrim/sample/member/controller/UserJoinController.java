@@ -24,7 +24,7 @@ public class UserJoinController {
     /**
      * 회원 가입
      */
-    @PostMapping("/user/join")
+    @PostMapping("/user")
     public ResponseEntity<String> join(@Valid @RequestBody UserJoinDTO userJoinDTO) {
         String userEmail = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
         return ResponseEntity.ok(userEmail);

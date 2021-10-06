@@ -7,6 +7,8 @@ import javax.validation.Payload;
 import java.lang.annotation.*;
 import java.util.regex.Pattern;
 
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
+
 @Documented
 @Constraint(validatedBy = PhoneNumberValidation.Validator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
@@ -23,8 +25,9 @@ public @interface PhoneNumberValidation {
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
             // 전화번호가 비어있는지?
-            if(value.isBlank()) {
+            if(!isNotBlank(value)) {
                 addConstraintViolation(context, "전화번호를 입력해주세요.");
+                return false;
             }
 
             // 전화번호 정규식

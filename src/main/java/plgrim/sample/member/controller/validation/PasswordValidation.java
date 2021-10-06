@@ -6,6 +6,8 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
+
 // 지정한 대상의 JavaDoc에 이 어노테이션의 존재를 표기하도록 지정
 @Documented
 @Constraint(validatedBy = PasswordValidation.Validator.class)
@@ -36,7 +38,7 @@ public @interface PasswordValidation {
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
             // 비밀번호가 비어있는지?
-            if (value.isBlank()) {
+            if (!isNotBlank(value)) {
                 addConstraintViolation(context, "비밀번호를 입력해주세요.");
                 return false;
             }

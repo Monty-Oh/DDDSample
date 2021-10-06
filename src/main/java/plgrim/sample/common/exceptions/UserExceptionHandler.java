@@ -5,19 +5,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import plgrim.sample.common.enums.ErrorCode;
+
+import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * UserException
      */
-    @ExceptionHandler(UserException.class)
+    @ExceptionHandler({UserException.class})
     public ResponseEntity<String> custom(UserException exception) {
         return ResponseEntity.status(exception.getErrorCode().getHttpStatus())
                 .body(exception.getErrorCode().getDetail());
+    }
+
+    //  Parameter, Param
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Object exception(Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
     }
 
     /**
@@ -35,10 +46,5 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
                 headers,
                 status,
                 request);
-//        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getHttpStatus())
-//                .body(ex.getBindingResult()
-//                        .getAllErrors()
-//                        .get(0)
-//                        .getDefaultMessage());
     }
 }

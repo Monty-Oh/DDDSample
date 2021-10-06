@@ -1,10 +1,12 @@
 package plgrim.sample.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,18 +55,18 @@ class UserFindControllerTest {
     }
 
     @Test
-    @DisplayName("회원 조회")
-    void findUserById() throws Exception {
+    @DisplayName("회원조회 email")
+    void findUserByEmail() throws Exception {
         //  given
         String content = objectMapper.writeValueAsString(userJoinDTO);
-        mockMvc.perform(post("/API/user/join")
+        mockMvc.perform(post("/API/user")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
 
         //  when, then
-        mockMvc.perform(get("/API/user/{email}", userJoinDTO.getEmail()))
+        mockMvc.perform(get("/API/user").queryParam("email", userJoinDTO.getEmail()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(
                         UserDTO.builder()
@@ -81,24 +83,25 @@ class UserFindControllerTest {
     }
 
     @Test
-    @DisplayName("회원 조회 실패 - 없는 회원")
-    void findUserByIdFailNotUserFound() throws Exception {
+    @DisplayName("회원조회 email 실패 - 없는 회원")
+    void findUserByEmailFailNotUserFound() throws Exception {
         // given
         // when, then
-        mockMvc.perform(get("/API/user/{id}", userJoinDTO.getEmail()))
+        mockMvc.perform(get("/API/user").queryParam("email", userJoinDTO.getEmail()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(ErrorCode.MEMBER_NOT_FOUND.getDetail()))
                 .andDo(print());
     }
 
-    @Test
-    @DisplayName("회원 조회 실패 - (Validation) 이메일 형식")
-    void findUserByIdFailEmailValidation() throws Exception {
-        //  given
-        String email = "monty@plgrim";
-
+    //  테스트 반복
+    @DisplayName("회원조회 email 실패 - (Validation)")
+    @ParameterizedTest
+    @NullAndEmptySource     //  null과 공백도 같이 넣어줌.
+    @ValueSource(strings = {"monty@plgrim"})
+    void findUserByIdFailEmailValidation(String email) throws Exception {
         //  when    //  then
-        mockMvc.perform(get("/API/user/{id}", email))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/API/user").queryParam("email", email))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
     }
 }

@@ -1,6 +1,8 @@
 package plgrim.sample.member.controller.validation;
 
+import org.apache.tomcat.util.buf.StringUtils;
 import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.exceptions.UserException;
 
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
@@ -8,6 +10,8 @@ import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 import java.util.regex.Pattern;
+
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
 
 @Documented
 @Constraint(validatedBy = EmailValidation.Validator.class)
@@ -23,8 +27,9 @@ public @interface EmailValidation {
     class Validator implements ConstraintValidator<EmailValidation, String> {
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
-            // 이메일이 비어있는지?
-            if(value.isBlank()) {
+
+            // 이메일이 비어있는지? (null 값인지?)
+            if(!isNotBlank(value)) {
                 addConstraintViolation(context, ErrorCode.VALIDATION_ERROR_ID_EMPTY.getDetail());
                 return false;
             }
