@@ -8,18 +8,25 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.member.application.UserJoinService;
+import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
+import plgrim.sample.member.domain.model.commands.UserJoinCommand;
+import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;

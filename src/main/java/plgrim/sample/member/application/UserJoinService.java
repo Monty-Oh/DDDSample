@@ -37,9 +37,10 @@ public class UserJoinService {
                 .build();
 
         // user 저장
-        userRepository.save(user);
+        User result = userRepository.save(user);
+
         // email 리턴
-        return user.getEmail();
+        return result.getEmail();
     }
 
     

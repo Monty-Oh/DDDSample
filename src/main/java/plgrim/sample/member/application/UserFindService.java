@@ -25,6 +25,7 @@ public class UserFindService {
         if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
         User user = result.get();
         return UserDTO.builder()
+                .usrNo(user.getUsrNo())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .userBasic(user.getUserBasic())
@@ -41,6 +42,7 @@ public class UserFindService {
         if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
         User user = result.get();
         return UserDTO.builder()
+                .usrNo(user.getUsrNo())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .userBasic(user.getUserBasic())

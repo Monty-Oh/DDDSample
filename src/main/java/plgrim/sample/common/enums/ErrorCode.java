@@ -25,7 +25,9 @@ public enum ErrorCode {
      * 409 CONFICT : 중복된 데이터가 존재
      * */
     DUPLICATE_ID(HttpStatus.CONFLICT, "이미 중복된 회원이 존재합니다."),
-    DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 중복된 전화번호가 존재합니다.");
+    DUPLICATE_PHONE_NUMBER(HttpStatus.CONFLICT, "이미 중복된 전화번호가 존재합니다."),
+    NOT_CHANGED_ID(HttpStatus.CONFLICT, "이메일이 수정정보와 이미 동일합니다."),
+    NOT_CHANGED_PHONE_NUMBER(HttpStatus.CONFLICT, "전화번호가 수정정보와 이미 동일합니다.");
 
     private final HttpStatus httpStatus;
     private final String detail;

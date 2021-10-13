@@ -1,6 +1,5 @@
 package plgrim.sample.member.application;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,13 +14,14 @@ import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.domain.service.UserRepository;
+import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -34,6 +34,9 @@ class UserModifyServiceTest {
 
     @Mock
     SHA256 sha256;
+
+    @Mock
+    UserDomainService userDomainService;
 
     @InjectMocks
     UserModifyService userModifyService;
@@ -52,21 +55,21 @@ class UserModifyServiceTest {
             .build();
 
     UserModifyDTO userModifyDTO = UserModifyDTO.builder()
-                .email("monty@plgrim.com")
-                .password("123123213")
-                .phoneNumber("01080140922")
-                .address("동탄")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(2021, 9, 9))
-                .SnsType(Sns.GOOGLE)
-                .build();
+            .email("monty@plgrim.com")
+            .password("123123213")
+            .phoneNumber("01080140922")
+            .address("동탄")
+            .gender(Gender.MALE)
+            .birth(LocalDate.of(2021, 9, 9))
+            .SnsType(Sns.GOOGLE)
+            .build();
 
     @DisplayName("회원정보 수정")
     @Test
     void modify() {
         //  given
         given(userRepository.findByEmail(userModifyDTO.getEmail())).willReturn(Optional.of(user));
-        given(userRepository.save(any())).willReturn(null);
+//        given(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail()))
         given(sha256.encrypt(userModifyDTO.getPassword())).willReturn("encrypt password");
 
         //  when
@@ -81,10 +84,41 @@ class UserModifyServiceTest {
     void modifyFailNotUserFound() {
         //  given
         given(userRepository.findByEmail(userModifyDTO.getEmail()))
-//                .willReturn(Optional.empty()) given엔 필요한것만 쓰자
                 .willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
 
         //  when    //  then
         assertThrows(UserException.class, () -> userModifyService.modify(userModifyDTO));
+    }
+
+    @DisplayName("회원정보 수정 실패 - 이메일 중복")
+    @Test
+    void modifyFailDuplicatedEmail() {
+
+    }
+
+    @DisplayName("회원정보 수정 실패 - 전화번호 중복")
+    @Test
+    void modifyFailDuplicatedPhoneNumber() {
+
+    }
+
+    @DisplayName("회원정보 삭제")
+    @Test
+    void delete() {
+        //  given
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+        //  when    //  then
+        assertDoesNotThrow(() -> userModifyService.delete(1L));
+    }
+
+    @DisplayName("회원정보 삭제 - 없는 회원")
+    @Test
+    void deleteFailNotUserFound() {
+        //  given
+        given(userRepository.findById(1L)).willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
+
+        //  when    //  then
+        assertThrows(UserException.class, () -> userModifyService.delete(1L));
     }
 }

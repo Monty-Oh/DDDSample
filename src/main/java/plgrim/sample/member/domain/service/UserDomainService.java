@@ -2,9 +2,9 @@ package plgrim.sample.member.domain.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
-import plgrim.sample.common.SHA256;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
@@ -18,15 +18,29 @@ public class UserDomainService {
 
     /**
      * 이미 사용하는 아이디인지 체크
-     * */
+     */
     public Boolean checkDuplicateEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);      // 아이디로 user 객체 가져옴
         return user.isPresent();                                // 이미 있으면 true, 없으면 false
     }
 
     /**
+     * 이미 사용하는 아이디인지 체크
+     * 이미 사용한다면?
+     * -> 자신의 정보라면? return false;
+     * -> 자신의 정보가 아니라면? return true;
+     * 사용하지 않는다면?
+     * -> 통과 return false;
+     */
+//    public Boolean checkDuplicateEmail(String email, Long usrNo) {
+//        Optional<User> user = userRepository.findByEmail(email);
+//        if (user.isPresent() && user.get().getUsrNo().equals(usrNo)) return false;
+//        else return user.isPresent() && !user.get().getUsrNo().equals(usrNo);
+//    }
+
+    /**
      * 이미 사용하는 전화번호인지 체크
-     * */
+     */
     public Boolean checkDuplicatePhoneNumber(String phoneNumber) {
         Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);    // 전화번호로 조회
         return user.isPresent();                                                // 이미 있는 전화번호면 true 없으면 false
@@ -34,7 +48,7 @@ public class UserDomainService {
 
     /**
      * 해당 id의 비밀번호가 일치한지 체크
-     * */
+     */
     public Boolean compareUserPassword(String email, String password) {
 
         Optional<User> user = userRepository.findByEmail(email);          // id로 조회

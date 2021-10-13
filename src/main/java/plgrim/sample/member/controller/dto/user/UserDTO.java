@@ -12,6 +12,7 @@ import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 @AllArgsConstructor
 @ToString
 public class UserDTO {
+    private Long usrNo;
     private String email;
     private String phoneNumber;
     private UserBasic userBasic;

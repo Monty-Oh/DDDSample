@@ -70,6 +70,7 @@ class UserFindControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(
                         UserDTO.builder()
+                                .usrNo(1L)
                                 .email(userJoinDTO.getEmail())
                                 .phoneNumber(userJoinDTO.getPhoneNumber())
                                 .userBasic(UserBasic.builder()
