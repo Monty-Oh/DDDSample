@@ -18,7 +18,10 @@ import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
+import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.service.UserRepository;
+import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 
@@ -39,70 +42,56 @@ class UserFindControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private UserJoinDTO userJoinDTO;
+    @Autowired
+    private UserJPARepository userRepository;
+
+    private User user;
 
     @BeforeEach
     void setupDto() {
-        userJoinDTO = UserJoinDTO.builder()
+        user = User.builder()
                 .email("monty@plgrim.com")
                 .password("12345")
                 .phoneNumber("01040684490")
-                .address("동대문구")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(1994, 3, 30))
-                .SnsType(Sns.LOCAL)
+                .userBasic(UserBasic.builder()
+                        .address("동대문구")
+                        .gender(Gender.MALE)
+                        .snsType(Sns.LOCAL)
+                        .birth(LocalDate.of(1994, 3, 30))
+                        .build())
                 .build();
     }
 
+    @DisplayName("회원조회 usrNo")
     @Test
-    @DisplayName("회원조회 email")
-    void findUserByEmail() throws Exception {
+    void findUserByUsrNo() throws Exception {
         //  given
-        String content = objectMapper.writeValueAsString(userJoinDTO);
-        mockMvc.perform(post("/API/user")
-                        .content(content)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
+        userRepository.save(user);
 
-        //  when, then
-        mockMvc.perform(get("/API/user").queryParam("email", userJoinDTO.getEmail()))
+        //  when
+        mockMvc.perform(get("/API/user").queryParam("usrNo", Long.toString(user.getUsrNo())))
+                //  then
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(
                         UserDTO.builder()
-                                .usrNo(1L)
-                                .email(userJoinDTO.getEmail())
-                                .phoneNumber(userJoinDTO.getPhoneNumber())
-                                .userBasic(UserBasic.builder()
-                                        .address(userJoinDTO.getAddress())
-                                        .birth(userJoinDTO.getBirth())
-                                        .gender(userJoinDTO.getGender())
-                                        .snsType(userJoinDTO.getSnsType())
-                                        .build())
+                                .usrNo(user.getUsrNo())
+                                .email(user.getEmail())
+                                .phoneNumber(user.getPhoneNumber())
+                                .userBasic(user.getUserBasic())
                                 .build())))
                 .andDo(print());
     }
 
     @Test
-    @DisplayName("회원조회 email 실패 - 없는 회원")
-    void findUserByEmailFailNotUserFound() throws Exception {
-        // given
-        // when, then
-        mockMvc.perform(get("/API/user").queryParam("email", userJoinDTO.getEmail()))
+    @DisplayName("회원조회 usrNo 실패 - 없는 회원")
+    void findUserByEmail() throws Exception {
+        //  given
+
+        //  when
+        mockMvc.perform(get("/API/user").queryParam("usrNo", Long.toString(1L)))
+                //  then
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(ErrorCode.MEMBER_NOT_FOUND.getDetail()))
-                .andDo(print());
-    }
-
-    //  테스트 반복
-    @DisplayName("회원조회 email 실패 - (Validation)")
-    @ParameterizedTest
-    @NullAndEmptySource     //  null과 공백도 같이 넣어줌.
-    @ValueSource(strings = {"monty@plgrim"})
-    void findUserByIdFailEmailValidation(String email) throws Exception {
-        //  when    //  then
-        mockMvc.perform(get("/API/user").queryParam("email", email))
-                .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 }

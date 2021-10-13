@@ -14,7 +14,6 @@ import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
-import plgrim.sample.member.controller.dto.user.UserFindByIdDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
@@ -40,8 +39,6 @@ class UserFindServiceTest {
     User user;
     User user2;
     User user3;
-
-    UserFindByIdDTO userFindByIdDTO;
 
     @BeforeEach
     void setup() {
@@ -78,10 +75,6 @@ class UserFindServiceTest {
                         .snsType(Sns.LOCAL)
                         .build())
                 .build();
-
-        userFindByIdDTO = UserFindByIdDTO.builder()
-                .email(user.getEmail())
-                .build();
     }
 
     @DisplayName("유저조회(usrNo)")
@@ -109,7 +102,7 @@ class UserFindServiceTest {
         given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
 
         //  when
-        UserDTO userDTO = userFindService.findUserByEmail(userFindByIdDTO.getEmail());
+        UserDTO userDTO = userFindService.findUserByEmail(user.getEmail());
 
         //  then
         assertThat(userDTO.getEmail()).isEqualTo(user.getEmail());
@@ -125,7 +118,7 @@ class UserFindServiceTest {
 
         //  when    //  then
         assertThrows(UserException.class,
-                () -> userFindService.findUserByEmail(userFindByIdDTO.getEmail()));
+                () -> userFindService.findUserByEmail(user.getEmail()));
     }
 
     @DisplayName("유저 목록 조회")

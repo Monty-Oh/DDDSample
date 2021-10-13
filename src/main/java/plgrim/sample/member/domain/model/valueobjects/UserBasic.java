@@ -1,8 +1,6 @@
 package plgrim.sample.member.domain.model.valueobjects;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 
@@ -13,6 +11,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Embeddable
+@ToString
+@Getter
 public class UserBasic {
     private String address;
     private Gender gender;

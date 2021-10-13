@@ -15,6 +15,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class UserModifyDTO {
+    private Long usrNo;
+
     @EmailValidation
     private String email;
 
@@ -28,5 +30,5 @@ public class UserModifyDTO {
 
     private LocalDate birth;
 
-    private Sns SnsType;
+    private Sns snsType;
 }

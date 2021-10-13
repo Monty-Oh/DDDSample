@@ -12,6 +12,7 @@ import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
+import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
@@ -60,6 +61,7 @@ class UserJoinServiceTest {
                 .build();
 
         user = User.builder()
+                .usrNo(1L)
                 .email("monty@plgrim.com")
                 .password("encrypted password")
                 .phoneNumber("01040684490")
@@ -82,10 +84,10 @@ class UserJoinServiceTest {
         given(userRepository.save(any())).willReturn(user);
 
         //  when
-        String email = userJoinService.join(userJoinCommand);
+        UserDTO result = userJoinService.join(userJoinCommand);
 
         //  then
-        assertThat(email).isEqualTo(userJoinCommand.getEmail());
+        assertThat(result.getEmail()).isEqualTo(userJoinCommand.getEmail());
     }
 
     @DisplayName("회원가입 실패 - id 중복가입")

@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
@@ -20,6 +21,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -56,7 +58,7 @@ class UserModifyControllerTest {
             .address("동탄")
             .gender(Gender.MALE)
             .birth(LocalDate.of(2021, 9, 9))
-            .SnsType(Sns.GOOGLE)
+            .snsType(Sns.GOOGLE)
             .build();
 
     @Test

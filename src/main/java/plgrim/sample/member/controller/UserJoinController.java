@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import plgrim.sample.member.application.UserJoinService;
 import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
+import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
+import plgrim.sample.member.domain.model.aggregates.User;
 
 import javax.validation.Valid;
 
@@ -25,8 +27,8 @@ public class UserJoinController {
      * 회원 가입
      */
     @PostMapping("/user")
-    public ResponseEntity<String> join(@Valid @RequestBody UserJoinDTO userJoinDTO) {
-        String userEmail = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
-        return ResponseEntity.ok(userEmail);
+    public ResponseEntity<UserDTO> join(@Valid @RequestBody UserJoinDTO userJoinDTO) {
+        UserDTO userDTO = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
+        return ResponseEntity.ok(userDTO);
     }
 }

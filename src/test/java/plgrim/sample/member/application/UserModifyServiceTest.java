@@ -1,5 +1,6 @@
 package plgrim.sample.member.application;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
+import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
@@ -42,41 +44,49 @@ class UserModifyServiceTest {
     UserModifyService userModifyService;
 
     // 테스트 데이터
-    User user = User.builder()
-            .email("monty@plgrim.com")
-            .password("test")
-            .phoneNumber("01040684490")
-            .userBasic(UserBasic.builder()
-                    .address("동대문구")
-                    .gender(Gender.MALE)
-                    .birth(LocalDate.of(1994, 3, 30))
-                    .snsType(Sns.LOCAL)
-                    .build())
-            .build();
+    User user;
 
-    UserModifyDTO userModifyDTO = UserModifyDTO.builder()
-            .email("monty@plgrim.com")
-            .password("123123213")
-            .phoneNumber("01080140922")
-            .address("동탄")
-            .gender(Gender.MALE)
-            .birth(LocalDate.of(2021, 9, 9))
-            .SnsType(Sns.GOOGLE)
-            .build();
+    UserModifyDTO userModifyDTO;
+
+    @BeforeEach
+    void setup() {
+        user = User.builder()
+                .usrNo(1L)
+                .email("monty@plgrim.com")
+                .password("test")
+                .phoneNumber("01040684490")
+                .userBasic(UserBasic.builder()
+                        .address("동대문구")
+                        .gender(Gender.MALE)
+                        .birth(LocalDate.of(1994, 3, 30))
+                        .snsType(Sns.LOCAL)
+                        .build())
+                .build();
+
+        userModifyDTO = UserModifyDTO.builder()
+                .email("monty@plgrim.com")
+                .password("123123213")
+                .phoneNumber("01080140922")
+                .address("동탄")
+                .gender(Gender.MALE)
+                .birth(LocalDate.of(2021, 9, 9))
+                .snsType(Sns.GOOGLE)
+                .build();
+    }
 
     @DisplayName("회원정보 수정")
     @Test
     void modify() {
         //  given
         given(userRepository.findByEmail(userModifyDTO.getEmail())).willReturn(Optional.of(user));
-//        given(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail()))
+        given(userRepository.save(any())).willReturn(user);
         given(sha256.encrypt(userModifyDTO.getPassword())).willReturn("encrypt password");
 
         //  when
-        String id = userModifyService.modify(userModifyDTO);
+        UserDTO result = userModifyService.modify(userModifyDTO);
 
         //  then
-        assertThat(id).isEqualTo(userModifyDTO.getEmail());
+        assertThat(result.getEmail()).isEqualTo(userModifyDTO.getEmail());
     }
 
     @DisplayName("회원정보 수정 실패 - 없는 회원")

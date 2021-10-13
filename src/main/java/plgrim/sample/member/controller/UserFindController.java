@@ -19,13 +19,11 @@ public class UserFindController {
     private final UserFindService userFindService;
 
     /**
-     * 유저 조회 - email
-     * @PathVariable 사용하기 - 수정 완료
-     */
-    // RequestParam은 여러개 받을 수 있고 PathVariable은 한번에 1개만 받을 수 있다.
+     * 유저 조회 - useNo
+     * */
     @GetMapping("/user")
-    public ResponseEntity<UserDTO> findUserByEmail(@EmailValidation @RequestParam("email") String email) {
-        UserDTO user = userFindService.findUserByEmail(email);
+    public ResponseEntity<UserDTO> findUserByUsrNo(@RequestParam("usrNo") Long usrNo) {
+        UserDTO user = userFindService.findUserByUsrNo(usrNo);
         return ResponseEntity.ok(user);
     }
 }

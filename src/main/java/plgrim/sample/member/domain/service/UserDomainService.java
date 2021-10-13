@@ -17,26 +17,22 @@ public class UserDomainService {
     private final SHA256 sha256;
 
     /**
-     * 이미 사용하는 아이디인지 체크
+     * 이미 사용하는 이메일인지 체크
      */
     public Boolean checkDuplicateEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);      // 아이디로 user 객체 가져옴
-        return user.isPresent();                                // 이미 있으면 true, 없으면 false
+        Optional<User> user = userRepository.findByEmail(email);    // 아이디로 user 객체 가져옴
+        return user.isPresent();                                    // 이미 있으면 true, 없으면 false
     }
 
     /**
      * 이미 사용하는 아이디인지 체크
-     * 이미 사용한다면?
-     * -> 자신의 정보라면? return false;
-     * -> 자신의 정보가 아니라면? return true;
-     * 사용하지 않는다면?
-     * -> 통과 return false;
+     * 자신의 계정이라면 미사용으로 간주.
+     * 자신의 계정이 아니며 누군가 사용중이면 변경 불가
      */
-//    public Boolean checkDuplicateEmail(String email, Long usrNo) {
-//        Optional<User> user = userRepository.findByEmail(email);
-//        if (user.isPresent() && user.get().getUsrNo().equals(usrNo)) return false;
-//        else return user.isPresent() && !user.get().getUsrNo().equals(usrNo);
-//    }
+    public Boolean checkDuplicateEmail(String email, Long usrNo) {
+        Optional<User> user = userRepository.findByEmail(email);
+        return user.isPresent() && !user.get().getUsrNo().equals(usrNo);
+    }
 
     /**
      * 이미 사용하는 전화번호인지 체크
@@ -44,6 +40,16 @@ public class UserDomainService {
     public Boolean checkDuplicatePhoneNumber(String phoneNumber) {
         Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);    // 전화번호로 조회
         return user.isPresent();                                                // 이미 있는 전화번호면 true 없으면 false
+    }
+
+    /**
+     * 이미 사용하는 전화번호인지 체크
+     * 자신의 번호라면 미사용으로 간주.
+     * 자신의 번호가 아니며 누군가 사용중이면 변경 불가
+     * */
+    public Boolean checkDuplicatePhoneNumber(String phoneNumber, Long usrNo) {
+        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+        return user.isPresent() && !user.get().getUsrNo().equals(usrNo);
     }
 
     /**

@@ -5,10 +5,10 @@ import org.springframework.stereotype.Service;
 import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
-import plgrim.sample.member.domain.model.commands.UserJoinCommand;
+import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.service.UserDomainService;
-import plgrim.sample.member.domain.service.UserRepository;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 @Service
@@ -21,7 +21,7 @@ public class UserJoinService {
     /**
      * 회원 가입
      */
-    public String join(UserJoinCommand userJoinCommand) {
+    public UserDTO join(UserJoinCommand userJoinCommand) {
         if (userDomainService.checkDuplicateEmail(userJoinCommand.getEmail()))                      // 이미 있으면? 에러
             throw new UserException(ErrorCode.DUPLICATE_ID);
 
@@ -39,9 +39,14 @@ public class UserJoinService {
         // user 저장
         User result = userRepository.save(user);
 
-        // email 리턴
-        return result.getEmail();
-    }
+        System.out.println("result = " + result);
 
-    
+        // usrNo 반환
+        return UserDTO.builder()
+                .usrNo(result.getUsrNo())
+                .email(result.getEmail())
+                .phoneNumber(result.getPhoneNumber())
+                .userBasic(result.getUserBasic())
+                .build();
+    }
 }

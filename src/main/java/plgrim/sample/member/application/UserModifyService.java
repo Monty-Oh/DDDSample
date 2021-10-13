@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
+import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
@@ -27,13 +28,12 @@ public class UserModifyService {
     /**
      * 회원정보 수정
      */
-    public String modify(UserModifyDTO userModifyDTO) {
-        Optional<User> user = userRepository.findByEmail(userModifyDTO.getEmail());   // user 조회 후 없으면? 못찾는 에러
+    public UserDTO modify(UserModifyDTO userModifyDTO) {
+        Optional<User> user = userRepository.findById(userModifyDTO.getUsrNo());
         if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
 
-//        if(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), user.get().getUsrNo()))
-//            throw new UserException(ErrorCode.DUPLICATE_ID);
-
+        if(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo()))
+            throw new UserException(ErrorCode.DUPLICATE_ID);
 
 //        if (userDomainService.checkDuplicateEmail(userModifyDTO.getEmail()))                      // 이미 있으면? 에러
 //            throw new UserException(ErrorCode.DUPLICATE_ID);
@@ -54,8 +54,13 @@ public class UserModifyService {
                         .build())
                 .build();
 
-//        userRepository.save(userModify);
-        return userModify.getEmail();
+        User result = userRepository.save(userModify);
+        return UserDTO.builder()
+                .usrNo(result.getUsrNo())
+                .email(result.getEmail())
+                .phoneNumber(result.getPhoneNumber())
+                .userBasic(result.getUserBasic())
+                .build();
     }
 
     /**

@@ -1,6 +1,8 @@
 package plgrim.sample.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,25 +10,23 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.member.application.UserJoinService;
-import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
-import plgrim.sample.member.domain.model.commands.UserJoinCommand;
+import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
-import static org.mockito.BDDMockito.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,16 +43,37 @@ class UserJoinControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserJPARepository userRepository;
+
     // 테스트 데이터
-    UserJoinDTO userJoinDTO = UserJoinDTO.builder()
-            .email("monty@plgrim.com")
-            .password("12345")
-            .phoneNumber("01040684490")
-            .address("동대문구")
-            .gender(Gender.MALE)
-            .birth(LocalDate.of(1994, 3, 30))
-            .SnsType(Sns.LOCAL)
-            .build();
+    UserJoinDTO userJoinDTO;
+    User user;
+
+    @BeforeEach
+    void setup() {
+        userJoinDTO = UserJoinDTO.builder()
+                .email("monty@plgrim.com")
+                .password("12345")
+                .phoneNumber("01040684490")
+                .address("dongdaemungu")
+                .gender(Gender.MALE)
+                .birth(LocalDate.of(1994, 3, 30))
+                .snsType(Sns.LOCAL)
+                .build();
+
+        user = User.builder()
+                .email("monty@plgrim.com")
+                .password("12345")
+                .phoneNumber("01040684490")
+                .userBasic(UserBasic.builder()
+                        .address("dongdaemungu")
+                        .gender(Gender.MALE)
+                        .snsType(Sns.LOCAL)
+                        .birth(LocalDate.of(1994, 3, 30))
+                        .build())
+                .build();
+    }
 
     @Test
     @DisplayName("회원가입 호출")
@@ -60,26 +81,30 @@ class UserJoinControllerTest {
         //  given
         String content = objectMapper.writeValueAsString(userJoinDTO);  // JSON data 생성
 
-        //  when, then
-        mockMvc.perform(post("/API/user")
+        //  when
+        MvcResult mvcResult = mockMvc.perform(post("/API/user")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("monty@plgrim.com"))
-                .andDo(print());                                        // 가입 요청 호출
+                .andDo(print())
+                .andReturn();
+
+        //  then
+        User result = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), User.class);
+        Assertions.assertThat(result)
+                .usingRecursiveComparison()
+                .ignoringFields("usrNo", "password")
+                .isEqualTo(user);
     }
 
     @Test
     @DisplayName("회원가입 실패 - ID 중복")
     void join_fail_duplicated_id() throws Exception {
+        //  given
+        userRepository.save(user);
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
-        mockMvc.perform(post("/API/user")
-                        .content(content)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-
+        //  when
         mockMvc.perform(post("/API/user")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -91,14 +116,11 @@ class UserJoinControllerTest {
     @Test
     @DisplayName("회원가입 실패 - 번호 중복")
     void join_fail_duplicated_phoneNum() throws Exception {
+        //  given
+        userRepository.save(user);
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
-        mockMvc.perform(post("/API/user")
-                        .content(content)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andDo(print());
-
+        //  when
         mockMvc.perform(post("/API/user")
                         .content(objectMapper.writeValueAsString(UserJoinDTO.builder()
                                 .email("monty@plgrim.commm")
@@ -107,7 +129,7 @@ class UserJoinControllerTest {
                                 .address("동대문구")
                                 .gender(Gender.MALE)
                                 .birth(LocalDate.of(1994, 3, 30))
-                                .SnsType(Sns.LOCAL)
+                                .snsType(Sns.LOCAL)
                                 .build()))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
@@ -131,7 +153,7 @@ class UserJoinControllerTest {
                 .address("동대문구")
                 .gender(Gender.MALE)
                 .birth(LocalDate.of(1994, 3, 30))
-                .SnsType(Sns.LOCAL)
+                .snsType(Sns.LOCAL)
                 .build());
 
         mockMvc.perform(post("/API/user")
@@ -146,7 +168,7 @@ class UserJoinControllerTest {
 
     /**
      * 회원가입
-     * email validation 반복 테스트
+     * password validation 반복 테스트
      */
     @DisplayName("회원가입 실패 - (Validation)")
     @ParameterizedTest
@@ -160,7 +182,7 @@ class UserJoinControllerTest {
                 .address("동대문구")
                 .gender(Gender.MALE)
                 .birth(LocalDate.of(1994, 3, 30))
-                .SnsType(Sns.LOCAL)
+                .snsType(Sns.LOCAL)
                 .build());
 
         mockMvc.perform(post("/API/user")
@@ -172,4 +194,6 @@ class UserJoinControllerTest {
                         : ErrorCode.VALIDATION_ERROR_PASSWORD_EMPTY.getDetail()))
                 .andDo(print());
     }
+    
+
 }
