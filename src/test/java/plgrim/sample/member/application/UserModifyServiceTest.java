@@ -78,7 +78,9 @@ class UserModifyServiceTest {
     @Test
     void modify() {
         //  given
-        given(userRepository.findByEmail(userModifyDTO.getEmail())).willReturn(Optional.of(user));
+        given(userRepository.findById(userModifyDTO.getUsrNo())).willReturn(Optional.of(user));
+        given(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo())).willReturn(false);
+        given(userDomainService.checkDuplicatePhoneNumber(userModifyDTO.getPhoneNumber(), userModifyDTO.getUsrNo())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
         given(sha256.encrypt(userModifyDTO.getPassword())).willReturn("encrypt password");
 
@@ -93,23 +95,42 @@ class UserModifyServiceTest {
     @Test
     void modifyFailNotUserFound() {
         //  given
-        given(userRepository.findByEmail(userModifyDTO.getEmail()))
-                .willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
+        given(userRepository.findById(userModifyDTO.getUsrNo())).willReturn(Optional.empty());
 
-        //  when    //  then
-        assertThrows(UserException.class, () -> userModifyService.modify(userModifyDTO));
+        //  when
+        ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyDTO)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.MEMBER_NOT_FOUND);
     }
 
     @DisplayName("회원정보 수정 실패 - 이메일 중복")
     @Test
     void modifyFailDuplicatedEmail() {
+        //  given
+        given(userRepository.findById(userModifyDTO.getUsrNo())).willReturn(Optional.of(user));
+        given(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo())).willReturn(true);
 
+        //  when
+        ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyDTO)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_ID);
     }
 
     @DisplayName("회원정보 수정 실패 - 전화번호 중복")
     @Test
     void modifyFailDuplicatedPhoneNumber() {
+        //  given
+        given(userRepository.findById(userModifyDTO.getUsrNo())).willReturn(Optional.of(user));
+        given(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo())).willReturn(false);
+        given(userDomainService.checkDuplicatePhoneNumber(userModifyDTO.getPhoneNumber(), userModifyDTO.getUsrNo())).willReturn(true);
 
+        //  when
+        ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyDTO)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_PHONE_NUMBER);
     }
 
     @DisplayName("회원정보 삭제")
@@ -122,13 +143,16 @@ class UserModifyServiceTest {
         assertDoesNotThrow(() -> userModifyService.delete(1L));
     }
 
-    @DisplayName("회원정보 삭제 - 없는 회원")
+    @DisplayName("회원정보 삭제 실패 - 없는 회원")
     @Test
     void deleteFailNotUserFound() {
         //  given
-        given(userRepository.findById(1L)).willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
+        given(userRepository.findById(1L)).willReturn(Optional.empty());
 
-        //  when    //  then
-        assertThrows(UserException.class, () -> userModifyService.delete(1L));
+        //  when
+        ErrorCode error = assertThrows(UserException.class, () -> userModifyService.delete(1L)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.MEMBER_NOT_FOUND);
     }
 }

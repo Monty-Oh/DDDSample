@@ -14,7 +14,7 @@ import javax.validation.ConstraintViolationException;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/API")
+@RequestMapping("/api")
 public class UserFindController {
     private final UserFindService userFindService;
 

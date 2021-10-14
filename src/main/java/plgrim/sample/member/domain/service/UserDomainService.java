@@ -9,6 +9,7 @@ import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor

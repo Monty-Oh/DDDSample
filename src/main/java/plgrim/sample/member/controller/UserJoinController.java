@@ -18,7 +18,7 @@ import javax.validation.Valid;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/API")
+@RequestMapping("/api")
 public class UserJoinController {
     private final UserJoinService userJoinService;
     private final UserCommandMapper userCommandMapper;      // 커맨드 변환 맵퍼

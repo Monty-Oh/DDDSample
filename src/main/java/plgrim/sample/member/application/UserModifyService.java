@@ -17,7 +17,6 @@ import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 import java.util.Optional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserModifyService {
     private final UserJPARepository userRepository;        // 리포지토리
@@ -35,11 +34,8 @@ public class UserModifyService {
         if(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo()))
             throw new UserException(ErrorCode.DUPLICATE_ID);
 
-//        if (userDomainService.checkDuplicateEmail(userModifyDTO.getEmail()))                      // 이미 있으면? 에러
-//            throw new UserException(ErrorCode.DUPLICATE_ID);
-//
-//        if (userDomainService.checkDuplicatePhoneNumber(userModifyDTO.getPhoneNumber()))    // 만약 중복되는 phoneNumber가 있으면? 에러
-//            throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
+        if(userDomainService.checkDuplicatePhoneNumber(userModifyDTO.getPhoneNumber(), userModifyDTO.getUsrNo()))
+            throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
 
         User userModify = User.builder()
                 .usrNo(user.get().getUsrNo())

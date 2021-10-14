@@ -69,7 +69,7 @@ class UserFindControllerTest {
         userRepository.save(user);
 
         //  when
-        mockMvc.perform(get("/API/user").queryParam("usrNo", Long.toString(user.getUsrNo())))
+        mockMvc.perform(get("/api/user").queryParam("usrNo", Long.toString(user.getUsrNo())))
                 //  then
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(
@@ -88,7 +88,7 @@ class UserFindControllerTest {
         //  given
 
         //  when
-        mockMvc.perform(get("/API/user").queryParam("usrNo", Long.toString(1L)))
+        mockMvc.perform(get("/api/user").queryParam("usrNo", Long.toString(1L)))
                 //  then
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(ErrorCode.MEMBER_NOT_FOUND.getDetail()))
