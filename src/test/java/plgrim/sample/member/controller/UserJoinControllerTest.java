@@ -26,7 +26,6 @@ import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 import java.time.LocalDate;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -82,7 +81,7 @@ class UserJoinControllerTest {
         String content = objectMapper.writeValueAsString(userJoinDTO);  // JSON data 생성
 
         //  when
-        MvcResult mvcResult = mockMvc.perform(post("/API/user")
+        MvcResult mvcResult = mockMvc.perform(post("/users")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -105,7 +104,7 @@ class UserJoinControllerTest {
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
-        mockMvc.perform(post("/API/user")
+        mockMvc.perform(post("/users")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
@@ -121,7 +120,7 @@ class UserJoinControllerTest {
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
-        mockMvc.perform(post("/API/user")
+        mockMvc.perform(post("/users")
                         .content(objectMapper.writeValueAsString(UserJoinDTO.builder()
                                 .email("monty@plgrim.commm")
                                 .password("12345")
@@ -156,7 +155,7 @@ class UserJoinControllerTest {
                 .snsType(Sns.LOCAL)
                 .build());
 
-        mockMvc.perform(post("/API/user")
+        mockMvc.perform(post("/users")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -185,7 +184,7 @@ class UserJoinControllerTest {
                 .snsType(Sns.LOCAL)
                 .build());
 
-        mockMvc.perform(post("/API/user")
+        mockMvc.perform(post("/users")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -194,6 +193,4 @@ class UserJoinControllerTest {
                         : ErrorCode.VALIDATION_ERROR_PASSWORD_EMPTY.getDetail()))
                 .andDo(print());
     }
-    
-
 }

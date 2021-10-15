@@ -4,8 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,7 +54,7 @@ class UserFindServiceTest {
                         .build())
                 .build();
         user2 = User.builder()
-                .email("monty@plgrim.com")
+                .email("monty2@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -67,7 +65,7 @@ class UserFindServiceTest {
                         .build())
                 .build();
         user3 = User.builder()
-                .email("monty@plgrim.com")
+                .email("monty3@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684490")
                 .userBasic(UserBasic.builder()
@@ -140,13 +138,26 @@ class UserFindServiceTest {
     @Test
     void findUsersPage() {
         //  given
-        given(userRepository.findAll(PageRequest.of(0, 2)))
-                .willReturn(new PageImpl<>(Arrays.asList(user, user2)));
+        given(userRepository.findAll(PageRequest.of(0, 2))).willReturn(new PageImpl<>(List.of(user, user2)));
 
         //  when
         List<User> users = userFindService.findUsers(0, 2);
 
         //  then
         assertThat(users.size()).isEqualTo(2);
+    }
+
+    @DisplayName("유저 목록 조회 실패 - 유저 없음")
+    @Test
+    void findUserPageFailNotUserFound() {
+        //  given
+        given(userRepository.findAll(PageRequest.of(0, 2))).willReturn(new PageImpl<>(List.of()));
+
+        //  when
+        ErrorCode error = assertThrows(UserException.class,
+                () -> userFindService.findUsers(0, 2)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.MEMBER_NOT_FOUND);
     }
 }

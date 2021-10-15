@@ -8,6 +8,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class UserComparePasswordDTO {
+    private Long usrNo;
     private String email;
     private String password;
 }

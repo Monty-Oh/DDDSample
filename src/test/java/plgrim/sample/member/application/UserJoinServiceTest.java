@@ -17,7 +17,6 @@ import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.service.UserDomainService;
-import plgrim.sample.member.domain.service.UserRepository;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
@@ -105,6 +104,7 @@ class UserJoinServiceTest {
     @DisplayName("회원가입 실패 - PhoneNum 중복가입")
     @Test
     void joinUserFailDuplicatedPhoneNum() {
+        //  given
         given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
         given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber()))
                 .willReturn(true)

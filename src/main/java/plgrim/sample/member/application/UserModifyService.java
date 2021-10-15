@@ -2,7 +2,6 @@ package plgrim.sample.member.application;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
@@ -11,7 +10,6 @@ import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.service.UserDomainService;
-import plgrim.sample.member.domain.service.UserRepository;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.util.Optional;
@@ -31,13 +29,13 @@ public class UserModifyService {
         Optional<User> user = userRepository.findById(userModifyDTO.getUsrNo());
         if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
 
-        if(userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo()))
+        if (userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo()))
             throw new UserException(ErrorCode.DUPLICATE_ID);
 
-        if(userDomainService.checkDuplicatePhoneNumber(userModifyDTO.getPhoneNumber(), userModifyDTO.getUsrNo()))
+        if (userDomainService.checkDuplicatePhoneNumber(userModifyDTO.getPhoneNumber(), userModifyDTO.getUsrNo()))
             throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
 
-        User userModify = User.builder()
+        User result = userRepository.save(User.builder()
                 .usrNo(user.get().getUsrNo())
                 .email(userModifyDTO.getEmail())
                 .password(sha256.encrypt(userModifyDTO.getPassword()))          // 비밀번호 암호화
@@ -48,9 +46,8 @@ public class UserModifyService {
                         .birth(userModifyDTO.getBirth())
                         .snsType(userModifyDTO.getSnsType())
                         .build())
-                .build();
+                .build());
 
-        User result = userRepository.save(userModify);
         return UserDTO.builder()
                 .usrNo(result.getUsrNo())
                 .email(result.getEmail())
@@ -61,7 +58,7 @@ public class UserModifyService {
 
     /**
      * 회원 탈퇴
-     * */
+     */
     public void delete(Long usrNo) {
         Optional<User> user = userRepository.findById(usrNo);   // user 조회 후 없으면? 못찾는 에러
         if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);

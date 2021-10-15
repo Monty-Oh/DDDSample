@@ -11,14 +11,13 @@ import plgrim.sample.member.application.UserJoinService;
 import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
-import plgrim.sample.member.domain.model.aggregates.User;
 
 import javax.validation.Valid;
 
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping
 public class UserJoinController {
     private final UserJoinService userJoinService;
     private final UserCommandMapper userCommandMapper;      // 커맨드 변환 맵퍼
@@ -26,7 +25,7 @@ public class UserJoinController {
     /**
      * 회원 가입
      */
-    @PostMapping("/user")
+    @PostMapping("/users")
     public ResponseEntity<UserDTO> join(@Valid @RequestBody UserJoinDTO userJoinDTO) {
         UserDTO userDTO = userJoinService.join(userCommandMapper.UserJoinMapper(userJoinDTO));
         return ResponseEntity.ok(userDTO);

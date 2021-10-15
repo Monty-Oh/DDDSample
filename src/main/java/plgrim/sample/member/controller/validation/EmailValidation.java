@@ -1,8 +1,6 @@
 package plgrim.sample.member.controller.validation;
 
-import org.apache.tomcat.util.buf.StringUtils;
 import plgrim.sample.common.enums.ErrorCode;
-import plgrim.sample.common.exceptions.UserException;
 
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;

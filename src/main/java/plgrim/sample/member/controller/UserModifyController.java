@@ -14,15 +14,15 @@ import javax.validation.Valid;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping
 public class UserModifyController {
     private final UserModifyService userModifyService;
 
     /**
      * 유저 수정 usrNo 필수
      * */
-    @PutMapping("/user")
-    public ResponseEntity<UserDTO> modify(@Valid @RequestBody UserModifyDTO userModifyDTO) {
+    @PutMapping("/users/{usrNo}")
+    public ResponseEntity<UserDTO> modify(@PathVariable("usrNo") Long usrNo, @Valid @RequestBody UserModifyDTO userModifyDTO) {
         UserDTO userDTO = userModifyService.modify(userModifyDTO);
         return ResponseEntity.ok(userDTO);
     }
@@ -30,8 +30,8 @@ public class UserModifyController {
     /**
      * 유저 삭제 usrNo 필수
      * */
-    @DeleteMapping("/user")
-    public ResponseEntity<String> delete(@RequestParam("usrNo") Long usrNo) {
+    @DeleteMapping("/users/{usrNo}")
+    public ResponseEntity<String> delete(@PathVariable("usrNo") Long usrNo) {
         userModifyService.delete(usrNo);
         return ResponseEntity.ok(SuccessCode.DELETE_SUCCESS.getDetail());
     }
