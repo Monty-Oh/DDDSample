@@ -9,58 +9,59 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.common.exceptions.UserException;
+import plgrim.sample.member.application.UserFindService;
+import plgrim.sample.member.application.UserJoinService;
+import plgrim.sample.member.application.UserModifyService;
+import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
+import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static plgrim.sample.common.UrlValue.ROOT_PATH;
 
-@SpringBootTest
-@Transactional
 @DisplayName("UserJoinController 테스트")
-@AutoConfigureMockMvc
+@WebMvcTest
 class UserJoinControllerTest {
+    @MockBean
+    UserFindService userFindService;
+    @MockBean
+    UserJoinService userJoinService;
+    @MockBean
+    UserModifyService userModifyService;
+    @MockBean
+    UserCommandMapper userCommandMapper;
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserJPARepository userRepository;
-
     // 테스트 데이터
     UserJoinDTO userJoinDTO;
+    UserDTO userDTO;
     User user;
 
     @BeforeEach
     void setup() {
-        userJoinDTO = UserJoinDTO.builder()
-                .email("monty@plgrim.com")
-                .password("12345")
-                .phoneNumber("01040684490")
-                .address("dongdaemungu")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(1994, 3, 30))
-                .snsType(Sns.LOCAL)
-                .build();
-
         user = User.builder()
                 .email("monty@plgrim.com")
                 .password("12345")
@@ -72,6 +73,23 @@ class UserJoinControllerTest {
                         .birth(LocalDate.of(1994, 3, 30))
                         .build())
                 .build();
+
+        userJoinDTO = UserJoinDTO.builder()
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getUserBasic().getAddress())
+                .gender(user.getUserBasic().getGender())
+                .birth(user.getUserBasic().getBirth())
+                .snsType(user.getUserBasic().getSnsType())
+                .build();
+
+        userDTO = UserDTO.builder()
+                .usrNo(1L)
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .userBasic(user.getUserBasic())
+                .build();
     }
 
     @Test
@@ -79,9 +97,11 @@ class UserJoinControllerTest {
     void join() throws Exception {
         //  given
         String content = objectMapper.writeValueAsString(userJoinDTO);  // JSON data 생성
+        given(userJoinService.join(userCommandMapper.toCommand(userJoinDTO)))
+                .willReturn(userDTO);
 
         //  when
-        MvcResult mvcResult = mockMvc.perform(post("/users")
+        MvcResult mvcResult = mockMvc.perform(post(ROOT_PATH)
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -89,22 +109,22 @@ class UserJoinControllerTest {
                 .andReturn();
 
         //  then
-        User result = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), User.class);
+        UserDTO result = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDTO.class);
         Assertions.assertThat(result)
                 .usingRecursiveComparison()
-                .ignoringFields("usrNo", "password")
-                .isEqualTo(user);
+                .isEqualTo(userDTO);
     }
 
     @Test
     @DisplayName("회원가입 실패 - ID 중복")
     void join_fail_duplicated_id() throws Exception {
         //  given
-        userRepository.save(user);
+        given(userJoinService.join(userCommandMapper.toCommand(userJoinDTO)))
+                .willThrow(new UserException(ErrorCode.DUPLICATE_ID));
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post(ROOT_PATH)
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
@@ -116,20 +136,13 @@ class UserJoinControllerTest {
     @DisplayName("회원가입 실패 - 번호 중복")
     void join_fail_duplicated_phoneNum() throws Exception {
         //  given
-        userRepository.save(user);
+        given(userJoinService.join(userCommandMapper.toCommand(userJoinDTO)))
+                .willThrow(new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER));
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(UserJoinDTO.builder()
-                                .email("monty@plgrim.commm")
-                                .password("12345")
-                                .phoneNumber("01040684490")
-                                .address("동대문구")
-                                .gender(Gender.MALE)
-                                .birth(LocalDate.of(1994, 3, 30))
-                                .snsType(Sns.LOCAL)
-                                .build()))
+        mockMvc.perform(post(ROOT_PATH)
+                        .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
                 .andExpect(content().string(ErrorCode.DUPLICATE_PHONE_NUMBER.getDetail()))
@@ -145,6 +158,7 @@ class UserJoinControllerTest {
     @NullAndEmptySource
     @ValueSource(strings = {"12312aㅁㄴㅇㅁㄴ23"})
     void joinFailEmailValidation(String email) throws Exception {
+        //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
                 .email(email)
                 .password("12345")
@@ -155,7 +169,7 @@ class UserJoinControllerTest {
                 .snsType(Sns.LOCAL)
                 .build());
 
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post(ROOT_PATH)
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())

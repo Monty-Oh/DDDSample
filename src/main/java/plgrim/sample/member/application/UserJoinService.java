@@ -39,8 +39,6 @@ public class UserJoinService {
         // user 저장
         User result = userRepository.save(user);
 
-        System.out.println("result = " + result);
-
         // usrNo 반환
         return UserDTO.builder()
                 .usrNo(result.getUsrNo())

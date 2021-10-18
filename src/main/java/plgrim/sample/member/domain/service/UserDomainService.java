@@ -29,7 +29,7 @@ public class UserDomainService {
      * 자신의 계정이라면 미사용으로 간주.
      * 자신의 계정이 아니며 누군가 사용중이면 변경 불가
      */
-    public Boolean checkDuplicateEmail(String email, Long usrNo) {
+    public Boolean checkDuplicateEmailExceptOwn(String email, Long usrNo) {
         Optional<User> user = userRepository.findByEmail(email);
         return user.isPresent() && !user.get().getUsrNo().equals(usrNo);
     }
@@ -47,7 +47,7 @@ public class UserDomainService {
      * 자신의 번호라면 통과.
      * 자신의 번호가 아니며 누군가 사용중이면 변경 불가
      * */
-    public Boolean checkDuplicatePhoneNumber(String phoneNumber, Long usrNo) {
+    public Boolean checkDuplicatePhoneNumberExceptOwn(String phoneNumber, Long usrNo) {
         Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
         return user.isPresent() && !user.get().getUsrNo().equals(usrNo);
     }
@@ -57,7 +57,7 @@ public class UserDomainService {
      */
     public Boolean compareUserPassword(String email, String password) {
         Optional<User> user = userRepository.findByEmail(email);          // id로 조회
-        if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);      // user가 없으면 에러
+        if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);      // user가 없으면 에러
 
         return user.get().getPassword().equals(sha256.encrypt(password));
     }

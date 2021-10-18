@@ -24,7 +24,7 @@ public enum ErrorCode {
     /**
      * 404 NOT_FOUND    :   RESOURCE를 찾을 수 없음
      * */
-    MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저 정보를 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 유저 정보를 찾을 수 없습니다."),
 
     /**
      * 409 CONFLICT     :   중복된 데이터가 존재

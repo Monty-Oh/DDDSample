@@ -15,7 +15,6 @@ import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -110,21 +109,21 @@ class UserDomainServiceTest {
     static Stream<Arguments> getUserCheckDuplicateCase() {
         return Stream.of(
                 //  사용은 하는데 자기 자신일 때
-                Arguments.arguments(Optional.of(user)),
+                Arguments.arguments(user),
                 //  아무도 사용 안할 때
-                Arguments.arguments(Optional.empty())
+                Arguments.arguments((User) null)
         );
     }
 
     @DisplayName("회원 이메일 중복 체크(email, usrNo) - 통과")
     @ParameterizedTest(name = "중복 체크 통과, findByEmail return: {0}")
     @MethodSource("getUserCheckDuplicateCase")
-    void checkDuplicateEmailAndUsrNoOwnEmail(Optional<User> expectedReturn) {
+    void checkDuplicateEmailAndUsrNoOwnEmail(User expectedReturn) {
         //  given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(expectedReturn);
+        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.ofNullable(expectedReturn));
 
         //  when
-        Boolean result = userDomainService.checkDuplicateEmail(user.getEmail(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicateEmailExceptOwn(user.getEmail(), user.getUsrNo());
 
         //  then
         assertFalse(result);
@@ -133,12 +132,12 @@ class UserDomainServiceTest {
     @DisplayName("회원 전화번호 중복 체크(phoneNumber, usrNo) - 통과")
     @ParameterizedTest(name = "중복 체크 통과, findByPhoneNumber return: {0}")
     @MethodSource("getUserCheckDuplicateCase")
-    void checkDuplicatePhoneNumberAndUsrNoOwnPhoneNumber(Optional<User> expectedReturn) {
+    void checkDuplicatePhoneNumberAndUsrNoOwnPhoneNumber(User expectedReturn) {
         //  given
-        given(userRepository.findByPhoneNumber(user.getPhoneNumber())).willReturn(expectedReturn);
+        given(userRepository.findByPhoneNumber(user.getPhoneNumber())).willReturn(Optional.ofNullable(expectedReturn));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getPhoneNumber(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getPhoneNumber(), user.getUsrNo());
 
         //  then
         assertFalse(result);
@@ -151,7 +150,7 @@ class UserDomainServiceTest {
         given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(otherUser));
 
         //  when
-        Boolean result = userDomainService.checkDuplicateEmail(user.getEmail(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicateEmailExceptOwn(user.getEmail(), user.getUsrNo());
 
         //  then
         assertTrue(result);
@@ -164,7 +163,7 @@ class UserDomainServiceTest {
         given(userRepository.findByPhoneNumber(user.getPhoneNumber())).willReturn(Optional.of(otherUser));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getPhoneNumber(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getPhoneNumber(), user.getUsrNo());
 
         //  then
         assertTrue(result);

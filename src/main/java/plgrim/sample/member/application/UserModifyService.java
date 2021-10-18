@@ -6,9 +6,8 @@ import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
-import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.model.commands.UserModifyCommand;
 import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
@@ -25,27 +24,22 @@ public class UserModifyService {
     /**
      * 회원정보 수정
      */
-    public UserDTO modify(UserModifyDTO userModifyDTO) {
-        Optional<User> user = userRepository.findById(userModifyDTO.getUsrNo());
-        if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
+    public UserDTO modify(UserModifyCommand userModifyCommand) {
+        Optional<User> user = userRepository.findById(userModifyCommand.getUsrNo());
+        if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
 
-        if (userDomainService.checkDuplicateEmail(userModifyDTO.getEmail(), userModifyDTO.getUsrNo()))
+        if (userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo()))
             throw new UserException(ErrorCode.DUPLICATE_ID);
 
-        if (userDomainService.checkDuplicatePhoneNumber(userModifyDTO.getPhoneNumber(), userModifyDTO.getUsrNo()))
+        if (userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getPhoneNumber(), userModifyCommand.getUsrNo()))
             throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
 
         User result = userRepository.save(User.builder()
                 .usrNo(user.get().getUsrNo())
-                .email(userModifyDTO.getEmail())
-                .password(sha256.encrypt(userModifyDTO.getPassword()))          // 비밀번호 암호화
-                .phoneNumber(userModifyDTO.getPhoneNumber())
-                .userBasic(UserBasic.builder()
-                        .address(userModifyDTO.getAddress())
-                        .gender(userModifyDTO.getGender())
-                        .birth(userModifyDTO.getBirth())
-                        .snsType(userModifyDTO.getSnsType())
-                        .build())
+                .email(userModifyCommand.getEmail())
+                .password(sha256.encrypt(userModifyCommand.getPassword()))          // 비밀번호 암호화
+                .phoneNumber(userModifyCommand.getPhoneNumber())
+                .userBasic(userModifyCommand.getUserBasic())
                 .build());
 
         return UserDTO.builder()
@@ -61,7 +55,7 @@ public class UserModifyService {
      */
     public void delete(Long usrNo) {
         Optional<User> user = userRepository.findById(usrNo);   // user 조회 후 없으면? 못찾는 에러
-        if (user.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
+        if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
 
         userRepository.deleteById(usrNo);
     }

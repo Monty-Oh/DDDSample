@@ -22,7 +22,7 @@ public class UserFindService {
      * */
     public UserDTO findUserByUsrNo(Long usrNo) {
         Optional<User> result = userRepository.findById(usrNo);
-        if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
+        if (result.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);  // user가 없으면 에러
         User user = result.get();
         return UserDTO.builder()
                 .usrNo(user.getUsrNo())
@@ -34,12 +34,12 @@ public class UserFindService {
 
     /**
      * 회원조회 - email
-     * 파라미터로 받은 email를 사용해 사용자 정보를 조회.
-     * UserDTO로 리턴한다.
+     * 파라미터로 받은 email 를 사용해 사용자 정보를 조회.
+     * UserDTO 로 리턴한다.
      * */
     public UserDTO findUserByEmail(String email) {
         Optional<User> result = userRepository.findByEmail(email);
-        if (result.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);  // user가 없으면 에러
+        if (result.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);  // user가 없으면 에러
         User user = result.get();
         return UserDTO.builder()
                 .usrNo(user.getUsrNo())
@@ -51,11 +51,11 @@ public class UserFindService {
 
     /**
      * 회원 목록 조회
-     * 전부다 조회해서 List로 넘겨준다.
+     * 전부다 조회해서 List 로 넘겨준다.
      * */
     public List<User> findUsers() {
         List<User> users = userRepository.findAll();
-        if(users.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
+        if(users.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
         return users;
     }
 
@@ -65,7 +65,7 @@ public class UserFindService {
      * */
     public List<User> findUsers(int page, int size) {
         List<User> users = userRepository.findAll(PageRequest.of(page, size)).getContent();
-        if(users.isEmpty()) throw new UserException(ErrorCode.MEMBER_NOT_FOUND);
+        if(users.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
         return users;
     }
 }

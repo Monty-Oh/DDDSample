@@ -5,51 +5,64 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.common.exceptions.UserException;
+import plgrim.sample.member.application.UserFindService;
+import plgrim.sample.member.application.UserJoinService;
+import plgrim.sample.member.application.UserModifyService;
+import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static plgrim.sample.common.UrlValue.PATH_USER_USRNO;
+import static plgrim.sample.common.UrlValue.ROOT_PATH;
 
-@SpringBootTest
-@Transactional
 @DisplayName("UserFindController 테스트")
-@AutoConfigureMockMvc
+@WebMvcTest
 class UserFindControllerTest {
+    @MockBean
+    UserFindService userFindService;
+    @MockBean
+    UserJoinService userJoinService;
+    @MockBean
+    UserModifyService userModifyService;
+    @MockBean
+    UserCommandMapper userCommandMapper;
+
     @Autowired
     MockMvc mockMvc;
 
     @Autowired
     ObjectMapper objectMapper;
 
-    @Autowired
-    UserJPARepository userRepository;
-
+    // 테스트 데이터
     User user;
     User user2;
     User user3;
+    UserDTO userDTO;
 
     @BeforeEach
     void setupDto() {
         user = User.builder()
+                .usrNo(1L)
                 .email("monty@plgrim.com")
                 .password("12345")
                 .phoneNumber("01040684490")
@@ -62,6 +75,7 @@ class UserFindControllerTest {
                 .build();
 
         user2 = User.builder()
+                .usrNo(2L)
                 .email("monty2@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684491")
@@ -73,6 +87,7 @@ class UserFindControllerTest {
                         .build())
                 .build();
         user3 = User.builder()
+                .usrNo(3L)
                 .email("monty3@plgrim.com")
                 .password("123456")
                 .phoneNumber("01040684492")
@@ -83,23 +98,29 @@ class UserFindControllerTest {
                         .snsType(Sns.LOCAL)
                         .build())
                 .build();
+
+        userDTO = UserDTO.builder()
+                .usrNo(1L)
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .userBasic(user.getUserBasic())
+                .build();
     }
 
     @DisplayName("회원조회 usrNo")
     @Test
     void findUserByUsrNo() throws Exception {
         //  given
-        userRepository.save(user);
+        given(userFindService.findUserByUsrNo(user.getUsrNo())).willReturn(userDTO);
 
         //  when
-        MvcResult mvcResult = mockMvc.perform(get("/users/{usrNo}", Long.toString(user.getUsrNo())))
+        MvcResult mvcResult = mockMvc.perform(get(ROOT_PATH + PATH_USER_USRNO, Long.toString(user.getUsrNo())))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
         UserDTO result = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDTO.class);
 
         //  then
-        //        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(result).usingRecursiveComparison().ignoringFields("password").isEqualTo(user);
     }
 
@@ -107,12 +128,13 @@ class UserFindControllerTest {
     @DisplayName("회원조회 usrNo 실패 - 없는 회원")
     void findUserByEmail() throws Exception {
         //  given
+        given(userFindService.findUserByUsrNo(user.getUsrNo())).willThrow(new UserException(ErrorCode.USER_NOT_FOUND));
 
         //  when
-        mockMvc.perform(get("/users/{usrNo}", Long.toString(1L)))
+        mockMvc.perform(get(ROOT_PATH + PATH_USER_USRNO, Long.toString(1L)))
                 //  then
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(ErrorCode.MEMBER_NOT_FOUND.getDetail()))
+                .andExpect(content().string(ErrorCode.USER_NOT_FOUND.getDetail()))
                 .andDo(print());
     }
 
@@ -120,14 +142,15 @@ class UserFindControllerTest {
     @DisplayName("회원 목록 조회")
     void findUserList() throws Exception {
         // given
-        userRepository.saveAll(List.of(user, user2, user3));
-        MultiValueMap<String, String> query = new LinkedMultiValueMap<>(){{
+        List<User> getList = List.of(user, user2);
+        given(userFindService.findUsers(0, 2)).willReturn(getList);
+        MultiValueMap<String, String> query = new LinkedMultiValueMap<>() {{
             add("page", Integer.toString(0));
             add("size", Integer.toString(2));
         }};
 
         //  when
-        MvcResult mvcResult = mockMvc.perform(get("/users").queryParams(query))
+        MvcResult mvcResult = mockMvc.perform(get(ROOT_PATH).queryParams(query))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();

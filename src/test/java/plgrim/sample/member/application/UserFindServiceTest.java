@@ -112,13 +112,14 @@ class UserFindServiceTest {
     @Test
     void findUserByIdFailUserNotFound() {
         //  given
-        given(userRepository.findByEmail(user.getEmail()))
-                .willReturn(Optional.empty())
-                .willThrow(new UserException(ErrorCode.MEMBER_NOT_FOUND));
+        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.empty());
 
-        //  when    //  then
-        assertThrows(UserException.class,
-                () -> userFindService.findUserByEmail(user.getEmail()));
+        //  when
+        ErrorCode error = assertThrows(UserException.class,
+                () -> userFindService.findUserByEmail(user.getEmail())).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.USER_NOT_FOUND);
     }
 
     @DisplayName("유저 목록 조회")
@@ -158,6 +159,6 @@ class UserFindServiceTest {
                 () -> userFindService.findUsers(0, 2)).getErrorCode();
 
         //  then
-        assertThat(error).isEqualTo(ErrorCode.MEMBER_NOT_FOUND);
+        assertThat(error).isEqualTo(ErrorCode.USER_NOT_FOUND);
     }
 }

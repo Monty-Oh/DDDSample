@@ -93,12 +93,13 @@ class UserJoinServiceTest {
     @Test
     void joinUserFailDuplicatedId() {
         //  given
-        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail()))
-                .willReturn(true)
-                .willThrow(new UserException(ErrorCode.DUPLICATE_ID));
+        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(true);
 
-        //  when    //  then
-        assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand));
+        //  when
+        ErrorCode error = assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_ID);
     }
 
     @DisplayName("회원가입 실패 - PhoneNum 중복가입")
@@ -106,11 +107,12 @@ class UserJoinServiceTest {
     void joinUserFailDuplicatedPhoneNum() {
         //  given
         given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber()))
-                .willReturn(true)
-                .willThrow(new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER));
+        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber())).willReturn(true);
 
-        //  when    //  then
-        assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand));
+        //  when
+        ErrorCode error = assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_PHONE_NUMBER);
     }
 }

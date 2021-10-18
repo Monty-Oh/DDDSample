@@ -1,56 +1,67 @@
 package plgrim.sample.member.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.enums.SuccessCode;
+import plgrim.sample.member.application.UserFindService;
+import plgrim.sample.member.application.UserJoinService;
+import plgrim.sample.member.application.UserModifyService;
+import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static plgrim.sample.common.UrlValue.PATH_USER_USRNO;
+import static plgrim.sample.common.UrlValue.ROOT_PATH;
 
-@SpringBootTest
-@Transactional
 @DisplayName("UserModifyController 테스트")
-@AutoConfigureMockMvc
+@WebMvcTest
 class UserModifyControllerTest {
-    @Autowired
-    MockMvc mockMvc;
+    @MockBean
+    UserFindService userFindService;
+    @MockBean
+    UserJoinService userJoinService;
+    @MockBean
+    UserModifyService userModifyService;
+    @MockBean
+    UserCommandMapper userCommandMapper;
 
     @Autowired
-    ObjectMapper objectMapper;
+    private MockMvc mockMvc;
 
     @Autowired
-    UserJPARepository userRepository;
+    private ObjectMapper objectMapper;
 
     // 테스트 데이터
     User user;
+    UserDTO userDTO;
+    UserModifyDTO userModifyDTO;
 
     @BeforeEach
     void setup() {
         user = User.builder()
+                .usrNo(1L)
                 .email("monty@plgrim.com")
                 .password("test")
                 .phoneNumber("01040684490")
@@ -61,28 +72,35 @@ class UserModifyControllerTest {
                         .snsType(Sns.LOCAL)
                         .build())
                 .build();
+
+        userModifyDTO = UserModifyDTO.builder()
+                .usrNo(user.getUsrNo())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getUserBasic().getAddress())
+                .gender(user.getUserBasic().getGender())
+                .birth(user.getUserBasic().getBirth())
+                .snsType(user.getUserBasic().getSnsType())
+                .build();
+
+        userDTO = UserDTO.builder()
+                .usrNo(user.getUsrNo())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .userBasic(user.getUserBasic())
+                .build();
     }
 
     @Test
     @DisplayName("유저 수정 성공")
     void modifyUser() throws Exception {
         //  given
-        userRepository.save(user);
-        UserModifyDTO userModifyDTO = UserModifyDTO.builder()
-                .usrNo(user.getUsrNo())
-                .email("monty@plgrim.com")
-                .password("123123213")
-                .phoneNumber("01080140922")
-                .address("dongtan")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(2021, 9, 9))
-                .snsType(Sns.GOOGLE)
-                .build();
-
         String content = objectMapper.writeValueAsString(userModifyDTO);
+        given(userModifyService.modify(any())).willReturn(userDTO);
 
         //  when
-        String resultAsString = mockMvc.perform(put("/users/{usrNo}", user.getUsrNo())
+        String resultAsString = mockMvc.perform(put(ROOT_PATH + PATH_USER_USRNO, user.getUsrNo())
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -90,7 +108,6 @@ class UserModifyControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-
         UserDTO result = objectMapper.readValue(resultAsString, UserDTO.class);
 
         //  then
@@ -103,15 +120,14 @@ class UserModifyControllerTest {
     @DisplayName("유저 삭제 성공")
     void deleteUser() throws Exception {
         //  given
-        userRepository.save(user);
+        doNothing().when(userModifyService).delete(user.getUsrNo());
 
         //  when
-        mockMvc.perform(delete("/users/{usrNo}", user.getUsrNo()))
+        mockMvc.perform(delete(ROOT_PATH + PATH_USER_USRNO, user.getUsrNo()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(SuccessCode.DELETE_SUCCESS.getDetail()))
                 .andDo(print());
 
         //  then
-        assertTrue(userRepository.findById(user.getUsrNo()).isEmpty());
     }
 }
