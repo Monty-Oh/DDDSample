@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
@@ -36,7 +37,7 @@ class UserJoinServiceTest {
     UserDomainService userDomainService;
 
     @Mock
-    SHA256 sha256;
+    PasswordEncoder passwordEncoder;
 
     @InjectMocks
     UserJoinService userJoinService;
@@ -77,7 +78,7 @@ class UserJoinServiceTest {
     @Test
     void joinUser() {
         //  given
-        given(sha256.encrypt(userJoinCommand.getPassword())).willReturn("encrypted password");
+        given(passwordEncoder.encode(userJoinCommand.getPassword())).willReturn("encrypted password");
         given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
         given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);

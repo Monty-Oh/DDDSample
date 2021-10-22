@@ -1,8 +1,8 @@
 package plgrim.sample.member.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
@@ -11,12 +11,14 @@ import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
+import java.util.Collections;
+
 @Service
 @RequiredArgsConstructor
 public class UserJoinService {
     private final UserJPARepository userRepository;        // 리포지토리
     private final UserDomainService userDomainService;  // 도메인 서비스
-    private final SHA256 sha256;                        // 암호화 객체
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 회원 가입
@@ -31,9 +33,10 @@ public class UserJoinService {
         // 엔티티 객체로 변환
         User user = User.builder()
                 .email(userJoinCommand.getEmail())
-                .password(sha256.encrypt(userJoinCommand.getPassword()))
+                .password(passwordEncoder.encode(userJoinCommand.getPassword()))
                 .phoneNumber(userJoinCommand.getPhoneNumber())
                 .userBasic(userJoinCommand.getUserBasic())
+                .roles(Collections.singletonList("ROLE_USER"))
                 .build();
 
         // user 저장

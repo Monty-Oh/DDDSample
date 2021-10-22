@@ -7,8 +7,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+//import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import plgrim.sample.common.KakaoTokenProvider;
+import plgrim.sample.common.LocalTokenProvider;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.enums.SuccessCode;
@@ -32,16 +38,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static plgrim.sample.common.UrlValue.PATH_USER_USRNO;
-import static plgrim.sample.common.UrlValue.ROOT_PATH;
+import static plgrim.sample.common.UrlValue.USRNO_PATH;
+import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
 
 @DisplayName("UserModifyController 테스트")
 @WebMvcTest
+@WithMockUser(roles = "USER")
+@MockBeans({
+        @MockBean(UserFindService.class),
+        @MockBean(UserJoinService.class),
+        @MockBean(UserModifyService.class),
+        @MockBean(UserCommandMapper.class),
+        @MockBean(LocalTokenProvider.class),
+        @MockBean(KakaoTokenProvider.class),
+        @MockBean(LoginController.class),
+        @MockBean(UserDetailsService.class)
+})
 class UserModifyControllerTest {
-    @MockBean
-    UserFindService userFindService;
-    @MockBean
-    UserJoinService userJoinService;
     @MockBean
     UserModifyService userModifyService;
     @MockBean
@@ -100,7 +113,7 @@ class UserModifyControllerTest {
         given(userModifyService.modify(any())).willReturn(userDTO);
 
         //  when
-        String resultAsString = mockMvc.perform(put(ROOT_PATH + PATH_USER_USRNO, user.getUsrNo())
+        String resultAsString = mockMvc.perform(put(ROOT_USER_PATH + USRNO_PATH, user.getUsrNo())
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -123,7 +136,7 @@ class UserModifyControllerTest {
         doNothing().when(userModifyService).delete(user.getUsrNo());
 
         //  when
-        mockMvc.perform(delete(ROOT_PATH + PATH_USER_USRNO, user.getUsrNo()))
+        mockMvc.perform(delete(ROOT_USER_PATH + USRNO_PATH, user.getUsrNo()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(SuccessCode.DELETE_SUCCESS.getDetail()))
                 .andDo(print());

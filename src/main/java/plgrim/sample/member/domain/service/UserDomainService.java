@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserDomainService {
+public class UserDomainService{
     private final UserJPARepository userRepository;
     private final SHA256 sha256;
 

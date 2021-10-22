@@ -11,9 +11,15 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+//import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import plgrim.sample.common.KakaoTokenProvider;
+import plgrim.sample.common.LocalTokenProvider;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
@@ -35,17 +41,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static plgrim.sample.common.UrlValue.ROOT_PATH;
+import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
 
 @DisplayName("UserJoinController 테스트")
 @WebMvcTest
+@WithMockUser(roles = "USER")
+@MockBeans({
+        @MockBean(UserFindService.class),
+        @MockBean(UserJoinService.class),
+        @MockBean(UserModifyService.class),
+        @MockBean(UserCommandMapper.class),
+        @MockBean(LocalTokenProvider.class),
+        @MockBean(KakaoTokenProvider.class),
+        @MockBean(LoginController.class),
+        @MockBean(UserDetailsService.class)
+})
 class UserJoinControllerTest {
     @MockBean
-    UserFindService userFindService;
-    @MockBean
     UserJoinService userJoinService;
-    @MockBean
-    UserModifyService userModifyService;
     @MockBean
     UserCommandMapper userCommandMapper;
 
@@ -101,7 +114,7 @@ class UserJoinControllerTest {
                 .willReturn(userDTO);
 
         //  when
-        MvcResult mvcResult = mockMvc.perform(post(ROOT_PATH)
+        MvcResult mvcResult = mockMvc.perform(post(ROOT_USER_PATH)
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -124,7 +137,7 @@ class UserJoinControllerTest {
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
-        mockMvc.perform(post(ROOT_PATH)
+        mockMvc.perform(post(ROOT_USER_PATH)
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
@@ -141,7 +154,7 @@ class UserJoinControllerTest {
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
-        mockMvc.perform(post(ROOT_PATH)
+        mockMvc.perform(post(ROOT_USER_PATH)
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
@@ -169,7 +182,7 @@ class UserJoinControllerTest {
                 .snsType(Sns.LOCAL)
                 .build());
 
-        mockMvc.perform(post(ROOT_PATH)
+        mockMvc.perform(post(ROOT_USER_PATH)
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())

@@ -22,6 +22,14 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
                 .body(exception.getErrorCode().getDetail());
     }
 
+//    //  UserDetailsService Error
+//    @ExceptionHandler({UsernameNotFoundException.class})
+//    public ResponseEntity<String> custom(UsernameNotFoundException exception) {
+//        System.out.println("exception = " + exception);
+//        return ResponseEntity.status(ErrorCode.USER_NOT_FOUND.getHttpStatus())
+//                .body(exception.getMessage());
+//    }
+
     //  Parameter, Param
     @ExceptionHandler(ConstraintViolationException.class)
     public Object exception(Exception e) {

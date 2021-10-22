@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/plgrim/sample
+    driver-class-name: org.h2.Driver
+    username: sa
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+
+#------------------------------------------------------------
+
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+      force: true
+
+#------------------------------------------------------------
+token:
+  secret-key: this is secret key for sample project
+
+kakao:
+  login-url: https://kauth.kakao.com/oauth/authorize
+  token-url: https://kauth.kakao.com/oauth/token
+  rest-api: 03daa4391ed176013bd17b15f7ad39c1
+  redirect-url: http://localhost:8080/login/kakao/auth
+  response-type: code

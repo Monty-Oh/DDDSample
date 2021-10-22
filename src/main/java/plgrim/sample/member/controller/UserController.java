@@ -17,13 +17,13 @@ import plgrim.sample.member.domain.model.aggregates.User;
 import javax.validation.Valid;
 import java.util.List;
 
-import static plgrim.sample.common.UrlValue.PATH_USER_USRNO;
-import static plgrim.sample.common.UrlValue.ROOT_PATH;
+import static plgrim.sample.common.UrlValue.USRNO_PATH;
+import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
 
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(ROOT_PATH)
+@RequestMapping(ROOT_USER_PATH)
 public class UserController {
     private final UserFindService userFindService;
     private final UserJoinService userJoinService;
@@ -33,7 +33,7 @@ public class UserController {
     /**
      * 유저 조회 - usrNo
      */
-    @GetMapping(PATH_USER_USRNO)
+    @GetMapping(USRNO_PATH)
     public ResponseEntity<UserDTO> findUserByUsrNo(@PathVariable("usrNo") Long usrNo) {
         UserDTO user = userFindService.findUserByUsrNo(usrNo);
         return ResponseEntity.ok(user);
@@ -60,8 +60,8 @@ public class UserController {
 
     /**
      * 유저 수정 usrNo 필수
-     * */
-    @PutMapping(PATH_USER_USRNO)
+     */
+    @PutMapping(USRNO_PATH)
     public ResponseEntity<UserDTO> modify(@PathVariable("usrNo") Long usrNo, @Valid @RequestBody UserModifyDTO userModifyDTO) {
         UserDTO userDTO = userModifyService.modify(userCommandMapper.toCommand(usrNo, userModifyDTO));
         return ResponseEntity.ok(userDTO);
@@ -69,8 +69,8 @@ public class UserController {
 
     /**
      * 유저 삭제 usrNo 필수
-     * */
-    @DeleteMapping(PATH_USER_USRNO)
+     */
+    @DeleteMapping(USRNO_PATH)
     public ResponseEntity<String> delete(@PathVariable("usrNo") Long usrNo) {
         userModifyService.delete(usrNo);
         return ResponseEntity.ok(SuccessCode.DELETE_SUCCESS.getDetail());

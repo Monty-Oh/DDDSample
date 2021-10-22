@@ -1,0 +1,44 @@
+{
+  "properties": [
+    {
+      "name": "token.secret-key",
+      "type": "java.lang.String",
+      "description": "Description for token.secret-key."
+    },
+    {
+      "name": "token.secret-key",
+      "type": "java.lang.String",
+      "description": "Description for token.secret-key."
+    },
+    {
+      "name": "token.valid-time",
+      "type": "java.lang.String",
+      "description": "Description for token.valid-time."
+    },
+    {
+      "name": "kakao.login-url",
+      "type": "java.lang.String",
+      "description": "Description for kakao.login-url."
+    },
+    {
+      "name": "kakao.rest-api",
+      "type": "java.lang.String",
+      "description": "Description for kakao.rest-api."
+    },
+    {
+      "name": "kakao.redirect-url",
+      "type": "java.lang.String",
+      "description": "Description for kakao.redirect-url."
+    },
+    {
+      "name": "kakao.response-type",
+      "type": "java.lang.String",
+      "description": "Description for kakao.response-type."
+    },
+    {
+      "name": "kakao.token-url",
+      "type": "java.lang.String",
+      "description": "Description for kakao.token-url."
+    }
+  ]
+}
