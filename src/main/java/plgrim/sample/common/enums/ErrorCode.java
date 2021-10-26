@@ -20,6 +20,7 @@ public enum ErrorCode {
      *  401 SC_UNAUTHORIZED :   인증 필요, 권한 없음
      * */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "권한이 없는 요청입니다."),
+    TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "존재하지 않는 엑세스 토큰 입니다,"),
 
     /**
      * 403 FORBIDDEN    :   서버가 클라이언트의 접근을 허용하지 않음

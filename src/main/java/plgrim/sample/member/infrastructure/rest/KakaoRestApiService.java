@@ -10,9 +10,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
-import plgrim.sample.member.controller.dto.user.KakaoTokenDTO;
+import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
+import plgrim.sample.member.infrastructure.rest.dto.KakaoUserInfoDTO;
+import plgrim.sample.member.infrastructure.rest.dto.KakaoValidateTokenDTO;
 
-import static plgrim.sample.common.KakaoValue.*;
+import static plgrim.sample.common.KakaoValue.KAPI_API_REDIRECT_LOGIN_URL;
+import static plgrim.sample.common.KakaoValue.KAPI_REST_API;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +30,7 @@ public class KakaoRestApiService {
      * 엑세스 토큰 - 로그인 하는데 필요한 짧은 만료시간을 가진 토큰
      * 리프레시 토큰 - 상대적으로 긴 시간을 가짐. 리프레시 토큰으로 엑세스 토큰을 재발급 받을 수 있음.
      */
-    public KakaoTokenDTO getKakaoLoginTokenUsingAuthCode(String code) {
+    public KakaoTokenDTO getKakaoLoginTokenUsingAuthCode(String url, String code) {
 
         //  토큰 요청 파라미터
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
@@ -50,7 +53,7 @@ public class KakaoRestApiService {
 
         //  카카오 토큰 발급 요청
         ResponseEntity<KakaoTokenDTO> response = rt.exchange(
-                KAPI_GET_TOKEN_URL,
+                url,
                 HttpMethod.POST,
                 kakaoTokenRequest,
                 KakaoTokenDTO.class
@@ -59,7 +62,7 @@ public class KakaoRestApiService {
         return response.getBody();
     }
 
-    public void validateToken(String token) {
+    public void validateToken(String url, String token) {
         HttpEntity<MultiValueMap<String, String>> httpEntity =
                 this.buildRestTemplateIncludeToken(token);
 
@@ -69,10 +72,10 @@ public class KakaoRestApiService {
         try {
             //  카카오 토큰 검사
             rt.exchange(
-                    KAPI_CHECK_ACCESS_TOKEN_URL,
+                    url,
                     HttpMethod.GET,
                     httpEntity,
-                    String.class
+                    KakaoValidateTokenDTO.class
             );
 
         } catch (HttpClientErrorException exception) {
@@ -84,25 +87,36 @@ public class KakaoRestApiService {
         }
     }
 
-    public String getKakaoUserInfo(String token) {
+    public String getKakaoUserInfo(String url, String token) {
         HttpEntity<MultiValueMap<String, String>> httpEntity =
                 this.buildRestTemplateIncludeToken(token);
 
         //  http 요청 객체
         RestTemplate rt = restTemplateBuilder.build();
 
-        //  카카오 계정 정보 조회
-        ResponseEntity<String> result = rt.exchange(
-                KAPI_USER_INFO_URL,
-                HttpMethod.GET,
-                httpEntity,
-                String.class
-        );
+        try {
+            ResponseEntity<KakaoUserInfoDTO> result;
+            //  카카오 계정 정보 조회
+            result = rt.exchange(
+                    url,
+                    HttpMethod.GET,
+                    httpEntity,
+                    KakaoUserInfoDTO.class
+            );
 
-        System.out.println("result = " + result);
+            if (result.getBody() == null) throw new UserException(ErrorCode.USER_NOT_FOUND);
 
-        return "monty@plgrim.com";
+            System.out.println("result.getBody().getProperties() = " + result.getBody().getProperties());
+
+            return result.getBody().getProperties().get("nickname");
+        } catch (HttpClientErrorException exception) {
+            if (exception.getStatusCode().value() == 401)
+                throw new UserException(ErrorCode.TOKEN_NOT_EXIST);
+        }
+
+        return null;
     }
+    // 에러 시 [{"msg":"this access token does not exist","code":-401}]
 
 //    public String logoutKakao(String token) {
 ////        //  KAKAO_REDIRECT_LOGOUT_URL

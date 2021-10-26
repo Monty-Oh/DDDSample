@@ -10,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
-//import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import plgrim.sample.common.KakaoTokenProvider;
@@ -38,8 +37,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static plgrim.sample.common.UrlValue.USRNO_PATH;
 import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
+import static plgrim.sample.common.UrlValue.USRNO_PATH;
 
 @DisplayName("UserModifyController 테스트")
 @WebMvcTest

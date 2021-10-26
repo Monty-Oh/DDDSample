@@ -17,8 +17,8 @@ import plgrim.sample.member.domain.model.aggregates.User;
 import javax.validation.Valid;
 import java.util.List;
 
-import static plgrim.sample.common.UrlValue.USRNO_PATH;
 import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
+import static plgrim.sample.common.UrlValue.USRNO_PATH;
 
 @Validated
 @RestController

@@ -34,12 +34,11 @@ public class LoginController {
     /**
      * 카카오 로그인.
      */
-//    @GetMapping(LOGIN_PATH + LOGIN_KAKAO)
-//    public
-//    @ResponseBody
-//    String loginKakaoAuth(@RequestParam("code") String code) {
-//        return userLoginService.kakaoLogin(code);
-//    }
+    @GetMapping(ROOT_LOGIN_PATH + KAKAO)
+    @ResponseBody
+    public String loginKakaoAuth(@RequestParam("code") String code) {
+        return userLoginService.kakaoLogin(code);
+    }
 
     /**
      * 카카오 로그인 페이지

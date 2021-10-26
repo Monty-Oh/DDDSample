@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,11 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 import plgrim.sample.common.KakaoTokenProvider;
 import plgrim.sample.common.LocalTokenProvider;
-import plgrim.sample.member.application.UserFindService;
-import plgrim.sample.member.application.UserJoinService;
 import plgrim.sample.member.application.UserLoginService;
-import plgrim.sample.member.application.UserModifyService;
-import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserLoginDTO;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +27,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static plgrim.sample.common.KakaoValue.*;
-import static plgrim.sample.common.UrlValue.*;
+import static plgrim.sample.common.UrlValue.KAKAO_VIEW;
+import static plgrim.sample.common.UrlValue.ROOT_LOGIN_PATH;
 
 @DisplayName("UserLoginController 테스트")
 @WebMvcTest
