@@ -23,7 +23,7 @@ public class LocalAuthenticationFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String snsType = jwtTokenProvider.resolveSnsType((HttpServletRequest) request);
         //  SNS 타입이 Local 일 때 수행한다.
-        if (snsType != null && snsType.equals(Sns.LOCAL.toString().toLowerCase())) {
+        if (snsType != null && snsType.equals(Sns.LOCAL.getValue())) {
             //  헤터에서 JWT 를 받아온다.
             String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
             //  유효한 토큰인지 확인한다.

@@ -22,13 +22,13 @@ public class KakaoTokenProvider {
     //  로그인 시도 시 받은 인가 코드를 매개변수로 넘긴다.
     //  토큰 2가지와 만료시간 등이 적혀있다.
     public KakaoTokenDTO createToken(String code) {
-        return kakaoRestApiService.getKakaoLoginTokenUsingAuthCode(KAPI_GET_TOKEN_URL, code);
+        return kakaoRestApiService.getKakaoAccessTokensUsingAuthCode(KAPI_GET_TOKEN_URL, code);
     }
 
     //  userDetailService 에서 사용자 정보를 조회해서 넘긴다.
     //  카카오로부터 토크을 사용
     public Authentication getAuthentication(String token) {
-        String userPk = kakaoRestApiService.getKakaoUserInfo(KAPI_USER_INFO_URL, token);
+        String userPk = kakaoRestApiService.getKakaoUserInfo(KAPI_USER_INFO_URL, token).getId().toString();
         UserDetails userDetails = userDetailsService.loadUserByUsername(userPk);
         return new UsernamePasswordAuthenticationToken( userDetailsService.loadUserByUsername(userPk), "", userDetails.getAuthorities());
     }

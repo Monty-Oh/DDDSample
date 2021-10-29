@@ -1,5 +1,6 @@
 package plgrim.sample.member.infrastructure.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -18,9 +19,12 @@ import org.springframework.http.MediaType;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
+import plgrim.sample.member.infrastructure.rest.dto.KakaoUserInfoDTO;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoValidateTokenDTO;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class KakaoRestApiServiceTest {
     private static final String MOCK_WEB_SERVER_URL = "/mock/test";
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final KakaoRestApiService kakaoRestApiService = new KakaoRestApiService(new RestTemplateBuilder());
+    private final KakaoRestApiService kakaoRestApiService = new KakaoRestApiService();
 
     private MockWebServer mockWebServer;
 
@@ -64,11 +68,10 @@ class KakaoRestApiServiceTest {
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .setBody(objectMapper.writeValueAsString(responseBody)));
         HttpUrl url = mockWebServer.url(MOCK_WEB_SERVER_URL);
-        System.out.println("url = " + url);
         String code = "code_for_test";
 
         //  when
-        kakaoRestApiService.getKakaoLoginTokenUsingAuthCode(url.toString(), code);
+        kakaoRestApiService.getKakaoAccessTokensUsingAuthCode(url.toString(), code);
         RecordedRequest request = mockWebServer.takeRequest();
 
         //  then
@@ -138,13 +141,37 @@ class KakaoRestApiServiceTest {
 
     @DisplayName("카카오 유저 정보 조회")
     @Test
-    void getKakaoUserInfo() {
+    void getKakaoUserInfo() throws JsonProcessingException, InterruptedException {
         //  given
-        mockWebServer.enqueue(new MockResponse());
+        KakaoUserInfoDTO kakaoUserInfoDTO = KakaoUserInfoDTO.builder()
+                .id(1L)
+                .has_signed_up(false)
+                .connected_at(new Date())
+                .synched_at(new Date())
+                .properties(new HashMap<>() {{
+                    put("nickname", "testNickname");
+                }})
+                .kakao_account(new HashMap<>() {{
+                    put("profile_nickname_needs_agreement", false);
+                    put("profile", new HashMap<>() {{
+                        put("nickname", "testNickname");
+                    }});
+                    put("has_email", true);
+                    put("email_needs_agreement", true);
+                }})
+                .build();
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setBody(objectMapper.writeValueAsString(kakaoUserInfoDTO)));
         HttpUrl url = mockWebServer.url(MOCK_WEB_SERVER_URL);
         String access_token = "access_token_for_test";
 
         //  when
+        String nickname = kakaoRestApiService.getKakaoUserInfo(url.toString(), access_token).getProperties().get("nickname");
+        RecordedRequest request = mockWebServer.takeRequest();
 
+        //  then
+        assertThat(nickname).isEqualTo(kakaoUserInfoDTO.getProperties().get("nickname"));
+        assertThat(request.getRequestUrl()).isEqualTo(url);
     }
 }

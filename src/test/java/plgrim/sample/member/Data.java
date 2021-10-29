@@ -24,7 +24,7 @@
 //                    .address("동대문구")
 //                    .gender(Gender.MALE)
 //                    .birth(LocalDate.of(1994, 3, 30))
-//                    .snsType(Sns.KAKAO)
+//                    .snsType(Sns.LOCAL)
 //                    .build())
 //            .build();
 //

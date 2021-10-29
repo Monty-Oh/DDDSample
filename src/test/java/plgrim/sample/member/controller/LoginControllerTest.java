@@ -25,10 +25,10 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static plgrim.sample.common.KakaoValue.*;
-import static plgrim.sample.common.UrlValue.KAKAO_VIEW;
-import static plgrim.sample.common.UrlValue.ROOT_LOGIN_PATH;
+import static plgrim.sample.common.UrlValue.*;
 
 @DisplayName("UserLoginController 테스트")
 @WebMvcTest
@@ -100,5 +100,25 @@ class LoginControllerTest {
 
         //  then
         assertThat(redirectedUrl).isEqualTo(builder.toUriString());
+    }
+
+    @DisplayName("Kakao 인가코드 받은 후")
+    @Test
+    void afterGetKakaoAuthCode() throws Exception{
+        //  given
+        String code = "testCode";
+        String token = "test_access_token";
+        given(userLoginService.kakaoLogin(code)).willReturn(token);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
+            add("code", code);
+        }};
+
+        //  when
+        mockMvc.perform(get(ROOT_LOGIN_PATH + KAKAO)
+                .queryParams(params))
+                .andExpect(content().string(token))
+                .andDo(print())
+                .andReturn()
+                .getResponse();
     }
 }

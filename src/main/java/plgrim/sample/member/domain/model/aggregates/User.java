@@ -35,6 +35,9 @@ public class User implements UserDetails {
     @Column(name = "PHN_NUM")
     private String phoneNumber;
 
+    @Column(name = "RFRSH_TKN")
+    private String refreshToken;
+
     @Embedded
     private UserBasic userBasic;
 
@@ -50,6 +53,8 @@ public class User implements UserDetails {
     public void changeUserBasic(UserBasic userBasic) {
         this.userBasic = userBasic;
     }
+
+    public void changeRefreshToken(String refreshToken) {this.refreshToken = refreshToken;}
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

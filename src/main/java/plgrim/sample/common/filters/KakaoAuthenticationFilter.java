@@ -23,7 +23,7 @@ public class KakaoAuthenticationFilter extends GenericFilterBean {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String snsType = kakaoTokenProvider.resolveSnsType((HttpServletRequest) request);
         //  Sns 타입이 Kakao 일 때 수행
-        if(snsType != null && snsType.equals(Sns.KAKAO.toString().toLowerCase())) {
+        if(snsType != null && snsType.equals(Sns.KAKAO.getValue())) {
             //  헤더에서 JWT 를 받아온다.
             String token = kakaoTokenProvider.resolveToken((HttpServletRequest) request);
             //  유효한 토큰인지 API 를 이용해서 확인한다.
