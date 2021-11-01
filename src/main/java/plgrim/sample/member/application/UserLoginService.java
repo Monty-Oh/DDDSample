@@ -3,16 +3,17 @@ package plgrim.sample.member.application;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.KakaoTokenProvider;
-import plgrim.sample.common.LocalTokenProvider;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
+import plgrim.sample.common.token.KakaoTokenProvider;
+import plgrim.sample.common.token.LocalTokenProvider;
 import plgrim.sample.member.controller.dto.user.UserLoginDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.service.SnsStrategy;
+import plgrim.sample.member.domain.service.SnsStrategyFactory;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
-import plgrim.sample.member.infrastructure.rest.KakaoRestApiService;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoUserInfoDTO;
 
@@ -28,7 +29,8 @@ public class UserLoginService {
     private final PasswordEncoder passwordEncoder;
     private final LocalTokenProvider localTokenProvider;
     private final KakaoTokenProvider kakaoTokenProvider;
-    private final KakaoRestApiService kakaoRestApiService;
+
+    private final SnsStrategyFactory snsStrategyFactory;
 
     // 로컬 로그인
     public String localLogin(UserLoginDTO userLoginDTO) {
@@ -43,14 +45,15 @@ public class UserLoginService {
 
     /**
      * 카카오 로그인
+     * code 를 이용해 토큰 생성 요청 후
+     * 토큰을 이용해 해당 정보를 요청하고
+     * DB에서 조회, 없으면 새로 등록시킨다.
+     * 있다면 refresh_token 을 업데이트 한다.
      */
     public String kakaoLogin(String code) {
-
-        //  카카오로부터 토큰 생성 요청
+        SnsStrategy snsStrategy = snsStrategyFactory.findSnsStrategy(Sns.KAKAO);
         KakaoTokenDTO kakaoTokenDTO = kakaoTokenProvider.createToken(code);
-
-        //  카카오로부터 토큰을 이용해 해당 정보 요청
-        KakaoUserInfoDTO kakaoUserInfo = kakaoRestApiService.getKakaoUserInfo(KAPI_USER_INFO_URL, kakaoTokenDTO.getAccess_token());
+        KakaoUserInfoDTO kakaoUserInfo = (KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, kakaoTokenDTO.getAccess_token());
 
         Optional<User> result = userRepository.findByEmail(kakaoUserInfo.getId().toString());
 
@@ -66,22 +69,10 @@ public class UserLoginService {
                     .build();
 
             userRepository.save(user);
-            System.out.println("user = " + user);
         }
         //  이미 있다면? 덮어씌운다.
         else result.get().changeRefreshToken(kakaoTokenDTO.getRefresh_token());
 
-
         return kakaoTokenDTO.getAccess_token();
     }
-
-//    /**
-//     * 카카오 로그아웃
-//     * */
-//    public String kakaoLogout(HttpServletRequest request) {
-//        String token = kakaoTokenProvider.resolveToken(request);
-//        kakaoService.logoutKakao(token);
-//
-//        return null;
-//    }
 }

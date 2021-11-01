@@ -14,11 +14,12 @@ public class SnsStrategyFactory {
 
     @Autowired
     public SnsStrategyFactory(Set<SnsStrategy> strategySet) {
-        strategySet.forEach(System.out::println);
         createSnsStrategy(strategySet);
     }
 
     public SnsStrategy findSnsStrategy(Sns sns) {
+        System.out.println("sns = " + sns);
+        System.out.println("strategyMap = " + strategyMap);
         return strategyMap.get(sns);
     }
 

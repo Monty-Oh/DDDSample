@@ -10,11 +10,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import plgrim.sample.common.KakaoTokenProvider;
-import plgrim.sample.common.LocalTokenProvider;
 import plgrim.sample.common.exceptions.AuthenticationEntryPointImpl;
 import plgrim.sample.common.filters.KakaoAuthenticationFilter;
 import plgrim.sample.common.filters.LocalAuthenticationFilter;
+import plgrim.sample.common.token.KakaoTokenProvider;
+import plgrim.sample.common.token.LocalTokenProvider;
 
 @RequiredArgsConstructor
 @EnableWebSecurity

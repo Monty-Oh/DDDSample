@@ -6,6 +6,6 @@ import plgrim.sample.common.enums.ErrorCode;
 
 @Getter
 @AllArgsConstructor
-public class UserException extends RuntimeException{
+public class UserException extends RuntimeException {
     private final ErrorCode errorCode;
 }

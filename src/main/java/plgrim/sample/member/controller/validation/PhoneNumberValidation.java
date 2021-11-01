@@ -25,14 +25,14 @@ public @interface PhoneNumberValidation {
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
             // 전화번호가 비어있는지?
-            if(!isNotBlank(value)) {
+            if (!isNotBlank(value)) {
                 addConstraintViolation(context, "전화번호를 입력해주세요.");
                 return false;
             }
 
             // 전화번호 정규식
             Pattern pattern = Pattern.compile("/^\\d{3}-\\d{3,4}-\\d{4}$/;");
-            if(!pattern.matcher(value).matches()) {
+            if (!pattern.matcher(value).matches()) {
                 addConstraintViolation(context, "전화번호 형식을 확인해주세요.");
                 return false;
             }

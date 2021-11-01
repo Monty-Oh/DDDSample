@@ -20,9 +20,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class User implements UserDetails {
     /**
-     * @PrimaryKey
-     * USR_NO 자동 생성
-     * */
+     * @PrimaryKey USR_NO 자동 생성
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long usrNo;
@@ -54,7 +53,9 @@ public class User implements UserDetails {
         this.userBasic = userBasic;
     }
 
-    public void changeRefreshToken(String refreshToken) {this.refreshToken = refreshToken;}
+    public void changeRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

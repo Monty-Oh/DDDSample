@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
-import plgrim.sample.common.LocalTokenProvider;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.common.token.LocalTokenProvider;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

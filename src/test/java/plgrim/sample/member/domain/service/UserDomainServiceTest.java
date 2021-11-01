@@ -105,7 +105,7 @@ class UserDomainServiceTest {
     /**
      * 중복체크 성공 케이스 모음
      * Optional 해결하기
-     * */
+     */
     static Stream<Arguments> getUserCheckDuplicateCase() {
         return Stream.of(
                 //  사용은 하는데 자기 자신일 때

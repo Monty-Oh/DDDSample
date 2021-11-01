@@ -27,14 +27,14 @@ public @interface EmailValidation {
         public boolean isValid(String value, ConstraintValidatorContext context) {
 
             // 이메일이 비어있는지? (null 값인지?)
-            if(!isNotBlank(value)) {
+            if (!isNotBlank(value)) {
                 addConstraintViolation(context, ErrorCode.VALIDATION_ERROR_ID_EMPTY.getDetail());
                 return false;
             }
 
             // 이메일 정규식
             Pattern pattern = Pattern.compile("^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$");
-            if(!pattern.matcher(value).matches()) {
+            if (!pattern.matcher(value).matches()) {
                 addConstraintViolation(context, ErrorCode.VALIDATION_ERROR_ID.getDetail());
                 return false;
             }

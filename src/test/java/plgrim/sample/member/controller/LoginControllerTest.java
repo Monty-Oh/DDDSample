@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
-import plgrim.sample.common.KakaoTokenProvider;
-import plgrim.sample.common.LocalTokenProvider;
+import plgrim.sample.common.token.KakaoTokenProvider;
+import plgrim.sample.common.token.LocalTokenProvider;
 import plgrim.sample.member.application.UserLoginService;
 import plgrim.sample.member.controller.dto.user.UserLoginDTO;
 
@@ -104,7 +104,7 @@ class LoginControllerTest {
 
     @DisplayName("Kakao 인가코드 받은 후")
     @Test
-    void afterGetKakaoAuthCode() throws Exception{
+    void afterGetKakaoAuthCode() throws Exception {
         //  given
         String code = "testCode";
         String token = "test_access_token";
@@ -115,7 +115,7 @@ class LoginControllerTest {
 
         //  when
         mockMvc.perform(get(ROOT_LOGIN_PATH + KAKAO)
-                .queryParams(params))
+                        .queryParams(params))
                 .andExpect(content().string(token))
                 .andDo(print())
                 .andReturn()

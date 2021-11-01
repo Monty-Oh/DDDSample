@@ -12,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -31,10 +30,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("KakaoRestApiService 테스트")
 @ExtendWith(MockitoExtension.class)
-class KakaoRestApiServiceTest {
+class KakaoStrategyTest {
     private static final String MOCK_WEB_SERVER_URL = "/mock/test";
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final KakaoRestApiService kakaoRestApiService = new KakaoRestApiService();
+    private final KakaoStrategy kakaoStrategy = new KakaoStrategy();
 
     private MockWebServer mockWebServer;
 
@@ -71,14 +70,14 @@ class KakaoRestApiServiceTest {
         String code = "code_for_test";
 
         //  when
-        kakaoRestApiService.getKakaoAccessTokensUsingAuthCode(url.toString(), code);
+        kakaoStrategy.getToken(url.toString(), code);
         RecordedRequest request = mockWebServer.takeRequest();
 
         //  then
-        assertThat(request.getRequestUrl()).isEqualTo(url);
+        assertThat(request.getRequestUrl().encodedPath()).isEqualTo(url.encodedPath());
         assertThat(request.getMethod()).isEqualTo(HttpMethod.POST.toString());
-        String params = "grant_type=authorization_code&client_id=03daa4391ed176013bd17b15f7ad39c1&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin%2Fkakao%2F&code=code_for_test";
-        assertThat(request.getBody().readUtf8()).isEqualTo(params);
+        String params = "grant_type=authorization_code&client_id=03daa4391ed176013bd17b15f7ad39c1&redirect_uri=http://localhost:8080/login/kakao/&code=code_for_test";
+        assertThat(request.getRequestUrl().encodedQuery()).isEqualTo(params);
     }
 
     @DisplayName("엑세스 토큰 검증 단위 테스트 - 토큰 이상 없음")
@@ -97,7 +96,7 @@ class KakaoRestApiServiceTest {
         String access_token = "access_token_for_test";
 
         //  when
-        kakaoRestApiService.validateToken(url.toString(), access_token);
+        kakaoStrategy.validateToken(url.toString(), access_token);
         RecordedRequest request = mockWebServer.takeRequest();
 
         //  then
@@ -117,7 +116,7 @@ class KakaoRestApiServiceTest {
         String access_token = "access_token_for_test";
 
         //  when
-        ErrorCode error = assertThrows(UserException.class, () -> kakaoRestApiService.validateToken(url.toString(), access_token)).getErrorCode();
+        ErrorCode error = assertThrows(UserException.class, () -> kakaoStrategy.validateToken(url.toString(), access_token)).getErrorCode();
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.API_SERVER);
@@ -133,7 +132,7 @@ class KakaoRestApiServiceTest {
         String access_token = "access_token_for_test";
 
         //  when
-        ErrorCode error = assertThrows(UserException.class, () -> kakaoRestApiService.validateToken(url.toString(), access_token)).getErrorCode();
+        ErrorCode error = assertThrows(UserException.class, () -> kakaoStrategy.validateToken(url.toString(), access_token)).getErrorCode();
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.EXPIRED_TOKEN);
@@ -167,7 +166,7 @@ class KakaoRestApiServiceTest {
         String access_token = "access_token_for_test";
 
         //  when
-        String nickname = kakaoRestApiService.getKakaoUserInfo(url.toString(), access_token).getProperties().get("nickname");
+        String nickname = kakaoStrategy.getUserInfo(url.toString(), access_token).getProperties().get("nickname");
         RecordedRequest request = mockWebServer.takeRequest();
 
         //  then

@@ -1,4 +1,4 @@
-package plgrim.sample.common;
+package plgrim.sample.common.token;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -26,7 +26,7 @@ import java.util.List;
 public class LocalTokenProvider {
 
     private String secretKey;
-    private final Long validTime      = 1000L * 60 * 60;     //  토큰 유효시간 30분
+    private final Long validTime = 1000L * 60 * 60;     //  토큰 유효시간 30분
 
     private final UserDetailsService userDetailsService;
 

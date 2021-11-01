@@ -12,11 +12,11 @@ public interface UserRepository {
 
     /**
      * 이메일로 회원 조회
-     * */
+     */
     Optional<User> findByEmail(String Email);
 
     /**
      * 이메일로 회원 삭제
-     * */
+     */
     void deleteByEmail(String email);
 }

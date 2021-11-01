@@ -22,6 +22,7 @@ public @interface PasswordValidation {
     Class<? extends Payload>[] payload() default {};
 
     int min() default 0;
+
     int max() default 2147483647;
 
     class Validator implements ConstraintValidator<PasswordValidation, String> {

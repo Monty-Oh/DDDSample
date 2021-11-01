@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserDomainService{
+public class UserDomainService {
     private final UserJPARepository userRepository;
     private final SHA256 sha256;
 
@@ -46,7 +46,7 @@ public class UserDomainService{
      * 이미 사용하는 전화번호인지 체크
      * 자신의 번호라면 통과.
      * 자신의 번호가 아니며 누군가 사용중이면 변경 불가
-     * */
+     */
     public Boolean checkDuplicatePhoneNumberExceptOwn(String phoneNumber, Long usrNo) {
         Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
         return user.isPresent() && !user.get().getUsrNo().equals(usrNo);

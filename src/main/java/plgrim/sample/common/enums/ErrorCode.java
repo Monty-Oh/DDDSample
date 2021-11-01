@@ -17,8 +17,8 @@ public enum ErrorCode {
     VALIDATION_ERROR_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호는 5자 ~ 20자 사이로 입력해주세요."),
 
     /**
-     *  401 SC_UNAUTHORIZED :   인증 필요, 권한 없음
-     * */
+     * 401 SC_UNAUTHORIZED :   인증 필요, 권한 없음
+     */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "권한이 없는 요청입니다."),
     TOKEN_NOT_EXIST(HttpStatus.UNAUTHORIZED, "존재하지 않는 엑세스 토큰 입니다,"),
 
