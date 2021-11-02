@@ -1,8 +1,8 @@
 package plgrim.sample.member.application;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
@@ -18,7 +18,7 @@ import java.util.Optional;
 public class UserModifyService {
     private final UserJPARepository userRepository;        // 리포지토리
     private final UserDomainService userDomainService;
-    private final SHA256 sha256;                        // 암호화 객체
+    private final PasswordEncoder passwordEncoder;
 
 
     /**
@@ -37,7 +37,7 @@ public class UserModifyService {
         User result = userRepository.save(User.builder()
                 .usrNo(user.get().getUsrNo())
                 .email(userModifyCommand.getEmail())
-                .password(sha256.encrypt(userModifyCommand.getPassword()))          // 비밀번호 암호화
+                .password(passwordEncoder.encode(userModifyCommand.getPassword()))          // 비밀번호 암호화
                 .phoneNumber(userModifyCommand.getPhoneNumber())
                 .userBasic(userModifyCommand.getUserBasic())
                 .build());

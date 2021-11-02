@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +36,7 @@ import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import java.time.LocalDate;
 
 import static org.apache.logging.log4j.util.Strings.isNotBlank;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -122,7 +124,7 @@ class UserJoinControllerTest {
 
         //  then
         UserDTO result = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), UserDTO.class);
-        Assertions.assertThat(result)
+        assertThat(result)
                 .usingRecursiveComparison()
                 .isEqualTo(userDTO);
     }
@@ -165,7 +167,7 @@ class UserJoinControllerTest {
      * 회원가입
      * email validation 반복 테스트
      */
-    @DisplayName("회원가입 실패 - (Validation)")
+    @DisplayName("회원가입 실패 - (Email Validation)")
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"12312aㅁㄴㅇㅁㄴ23"})
@@ -195,11 +197,11 @@ class UserJoinControllerTest {
      * 회원가입
      * password validation 반복 테스트
      */
-    @DisplayName("회원가입 실패 - (Validation)")
+    @DisplayName("회원가입 실패 - Password 형식")
     @ParameterizedTest
-    @NullAndEmptySource
     @ValueSource(strings = {"0", "000000000000000000000000000000000000000000000000000000000"})
     void joinFailPasswordValidation(String password) throws Exception {
+        //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
                 .email("monty@plgrim.com")
                 .password(password)
@@ -210,13 +212,102 @@ class UserJoinControllerTest {
                 .snsType(Sns.LOCAL)
                 .build());
 
-        mockMvc.perform(post("/users")
+        //  when
+        MockHttpServletResponse response = mockMvc.perform(post("/users")
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(isNotBlank(password)
-                        ? ErrorCode.VALIDATION_ERROR_PASSWORD.getDetail()
-                        : ErrorCode.VALIDATION_ERROR_PASSWORD_EMPTY.getDetail()))
-                .andDo(print());
+                .andReturn()
+                .getResponse();
+
+        //  then
+        assertThat(response.getStatus()).isEqualTo(ErrorCode.VALIDATION_ERROR_PASSWORD.getHttpStatus().value());
+        assertThat(response.getContentAsString()).isEqualTo(ErrorCode.VALIDATION_ERROR_PASSWORD.getDetail());
+    }
+
+    @DisplayName("회원가입 실패 - Password 형식")
+    @ParameterizedTest
+    @NullAndEmptySource
+    void joinFailPasswordValidationEmptyValue(String password) throws Exception {
+        //  given
+        String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
+                .email("monty@plgrim.com")
+                .password(password)
+                .phoneNumber("01040684490")
+                .address("동대문구")
+                .gender(Gender.MALE)
+                .birth(LocalDate.of(1994, 3, 30))
+                .snsType(Sns.LOCAL)
+                .build());
+
+        //  when
+        MockHttpServletResponse response = mockMvc.perform(post("/users")
+                        .content(content)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse();
+
+        //  then
+        assertThat(response.getStatus()).isEqualTo(ErrorCode.VALIDATION_ERROR_PASSWORD_EMPTY.getHttpStatus().value());
+        assertThat(response.getContentAsString()).isEqualTo(ErrorCode.VALIDATION_ERROR_PASSWORD_EMPTY.getDetail());
+    }
+
+
+
+    /**
+     * 회원가입
+     * PhoneNumber validation 반복 테스트
+     */
+    @DisplayName("회원가입 실패 - PhoneNumber 형식")
+    @ParameterizedTest
+    @ValueSource(strings = {"0", "01040684490000"})
+    void joinFailPhoneNumberValidation(String phoneNumber) throws  Exception {
+        //  given
+        String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
+                .email("monty@plgrim.com")
+                .password("12345")
+                .phoneNumber(phoneNumber)
+                .address("동대문구")
+                .gender(Gender.MALE)
+                .birth(LocalDate.of(1994, 3, 30))
+                .snsType(Sns.LOCAL)
+                .build());
+
+        //  when
+        MockHttpServletResponse response = mockMvc.perform(post("/users")
+                        .content(content)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse();
+
+        //  then
+        assertThat(response.getStatus()).isEqualTo(ErrorCode.VALIDATION_ERROR_PHONE_NUMBER.getHttpStatus().value());
+        assertThat(response.getContentAsString()).isEqualTo(ErrorCode.VALIDATION_ERROR_PHONE_NUMBER.getDetail());
+    }
+
+    @DisplayName("회원가입 실패 - 비어있는 PhoneNumber")
+    @ParameterizedTest
+    @NullAndEmptySource
+    void joinFailPhoneNumberValidationEmptyValue(String phoneNumber) throws Exception {
+        //  given
+        String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
+                .email("monty@plgrim.com")
+                .password("12345")
+                .phoneNumber(phoneNumber)
+                .address("동대문구")
+                .gender(Gender.MALE)
+                .birth(LocalDate.of(1994, 3, 30))
+                .snsType(Sns.LOCAL)
+                .build());
+
+        //  when
+        MockHttpServletResponse response = mockMvc.perform(post("/users")
+                        .content(content)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse();
+
+        //  then
+        assertThat(response.getStatus()).isEqualTo(ErrorCode.VALIDATION_ERROR_PHONE_NUMBER_EMPTY.getHttpStatus().value());
+        assertThat(response.getContentAsString()).isEqualTo(ErrorCode.VALIDATION_ERROR_PHONE_NUMBER_EMPTY.getDetail());
     }
 }

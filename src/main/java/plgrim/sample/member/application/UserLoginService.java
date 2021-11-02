@@ -11,16 +11,11 @@ import plgrim.sample.common.token.LocalTokenProvider;
 import plgrim.sample.member.controller.dto.user.UserLoginDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.domain.service.SnsStrategy;
-import plgrim.sample.member.domain.service.SnsStrategyFactory;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
-import plgrim.sample.member.infrastructure.rest.dto.KakaoUserInfoDTO;
 
 import java.util.Collections;
 import java.util.Optional;
-
-import static plgrim.sample.common.KakaoValue.KAPI_USER_INFO_URL;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +24,6 @@ public class UserLoginService {
     private final PasswordEncoder passwordEncoder;
     private final LocalTokenProvider localTokenProvider;
     private final KakaoTokenProvider kakaoTokenProvider;
-
-    private final SnsStrategyFactory snsStrategyFactory;
 
     // 로컬 로그인
     public String localLogin(UserLoginDTO userLoginDTO) {
@@ -51,16 +44,15 @@ public class UserLoginService {
      * 있다면 refresh_token 을 업데이트 한다.
      */
     public String kakaoLogin(String code) {
-        SnsStrategy snsStrategy = snsStrategyFactory.findSnsStrategy(Sns.KAKAO);
         KakaoTokenDTO kakaoTokenDTO = kakaoTokenProvider.createToken(code);
-        KakaoUserInfoDTO kakaoUserInfo = (KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, kakaoTokenDTO.getAccess_token());
+        String kakaoUserEmail = kakaoTokenProvider.getUserPk(kakaoTokenDTO.getAccess_token());
 
-        Optional<User> result = userRepository.findByEmail(kakaoUserInfo.getId().toString());
+        Optional<User> result = userRepository.findByEmail(kakaoUserEmail);
 
         // 비어있다면?
         if (result.isEmpty()) {
             User user = User.builder()
-                    .email(kakaoUserInfo.getId().toString())
+                    .email(kakaoUserEmail)
                     .refreshToken(kakaoTokenDTO.getRefresh_token())
                     .roles(Collections.singletonList("ROLE_USER"))
                     .userBasic(UserBasic.builder()

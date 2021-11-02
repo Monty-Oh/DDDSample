@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import plgrim.sample.common.SHA256;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
@@ -21,6 +21,7 @@ import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -35,7 +36,7 @@ class UserModifyServiceTest {
     UserJPARepository userRepository;
 
     @Mock
-    SHA256 sha256;
+    PasswordEncoder passwordEncoder;
 
     @Mock
     UserDomainService userDomainService;
@@ -84,7 +85,7 @@ class UserModifyServiceTest {
         given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo())).willReturn(false);
         given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getPhoneNumber(), userModifyCommand.getUsrNo())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
-        given(sha256.encrypt(userModifyCommand.getPassword())).willReturn("encrypt password");
+        given(passwordEncoder.encode(userModifyCommand.getPassword())).willReturn("encrypt password");
 
         //  when
         UserDTO result = userModifyService.modify(userModifyCommand);

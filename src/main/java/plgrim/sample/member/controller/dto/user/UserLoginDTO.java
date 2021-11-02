@@ -10,7 +10,6 @@ import plgrim.sample.member.controller.validation.PasswordValidation;
 @Getter
 @Builder
 @AllArgsConstructor
-@ToString
 public class UserLoginDTO {
     @EmailValidation
     private String email;

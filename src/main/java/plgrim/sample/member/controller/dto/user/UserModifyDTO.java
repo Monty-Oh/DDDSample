@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Getter
 @Builder
 @AllArgsConstructor
-@ToString
 public class UserModifyDTO {
     private Long usrNo;
 

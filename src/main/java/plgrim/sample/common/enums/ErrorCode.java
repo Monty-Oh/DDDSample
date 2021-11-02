@@ -11,6 +11,8 @@ public enum ErrorCode {
      * 400 BAD REQUEST  :   잘못된 요청, Validation 에러
      */
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Validation Error"),
+    VALIDATION_ERROR_PHONE_NUMBER_EMPTY(HttpStatus.BAD_REQUEST, "전화번호를 입력해주세요."),
+    VALIDATION_ERROR_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "전화번호 형식을 확인해주세요."),
     VALIDATION_ERROR_ID_EMPTY(HttpStatus.BAD_REQUEST, "이메일을 입력해주세요."),
     VALIDATION_ERROR_ID(HttpStatus.BAD_REQUEST, "이메일 형식을 확인해주세요."),
     VALIDATION_ERROR_PASSWORD_EMPTY(HttpStatus.BAD_REQUEST, "비밀번호를 입력해주세요."),

@@ -1,8 +1,8 @@
 package plgrim.sample.member.domain.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import plgrim.sample.common.SHA256;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.domain.model.aggregates.User;
@@ -14,7 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserDomainService {
     private final UserJPARepository userRepository;
-    private final SHA256 sha256;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * 이미 사용하는 이메일인지 체크
@@ -59,6 +59,6 @@ public class UserDomainService {
         Optional<User> user = userRepository.findByEmail(email);          // id로 조회
         if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);      // user가 없으면 에러
 
-        return user.get().getPassword().equals(sha256.encrypt(password));
+        return user.get().getPassword().equals(passwordEncoder.encode(password));
     }
 }

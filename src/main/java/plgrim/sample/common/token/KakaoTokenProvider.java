@@ -43,9 +43,13 @@ public class KakaoTokenProvider {
      * 카카오로부터 토큰을 사용
      */
     public Authentication getAuthentication(String token) {
-        String userPk = ((KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, token)).getId().toString();
+        String userPk = this.getUserPk(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(userPk);
         return new UsernamePasswordAuthenticationToken(userDetailsService.loadUserByUsername(userPk), "", userDetails.getAuthorities());
+    }
+
+    public String getUserPk(String token) {
+        return ((KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, token)).getId().toString();
     }
 
     /**
