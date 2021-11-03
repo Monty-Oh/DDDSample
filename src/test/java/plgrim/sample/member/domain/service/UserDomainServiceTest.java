@@ -17,7 +17,6 @@ import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,7 +36,7 @@ class UserDomainServiceTest {
             .usrNo(1L)
             .email("monty@plgrim.com")
             .password("encrypted password")
-            .phoneNumber("01040684490")
+            .mobileNo("01040684490")
             .userBasic(UserBasic.builder()
                     .address("동대문구")
                     .gender(Gender.MALE)
@@ -76,27 +75,27 @@ class UserDomainServiceTest {
         assertTrue(result);
     }
 
-    @DisplayName("회원 전화번호 중복 체크(phoneNumber) - 통과")
+    @DisplayName("회원 전화번호 중복 체크(mobileNo) - 통과")
     @Test
     void checkDuplicatePhoneNumber() {
         //  given
-        given(userRepository.findByPhoneNumber(user.getPhoneNumber())).willReturn(Optional.of(user));
+        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.of(user));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getPhoneNumber());
+        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getMobileNo());
 
         //  then
         assertTrue(result);
     }
 
-    @DisplayName("회원 전화번호 중복 체크(phoneNumber) - 실패")
+    @DisplayName("회원 전화번호 중복 체크(mobileNo) - 실패")
     @Test
     void checkDuplicatePhoneNumberFail() {
         //  given
-        given(userRepository.findByPhoneNumber(user.getPhoneNumber())).willReturn(Optional.empty());
+        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.empty());
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getPhoneNumber());
+        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getMobileNo());
 
         //  then
         assertFalse(result);
@@ -105,14 +104,11 @@ class UserDomainServiceTest {
 
     /**
      * 중복체크 성공 케이스 모음
-     * Optional 해결하기
      */
     static Stream<Arguments> getUserCheckDuplicateCase() {
         return Stream.of(
-                //  사용은 하는데 자기 자신일 때
-                Arguments.arguments(user),
-                //  아무도 사용 안할 때
-                Arguments.arguments((User) null)
+                Arguments.arguments(user),          //  사용은 하는데 자기 자신일 때
+                Arguments.arguments((User) null)    //  아무도 사용 안할 때
         );
     }
 
@@ -130,15 +126,15 @@ class UserDomainServiceTest {
         assertFalse(result);
     }
 
-    @DisplayName("회원 전화번호 중복 체크(phoneNumber, usrNo) - 통과")
+    @DisplayName("회원 전화번호 중복 체크(mobileNo, usrNo) - 통과")
     @ParameterizedTest(name = "중복 체크 통과, findByPhoneNumber return: {0}")
     @MethodSource("getUserCheckDuplicateCase")
     void checkDuplicatePhoneNumberAndUsrNoOwnPhoneNumber(User expectedReturn) {
         //  given
-        given(userRepository.findByPhoneNumber(user.getPhoneNumber())).willReturn(Optional.ofNullable(expectedReturn));
+        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.ofNullable(expectedReturn));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getPhoneNumber(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getMobileNo(), user.getUsrNo());
 
         //  then
         assertFalse(result);
@@ -157,14 +153,14 @@ class UserDomainServiceTest {
         assertTrue(result);
     }
 
-    @DisplayName("회원 전화번호 중복 체크(phoneNumber, usrNo) - 실패, 이미 사용함")
+    @DisplayName("회원 전화번호 중복 체크(mobileNo, usrNo) - 실패, 이미 사용함")
     @Test
     void checkDuplicatePhoneNumberAndUsrNoFail() {
         //  given
-        given(userRepository.findByPhoneNumber(user.getPhoneNumber())).willReturn(Optional.of(otherUser));
+        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.of(otherUser));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getPhoneNumber(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getMobileNo(), user.getUsrNo());
 
         //  then
         assertTrue(result);

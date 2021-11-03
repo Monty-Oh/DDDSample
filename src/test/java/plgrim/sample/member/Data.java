@@ -19,7 +19,7 @@
 //    UserJoinCommand userJoinCommand = UserJoinCommand.builder()
 //            .email("monty@plgrim.com")
 //            .password("testtest")
-//            .phoneNumber("01040684490")
+//            .mobileNo("01040684490")
 //            .userBasic(UserBasic.builder()
 //                    .address("동대문구")
 //                    .gender(Gender.MALE)

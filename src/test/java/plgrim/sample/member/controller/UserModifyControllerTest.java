@@ -76,7 +76,7 @@ class UserModifyControllerTest {
                 .usrNo(1L)
                 .email("monty@plgrim.com")
                 .password("test")
-                .phoneNumber("01040684490")
+                .mobileNo("01040684490")
                 .userBasic(UserBasic.builder()
                         .address("domdaemungu")
                         .gender(Gender.MALE)
@@ -89,7 +89,7 @@ class UserModifyControllerTest {
                 .usrNo(user.getUsrNo())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .phoneNumber(user.getPhoneNumber())
+                .phoneNumber(user.getMobileNo())
                 .address(user.getUserBasic().getAddress())
                 .gender(user.getUserBasic().getGender())
                 .birth(user.getUserBasic().getBirth())
@@ -99,7 +99,7 @@ class UserModifyControllerTest {
         userDTO = UserDTO.builder()
                 .usrNo(user.getUsrNo())
                 .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
+                .phoneNumber(user.getMobileNo())
                 .userBasic(user.getUserBasic())
                 .build();
     }

@@ -15,13 +15,13 @@ import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserModifyCommand;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -51,28 +51,21 @@ class UserModifyServiceTest {
     @BeforeEach
     void setup() {
         user = User.builder()
-                .usrNo(1L)
                 .email("monty@plgrim.com")
-                .password("test")
-                .phoneNumber("01040684490")
-                .userBasic(UserBasic.builder()
-                        .address("동대문구")
-                        .gender(Gender.MALE)
-                        .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
-                        .build())
                 .build();
 
         userModifyCommand = UserModifyCommand.builder()
                 .usrNo(1L)
                 .email("monty@plgrim.com")
                 .password("test")
-                .phoneNumber("01040684490")
+                .nickName("monty")
+                .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
     }
@@ -83,7 +76,7 @@ class UserModifyServiceTest {
         //  given
         given(userRepository.findById(userModifyCommand.getUsrNo())).willReturn(Optional.of(user));
         given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getPhoneNumber(), userModifyCommand.getUsrNo())).willReturn(false);
+        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getUsrNo())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
         given(passwordEncoder.encode(userModifyCommand.getPassword())).willReturn("encrypt password");
 
@@ -127,7 +120,7 @@ class UserModifyServiceTest {
         //  given
         given(userRepository.findById(userModifyCommand.getUsrNo())).willReturn(Optional.of(user));
         given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getPhoneNumber(), userModifyCommand.getUsrNo())).willReturn(true);
+        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getUsrNo())).willReturn(true);
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyCommand)).getErrorCode();

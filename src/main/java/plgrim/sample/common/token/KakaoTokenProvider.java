@@ -19,7 +19,7 @@ import static plgrim.sample.common.KakaoValue.*;
 
 @RequiredArgsConstructor
 @Component
-public class KakaoTokenProvider {
+public class KakaoTokenProvider implements TokenProvider {
     private final UserDetailsService userDetailsService;
     private final SnsStrategyFactory snsStrategyFactory;
 
@@ -38,37 +38,31 @@ public class KakaoTokenProvider {
         return (KakaoTokenDTO) snsStrategy.getToken(KAPI_GET_TOKEN_URL, code);
     }
 
+    @Override
+    public Sns getThisTargetSns() {
+        return Sns.KAKAO;
+    }
+
     /**
      * userDetailService 에서 사용자 정보를 조회해서 넘긴다.
      * 카카오로부터 토큰을 사용
      */
+    @Override
     public Authentication getAuthentication(String token) {
         String userPk = this.getUserPk(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(userPk);
         return new UsernamePasswordAuthenticationToken(userDetailsService.loadUserByUsername(userPk), "", userDetails.getAuthorities());
     }
 
+    @Override
     public String getUserPk(String token) {
         return ((KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, token)).getId().toString();
     }
 
     /**
-     * Request 의 Header 에서 token 값을 가져온다. "X-AUTH-TOKEN" : "TOKEN 값'
-     */
-    public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
-    }
-
-    /**
-     * Request 의 Header 에서 SnsType 값을 가져온다. "X-SNS-TYPE"   :   "SnsType 값"
-     */
-    public String resolveSnsType(HttpServletRequest request) {
-        return request.getHeader("X-SNS-TYPE");
-    }
-
-    /**
      * 해당 토큰에 대한 검증을 실시한다.
      */
+    @Override
     public boolean validateToken(String jwtToken) {
         try {
             snsStrategy.validateToken(KAPI_CHECK_ACCESS_TOKEN_URL, jwtToken);

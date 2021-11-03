@@ -8,6 +8,7 @@ import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.common.token.KakaoTokenProvider;
 import plgrim.sample.common.token.LocalTokenProvider;
+import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserLoginDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
@@ -47,23 +48,24 @@ public class UserLoginService {
         KakaoTokenDTO kakaoTokenDTO = kakaoTokenProvider.createToken(code);
         String kakaoUserEmail = kakaoTokenProvider.getUserPk(kakaoTokenDTO.getAccess_token());
 
-        Optional<User> result = userRepository.findByEmail(kakaoUserEmail);
+//        userJoinService.join(UserCommandMapper)
+//        Optional<User> result = userRepository.findByEmail(kakaoUserEmail);
 
-        // 비어있다면?
-        if (result.isEmpty()) {
-            User user = User.builder()
-                    .email(kakaoUserEmail)
-                    .refreshToken(kakaoTokenDTO.getRefresh_token())
-                    .roles(Collections.singletonList("ROLE_USER"))
-                    .userBasic(UserBasic.builder()
-                            .snsType(Sns.KAKAO)
-                            .build())
-                    .build();
-
-            userRepository.save(user);
-        }
+//        // 비어있다면?
+//        if (result.isEmpty()) {
+//            User user = User.builder()
+//                    .email(kakaoUserEmail)
+//                    .refreshToken(kakaoTokenDTO.getRefresh_token())
+//                    .roles(Collections.singletonList("ROLE_USER"))
+//                    .userBasic(UserBasic.builder()
+//                            .snsType(Sns.KAKAO)
+//                            .build())
+//                    .build();
+//
+//            userRepository.save(user);
+//        }
         //  이미 있다면? 덮어씌운다.
-        else result.get().changeRefreshToken(kakaoTokenDTO.getRefresh_token());
+//        else result.get().changeRefreshToken(kakaoTokenDTO.getRefresh_token());
 
         return kakaoTokenDTO.getAccess_token();
     }

@@ -17,6 +17,7 @@ public enum ErrorCode {
     VALIDATION_ERROR_ID(HttpStatus.BAD_REQUEST, "이메일 형식을 확인해주세요."),
     VALIDATION_ERROR_PASSWORD_EMPTY(HttpStatus.BAD_REQUEST, "비밀번호를 입력해주세요."),
     VALIDATION_ERROR_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호는 5자 ~ 20자 사이로 입력해주세요."),
+    ILLEGAL_ARGUMENT_SNS(HttpStatus.BAD_REQUEST, "해당 Sns 타입을 찾을 수 없습니다."),
 
     /**
      * 401 SC_UNAUTHORIZED :   인증 필요, 권한 없음

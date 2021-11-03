@@ -1,11 +1,9 @@
 package plgrim.sample.member.domain.model.valueobjects;
 
 import lombok.*;
-import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 
 import javax.persistence.Embeddable;
-import java.time.LocalDate;
 
 @Builder
 @NoArgsConstructor
@@ -13,8 +11,10 @@ import java.time.LocalDate;
 @Embeddable
 @ToString
 @Getter
-public class UserBasic {
-    private String address;
-    private Gender gender;
-    private LocalDate birth;
+public class SnsInfo {
+    private String refreshToken;
+
+    public void changeRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }

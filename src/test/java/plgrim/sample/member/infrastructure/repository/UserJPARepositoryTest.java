@@ -36,7 +36,7 @@ class UserJPARepositoryTest {
         user = User.builder()
                 .email("monty@plgrim.com")
                 .password("123456")
-                .phoneNumber("01040684490")
+                .mobileNo("01040684490")
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
@@ -48,7 +48,7 @@ class UserJPARepositoryTest {
         user2 = User.builder()
                 .email("lizzy@plgrim.com")
                 .password("123456")
-                .phoneNumber("000")
+                .mobileNo("000")
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
@@ -60,7 +60,7 @@ class UserJPARepositoryTest {
         user3 = User.builder()
                 .email("mandy@plgrim.com")
                 .password("123456")
-                .phoneNumber("0000")
+                .mobileNo("0000")
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
@@ -118,7 +118,7 @@ class UserJPARepositoryTest {
     void findByPhoneNumber() {
         userRepository.save(user);
         // 저장 후 전화번호로 조회한다.
-        Optional<User> result = userRepository.findByPhoneNumber(user.getPhoneNumber());
+        Optional<User> result = userRepository.findByPhoneNumber(user.getMobileNo());
         // 저장을 했는데 결과가 없으면 에러
         assertFalse(result.isEmpty());
         // 저장한 user의 ID와 불러온 유저의 정보가 같아야 한다. 내부 값 검증.
@@ -170,7 +170,7 @@ class UserJPARepositoryTest {
         user.changeUserBasic(newUserBasic);
 
         assertThat(user.getPassword()).isEqualTo("testPassword");
-        assertThat(user.getPhoneNumber()).isEqualTo("00000000000");
+        assertThat(user.getMobileNo()).isEqualTo("00000000000");
         assertThat(user.getUserBasic()).isSameAs(newUserBasic);
     }
 

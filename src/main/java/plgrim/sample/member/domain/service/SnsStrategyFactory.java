@@ -18,8 +18,6 @@ public class SnsStrategyFactory {
     }
 
     public SnsStrategy findSnsStrategy(Sns sns) {
-        System.out.println("sns = " + sns);
-        System.out.println("strategyMap = " + strategyMap);
         return strategyMap.get(sns);
     }
 

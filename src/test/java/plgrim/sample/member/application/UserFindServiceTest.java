@@ -15,6 +15,7 @@ import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
@@ -43,36 +44,48 @@ class UserFindServiceTest {
     @BeforeEach
     void setup() {
         user = User.builder()
+                .usrNo(1L)
+                .userId("monty")
                 .email("monty@plgrim.com")
                 .password("123456")
-                .phoneNumber("01040684490")
+                .nickName("monty")
+                .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
         user2 = User.builder()
+                .usrNo(2L)
+                .userId("monty2")
                 .email("monty2@plgrim.com")
                 .password("123456")
-                .phoneNumber("01040684490")
+                .nickName("monty2")
+                .mobileNo("01040684491")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
         user3 = User.builder()
+                .usrNo(3L)
+                .userId("monty3")
                 .email("monty3@plgrim.com")
                 .password("123456")
-                .phoneNumber("01040684490")
+                .nickName("monty3")
+                .mobileNo("01040684492")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
     }
@@ -82,10 +95,7 @@ class UserFindServiceTest {
     void findUserByUsrNo() {
         //  given
         given(userRepository.findById(1L)).willReturn(Optional.of(User.builder()
-                .usrNo(1L)
                 .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
-                .userBasic(user.getUserBasic())
                 .build()));
 
         //  when

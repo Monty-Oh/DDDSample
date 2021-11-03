@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import plgrim.sample.common.enums.Sns;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +24,7 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @Component
-public class LocalTokenProvider {
+public class LocalTokenProvider implements TokenProvider {
 
     private String secretKey;
     private final Long validTime = 1000L * 60 * 60;     //  토큰 유효시간 30분
@@ -52,7 +53,13 @@ public class LocalTokenProvider {
                 .compact();
     }
 
+    @Override
+    public Sns getThisTargetSns() {
+        return Sns.LOCAL;
+    }
+
     // JWT 토큰에서 인증 정보 조회
+    @Override
     public Authentication getAuthentication(String token) {
         //  UserDetailService 에 사용자 정보(아이디)를 넘겨준다.
         //  넘겨받은 사용자 정보를 통해 DB에서 찾은 사용자 정보인 UserDetails 객체를 생성한다.
@@ -62,6 +69,7 @@ public class LocalTokenProvider {
     }
 
     // 토큰에서 회원 정보 추출
+    @Override
     public String getUserPk(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
@@ -70,17 +78,8 @@ public class LocalTokenProvider {
                 .getSubject();
     }
 
-    //  Request 의 Header 에서 token 값을 가져옵니다. "X-AUTH-TOKEN" : "TOKEN 값'
-    public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("X-AUTH-TOKEN");
-    }
-
-    //  Request 의 Header 에서 SnsType 값을 가져온다. "X-SNS-TYPE"   :   "SnsType 값"
-    public String resolveSnsType(HttpServletRequest request) {
-        return request.getHeader("X-SNS-TYPE");
-    }
-
     // 토큰의 유효성 + 만료일자 확인
+    @Override
     public boolean validateToken(String jwtToken) {
         try {
             Jws<Claims> claims = Jwts.parser()

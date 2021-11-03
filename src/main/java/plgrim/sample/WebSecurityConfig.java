@@ -11,18 +11,14 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import plgrim.sample.common.exceptions.AuthenticationEntryPointImpl;
-import plgrim.sample.common.filters.KakaoAuthenticationFilter;
-import plgrim.sample.common.filters.LocalAuthenticationFilter;
-import plgrim.sample.common.token.KakaoTokenProvider;
-import plgrim.sample.common.token.LocalTokenProvider;
+import plgrim.sample.common.filters.AuthenticationFilter;
+import plgrim.sample.common.token.TokenProviderFactory;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final LocalTokenProvider jwtTokenProvider;
-    private final KakaoTokenProvider kakaoTokenProvider;
-//    private final KakaoRestApiService kakaoRestApiService;
+    private final TokenProviderFactory tokenProviderFactory;
 
     //  암호화에 필요한 PasswordEncoder 등록
     @Bean
@@ -54,7 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(new AuthenticationEntryPointImpl())
                 .and()
                 //  JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다.
-                .addFilterBefore(new LocalAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new KakaoAuthenticationFilter(kakaoTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new AuthenticationFilter(tokenProviderFactory), UsernamePasswordAuthenticationFilter.class);
+//                .addFilterBefore(new KakaoAuthenticationFilter(kakaoTokenProvider), UsernamePasswordAuthenticationFilter.class);
     }
 }

@@ -26,8 +26,12 @@ public class UserFindService {
         User user = result.get();
         return UserDTO.builder()
                 .usrNo(user.getUsrNo())
+                .userId(user.getUserId())
                 .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
+                .nickName(user.getNickName())
+                .mobileNo(user.getMobileNo())
+                .snsType(user.getSnsType())
+                .snsInfo(user.getSnsInfo())
                 .userBasic(user.getUserBasic())
                 .build();
     }
@@ -43,8 +47,12 @@ public class UserFindService {
         User user = result.get();
         return UserDTO.builder()
                 .usrNo(user.getUsrNo())
+                .userId(user.getUserId())
                 .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
+                .nickName(user.getNickName())
+                .mobileNo(user.getMobileNo())
+                .snsType(user.getSnsType())
+                .snsInfo(user.getSnsInfo())
                 .userBasic(user.getUserBasic())
                 .build();
     }

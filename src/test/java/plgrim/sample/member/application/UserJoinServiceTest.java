@@ -15,6 +15,7 @@ import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
@@ -48,28 +49,22 @@ class UserJoinServiceTest {
     @BeforeEach
     void setup() {
         userJoinCommand = UserJoinCommand.builder()
+                .userId("monty")
                 .email("monty@plgrim.com")
                 .password("test")
-                .phoneNumber("01040684490")
+                .nickName("monty")
+                .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
 
         user = User.builder()
-                .usrNo(1L)
                 .email("monty@plgrim.com")
-                .password("encrypted password")
-                .phoneNumber("01040684490")
-                .userBasic(UserBasic.builder()
-                        .address("동대문구")
-                        .gender(Gender.MALE)
-                        .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
-                        .build())
                 .build();
     }
 
@@ -79,7 +74,7 @@ class UserJoinServiceTest {
         //  given
         given(passwordEncoder.encode(userJoinCommand.getPassword())).willReturn("encrypted password");
         given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber())).willReturn(false);
+        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getMobileNo())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
 
         //  when
@@ -107,7 +102,7 @@ class UserJoinServiceTest {
     void joinUserFailDuplicatedPhoneNum() {
         //  given
         given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber())).willReturn(true);
+        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getMobileNo())).willReturn(true);
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand)).getErrorCode();

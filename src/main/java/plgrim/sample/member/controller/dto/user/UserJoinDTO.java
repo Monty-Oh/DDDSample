@@ -16,20 +16,32 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class UserJoinDTO {
+    private String userId;
+
     @EmailValidation
     private String email;
 
     @PasswordValidation(min = 5, max = 20)
     private String password;
 
+    private String nickName;
+
+    private Sns snsType;
+
+    /**
+     * SnsInfo.class
+     * */
+    private String refreshToken;
+
+    /**
+     * UserBasic.class
+     * */
     @PhoneNumberValidation
-    private String phoneNumber;
+    private String mobileNo;
 
     private String address;
 
     private Gender gender;
 
     private LocalDate birth;
-
-    private Sns snsType;
 }

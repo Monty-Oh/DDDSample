@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
@@ -21,20 +22,29 @@ public class UserJoinService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * 회원 가입
+     * local 일 때 email 은 유일 키
+     * local 일 때 mobileNo은 유일 키
      */
     public UserDTO join(UserJoinCommand userJoinCommand) {
-        if (userDomainService.checkDuplicateEmail(userJoinCommand.getEmail()))                      // 이미 있으면? 에러
-            throw new UserException(ErrorCode.DUPLICATE_ID);
+        if (userJoinCommand.getSnsType().equals(Sns.LOCAL)) {
+            if (userDomainService.checkDuplicateEmail(userJoinCommand.getEmail()))
+                throw new UserException(ErrorCode.DUPLICATE_ID);
 
-        if (userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getPhoneNumber()))    // 만약 중복되는 phoneNumber가 있으면? 에러
-            throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
+            if (userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getMobileNo()))    // 만약 중복되는 phoneNumber가 있으면? 에러
+                throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
+        }
 
         // 엔티티 객체로 변환
         User user = User.builder()
+                .userId(userJoinCommand.getSnsType().equals(Sns.LOCAL) ?
+                        userJoinCommand.getUserId() :
+                        userJoinCommand.getUserId() + "_" + userJoinCommand.getSnsType().getValue())
                 .email(userJoinCommand.getEmail())
                 .password(passwordEncoder.encode(userJoinCommand.getPassword()))
-                .phoneNumber(userJoinCommand.getPhoneNumber())
+                .nickName(userJoinCommand.getNickName())
+                .mobileNo(userJoinCommand.getMobileNo())
+                .snsType(userJoinCommand.getSnsType())
+                .snsInfo(userJoinCommand.getSnsInfo())
                 .userBasic(userJoinCommand.getUserBasic())
                 .roles(Collections.singletonList("ROLE_USER"))
                 .build();
@@ -45,8 +55,11 @@ public class UserJoinService {
         // usrNo 반환
         return UserDTO.builder()
                 .usrNo(result.getUsrNo())
+                .userId(result.getUserId())
                 .email(result.getEmail())
-                .phoneNumber(result.getPhoneNumber())
+                .mobileNo(result.getMobileNo())
+                .snsType(result.getSnsType())
+                .snsInfo(result.getSnsInfo())
                 .userBasic(result.getUserBasic())
                 .build();
     }

@@ -57,23 +57,23 @@ class LocalTokenProviderTest {
         assertThat(userPk).isEqualTo("monty@plgrim.com");
     }
 
-    @DisplayName("헤더에서 SnsType, Token 추출")
-    @Test
-    void resolveTokenAndSnsType() {
-        //  given
-        MockHttpServletRequest httpServletRequest = new MockHttpServletRequest() {{
-            addHeader("X-AUTH-TOKEN", "test_token");
-            addHeader("X-SNS-TYPE", Sns.LOCAL.getValue());
-        }};
-
-        //  when
-        String token = localTokenProvider.resolveToken(httpServletRequest);
-        String sns = localTokenProvider.resolveSnsType(httpServletRequest);
-
-        //  then
-        assertThat(token).isEqualTo("test_token");
-        assertThat(sns).isEqualTo(Sns.LOCAL.getValue());
-    }
+//    @DisplayName("헤더에서 SnsType, Token 추출")
+//    @Test
+//    void resolveTokenAndSnsType() {
+//        //  given
+//        MockHttpServletRequest httpServletRequest = new MockHttpServletRequest() {{
+//            addHeader("X-AUTH-TOKEN", "test_token");
+//            addHeader("X-SNS-TYPE", Sns.LOCAL.getValue());
+//        }};
+//
+//        //  when
+//        String token = localTokenProvider.resolveToken(httpServletRequest);
+//        String sns = localTokenProvider.resolveSnsType(httpServletRequest);
+//
+//        //  then
+//        assertThat(token).isEqualTo("test_token");
+//        assertThat(sns).isEqualTo(Sns.LOCAL.getValue());
+//    }
 
     @DisplayName("token 유효성, 만료일자 확인")
     @Test

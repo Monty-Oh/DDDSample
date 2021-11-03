@@ -5,6 +5,7 @@ import plgrim.sample.member.controller.dto.user.UserJoinDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.commands.UserModifyCommand;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 @Component
@@ -12,14 +13,19 @@ public class UserCommandMapper {
 
     public UserJoinCommand toCommand(UserJoinDTO userJoinDTO) {
         return UserJoinCommand.builder()
+                .userId(userJoinDTO.getUserId())
                 .email(userJoinDTO.getEmail())
                 .password(userJoinDTO.getPassword())
-                .phoneNumber(userJoinDTO.getPhoneNumber())
+                .nickName(userJoinDTO.getNickName())
+                .mobileNo(userJoinDTO.getMobileNo())
+                .snsType(userJoinDTO.getSnsType())
+                .snsInfo(SnsInfo.builder()
+                        .refreshToken(userJoinDTO.getRefreshToken())
+                        .build())
                 .userBasic(UserBasic.builder()
                         .address(userJoinDTO.getAddress())
                         .gender(userJoinDTO.getGender())
                         .birth(userJoinDTO.getBirth())
-                        .snsType(userJoinDTO.getSnsType())
                         .build())
                 .build();
     }
@@ -29,12 +35,14 @@ public class UserCommandMapper {
                 .usrNo(usrNo)
                 .email(userModifyDTO.getEmail())
                 .password(userModifyDTO.getPassword())
-                .phoneNumber(userModifyDTO.getPhoneNumber())
+                .nickName(userModifyDTO.getNickName())
+                .snsInfo(SnsInfo.builder()
+                        .refreshToken(userModifyDTO.getRefreshToken())
+                        .build())
                 .userBasic(UserBasic.builder()
                         .address(userModifyDTO.getAddress())
                         .gender(userModifyDTO.getGender())
                         .birth(userModifyDTO.getBirth())
-                        .snsType(userModifyDTO.getSnsType())
                         .build())
                 .build();
     }

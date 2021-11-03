@@ -63,23 +63,23 @@ class KakaoTokenProviderTest {
         assertThat(token.getAccess_token()).isEqualTo("test_token");
     }
 
-    @DisplayName("헤더에서 SnsType, Token 추출")
-    @Test
-    void resolveTokenAndSnsType() {
-        //  given
-        MockHttpServletRequest httpServletRequest = new MockHttpServletRequest() {{
-            addHeader("X-AUTH-TOKEN", "test_token");
-            addHeader("X-SNS-TYPE", Sns.LOCAL.getValue());
-        }};
-
-        //  when
-        String token = kakaoTokenProvider.resolveToken(httpServletRequest);
-        String sns = kakaoTokenProvider.resolveSnsType(httpServletRequest);
-
-        //  then
-        assertThat(token).isEqualTo("test_token");
-        assertThat(sns).isEqualTo(Sns.LOCAL.getValue());
-    }
+//    @DisplayName("헤더에서 SnsType, Token 추출")
+//    @Test
+//    void resolveTokenAndSnsType() {
+//        //  given
+//        MockHttpServletRequest httpServletRequest = new MockHttpServletRequest() {{
+//            addHeader("X-AUTH-TOKEN", "test_token");
+//            addHeader("X-SNS-TYPE", Sns.LOCAL.getValue());
+//        }};
+//
+//        //  when
+//        String token = kakaoTokenProvider.resolveToken(httpServletRequest);
+//        String sns = kakaoTokenProvider.resolveSnsType(httpServletRequest);
+//
+//        //  then
+//        assertThat(token).isEqualTo("test_token");
+//        assertThat(sns).isEqualTo(Sns.LOCAL.getValue());
+//    }
 
     @DisplayName("카카오 토큰 검증 - 유효함")
     @Test

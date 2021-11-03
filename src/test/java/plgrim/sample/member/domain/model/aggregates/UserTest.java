@@ -21,7 +21,7 @@ class UserTest {
         user = User.builder()
                 .email("monty@plgrim.com")
                 .password("123456")
-                .phoneNumber("01040684490")
+                .mobileNo("01040684490")
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)

@@ -25,27 +25,33 @@ public class UserModifyService {
      * 회원정보 수정
      */
     public UserDTO modify(UserModifyCommand userModifyCommand) {
-        Optional<User> user = userRepository.findById(userModifyCommand.getUsrNo());
+        Optional<User> user = userRepository.findByUserId(userModifyCommand.getUserId());
         if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
 
         if (userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo()))
             throw new UserException(ErrorCode.DUPLICATE_ID);
 
-        if (userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getPhoneNumber(), userModifyCommand.getUsrNo()))
+        if (userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getUsrNo()))
             throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
 
         User result = userRepository.save(User.builder()
                 .usrNo(user.get().getUsrNo())
                 .email(userModifyCommand.getEmail())
-                .password(passwordEncoder.encode(userModifyCommand.getPassword()))          // 비밀번호 암호화
-                .phoneNumber(userModifyCommand.getPhoneNumber())
+                .password(passwordEncoder.encode(userModifyCommand.getPassword()))
+                .nickName(userModifyCommand.getNickName())
+                .mobileNo(userModifyCommand.getMobileNo())
+                .snsType(userModifyCommand.getSnsType())
+                .snsInfo(userModifyCommand.getSnsInfo())
                 .userBasic(userModifyCommand.getUserBasic())
                 .build());
 
         return UserDTO.builder()
                 .usrNo(result.getUsrNo())
+                .userId(result.getUserId())
                 .email(result.getEmail())
-                .phoneNumber(result.getPhoneNumber())
+                .mobileNo(result.getMobileNo())
+                .snsType(result.getSnsType())
+                .snsInfo(result.getSnsInfo())
                 .userBasic(result.getUserBasic())
                 .build();
     }

@@ -1,7 +1,6 @@
 package plgrim.sample.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,7 +78,7 @@ class UserJoinControllerTest {
         user = User.builder()
                 .email("monty@plgrim.com")
                 .password("12345")
-                .phoneNumber("01040684490")
+                .mobileNo("01040684490")
                 .userBasic(UserBasic.builder()
                         .address("dongdaemungu")
                         .gender(Gender.MALE)
@@ -91,7 +90,7 @@ class UserJoinControllerTest {
         userJoinDTO = UserJoinDTO.builder()
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .phoneNumber(user.getPhoneNumber())
+                .phoneNumber(user.getMobileNo())
                 .address(user.getUserBasic().getAddress())
                 .gender(user.getUserBasic().getGender())
                 .birth(user.getUserBasic().getBirth())
@@ -101,7 +100,7 @@ class UserJoinControllerTest {
         userDTO = UserDTO.builder()
                 .usrNo(1L)
                 .email(user.getEmail())
-                .phoneNumber(user.getPhoneNumber())
+                .phoneNumber(user.getMobileNo())
                 .userBasic(user.getUserBasic())
                 .build();
     }

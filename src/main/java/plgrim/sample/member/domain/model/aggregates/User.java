@@ -4,7 +4,9 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,22 +22,39 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class User implements UserDetails {
     /**
-     * @PrimaryKey USR_NO 자동 생성
+     * @PrimaryKey
+     * USR_NO 자동 생성
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long usrNo;
 
+    /**
+     * Local 로그인 ID,
+     * Sns 의 경우 고유 "ID값" + "_Sns String value"
+     * ex) 010101010_kakao
+     * 유일키
+     */
+    private String userId;
+
+    /**
+     * 회원 이메일
+     */
     private String email;
 
-    @Column(name = "PWD")
     private String password;
 
-    @Column(name = "PHN_NUM")
-    private String phoneNumber;
+    /**
+     * 유일키
+     */
+    private String nickName;
 
-    @Column(name = "RFRSH_TKN")
-    private String refreshToken;
+    private String mobileNo;
+
+    private Sns snsType;
+
+    @Embedded
+    private SnsInfo snsInfo;
 
     @Embedded
     private UserBasic userBasic;
@@ -46,15 +65,15 @@ public class User implements UserDetails {
     }
 
     public void changePhoneNumber(String newPhoneNumber) {
-        this.phoneNumber = newPhoneNumber;
+        this.mobileNo = newPhoneNumber;
     }
 
     public void changeUserBasic(UserBasic userBasic) {
         this.userBasic = userBasic;
     }
 
-    public void changeRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
+    public String getPassword() {
+        return this.password;
     }
 
     @ElementCollection(fetch = FetchType.EAGER)
