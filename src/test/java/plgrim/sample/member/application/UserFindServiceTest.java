@@ -20,7 +20,6 @@ import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,61 +88,76 @@ class UserFindServiceTest {
                         .build())
                 .build();
     }
-
-    @DisplayName("유저조회(usrNo)")
+    @DisplayName("단일 유저 조회")
     @Test
-    void findUserByUsrNo() {
+    void findUserByUserIdAndSnsType() {
         //  given
-        given(userRepository.findById(1L)).willReturn(Optional.of(User.builder()
-                .email(user.getEmail())
-                .build()));
+        given(userRepository.findByUserIdAndSnsType(user.getUserId(), user.getSnsType()))
+                .willReturn(Optional.of(User.builder()
+                        .userId(user.getUserId())
+                        .build()));
 
         //  when
-        UserDTO userDTO = userFindService.findUserByUsrNo(1L);
+        UserDTO userDTO = userFindService.findUserByUserIdAndSnsType(user.getUserId(), user.getSnsType().getValue());
 
         //  then
-        assertThat(userDTO.getEmail()).isEqualTo(user.getEmail());
+        assertThat(userDTO.getUserId()).isEqualTo(user.getUserId());
     }
 
-    @DisplayName("유저조회(email)")
-    @Test
-    void findUserByEmail() {
-        //  given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+//    @DisplayName("유저조회(usrNo)")
+//    @Test
+//    void findUserByUsrNo() {
+//        //  given
+//        given(userRepository.findById(1L)).willReturn(Optional.of(User.builder()
+//                .email(user.getEmail())
+//                .build()));
+//
+//        //  when
+//        UserDTO userDTO = userFindService.findUserByUsrNo(1L);
+//
+//        //  then
+//        assertThat(userDTO.getEmail()).isEqualTo(user.getEmail());
+//    }
 
-        //  when
-        UserDTO userDTO = userFindService.findUserByEmail(user.getEmail());
+//    @DisplayName("유저조회(email)")
+//    @Test
+//    void findUserByEmail() {
+//        //  given
+//        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+//
+//        //  when
+//        UserDTO userDTO = userFindService.findUserByEmail(user.getEmail());
+//
+//        //  then
+//        assertThat(userDTO.getEmail()).isEqualTo(user.getEmail());
+//    }
 
-        //  then
-        assertThat(userDTO.getEmail()).isEqualTo(user.getEmail());
-    }
+//    @DisplayName("유저조회(email) 실패 - UserNotFound")
+//    @Test
+//    void findUserByIdFailUserNotFound() {
+//        //  given
+//        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.empty());
+//
+//        //  when
+//        ErrorCode error = assertThrows(UserException.class,
+//                () -> userFindService.findUserByEmail(user.getEmail())).getErrorCode();
+//
+//        //  then
+//        assertThat(error).isEqualTo(ErrorCode.USER_NOT_FOUND);
+//    }
 
-    @DisplayName("유저조회(email) 실패 - UserNotFound")
-    @Test
-    void findUserByIdFailUserNotFound() {
-        //  given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.empty());
-
-        //  when
-        ErrorCode error = assertThrows(UserException.class,
-                () -> userFindService.findUserByEmail(user.getEmail())).getErrorCode();
-
-        //  then
-        assertThat(error).isEqualTo(ErrorCode.USER_NOT_FOUND);
-    }
-
-    @DisplayName("유저 목록 조회")
-    @Test
-    void findUsers() {
-        //  given
-        given(userRepository.findAll()).willReturn(Arrays.asList(user, user2));
-
-        //  when
-        List<User> users = userFindService.findUsers();
-
-        //  then
-        assertThat(users.size()).isEqualTo(2);
-    }
+//    @DisplayName("유저 목록 조회")
+//    @Test
+//    void findUsers() {
+//        //  given
+//        given(userRepository.findAll()).willReturn(Arrays.asList(user, user2));
+//
+//        //  when
+//        List<User> users = userFindService.findUsers();
+//
+//        //  then
+//        assertThat(users.size()).isEqualTo(2);
+//    }
 
     @DisplayName("유저 목록 조회 - page")
     @Test

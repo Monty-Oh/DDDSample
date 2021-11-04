@@ -8,18 +8,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.util.ReflectionTestUtils;
 import plgrim.sample.common.enums.ErrorCode;
-import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.entities.UserRole;
 import plgrim.sample.member.domain.service.SnsStrategy;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoUserInfoDTO;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,13 +120,16 @@ class KakaoTokenProviderTest {
     @Order(0)
     void getUserPk() {
         //  given
-        given(snsStrategy.getUserInfo(KAPI_USER_INFO_URL, "test_token")).willReturn(KakaoUserInfoDTO.builder().id(1L).build());
+        KakaoUserInfoDTO kakaoUserInfoDTO = KakaoUserInfoDTO.builder().id(1L).build();
+        given(snsStrategy.getUserInfo(KAPI_USER_INFO_URL, "test_token")).willReturn(kakaoUserInfoDTO);
 
         //  when
-        String userPk = kakaoTokenProvider.getUserPk("test_token");
+        KakaoUserInfoDTO userInfo = kakaoTokenProvider.getUserInfo("test_token");
 
         //  then
-        assertThat(userPk).isEqualTo(Long.toString(1L));
+        assertThat(userInfo)
+                .usingRecursiveComparison()
+                .isEqualTo(kakaoUserInfoDTO);
     }
 
     @DisplayName("카카오 인증 객체 생성")
@@ -135,7 +138,12 @@ class KakaoTokenProviderTest {
     void getAuthentication() {
         //  given
         given(snsStrategy.getUserInfo(KAPI_USER_INFO_URL, "test_token")).willReturn(KakaoUserInfoDTO.builder().id(1L).build());
-        given(userDetailsService.loadUserByUsername(Long.toString(1L))).willReturn(User.builder().email(Long.toString(1L)).build());
+        given(userDetailsService.loadUserByUsername(Long.toString(1L))).willReturn(User.builder()
+                .email(Long.toString(1L))
+                .roles(List.of(UserRole.builder()
+                        .authority("ROLE_USER")
+                        .build()))
+                .build());
 
         //  when
         Authentication result = kakaoTokenProvider.getAuthentication("test_token");

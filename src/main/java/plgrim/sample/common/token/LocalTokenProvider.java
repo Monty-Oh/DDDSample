@@ -13,9 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.member.domain.model.entities.UserRole;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +39,7 @@ public class LocalTokenProvider implements TokenProvider {
     }
 
     //  JWT 토큰 생성
-    public String createToken(String userPk, List<String> roles) {
+    public String createToken(String userPk, List<UserRole> roles) {
         Claims claims = Jwts.claims().setSubject(userPk);     //  JWT payload 에 저장되는 정보 단위
         claims.put("roles", roles);     //  정보는 key : value 쌍으로 저장
 
@@ -63,14 +63,14 @@ public class LocalTokenProvider implements TokenProvider {
     public Authentication getAuthentication(String token) {
         //  UserDetailService 에 사용자 정보(아이디)를 넘겨준다.
         //  넘겨받은 사용자 정보를 통해 DB에서 찾은 사용자 정보인 UserDetails 객체를 생성한다.
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserPk(token));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUserInfo(token));
         //  새로운 인증용 객체를 반환한다.
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     // 토큰에서 회원 정보 추출
     @Override
-    public String getUserPk(String token) {
+    public String getUserInfo(String token) {
         return Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)

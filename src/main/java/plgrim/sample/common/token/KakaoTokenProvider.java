@@ -13,7 +13,6 @@ import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoUserInfoDTO;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 
 import static plgrim.sample.common.KakaoValue.*;
 
@@ -49,14 +48,14 @@ public class KakaoTokenProvider implements TokenProvider {
      */
     @Override
     public Authentication getAuthentication(String token) {
-        String userPk = this.getUserPk(token);
+        String userPk = this.getUserInfo(token).getId().toString();
         UserDetails userDetails = userDetailsService.loadUserByUsername(userPk);
         return new UsernamePasswordAuthenticationToken(userDetailsService.loadUserByUsername(userPk), "", userDetails.getAuthorities());
     }
 
     @Override
-    public String getUserPk(String token) {
-        return ((KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, token)).getId().toString();
+    public KakaoUserInfoDTO getUserInfo(String token) {
+        return (KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, token);
     }
 
     /**

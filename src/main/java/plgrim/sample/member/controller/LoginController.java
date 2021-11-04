@@ -8,7 +8,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import plgrim.sample.member.application.UserLoginService;
-import plgrim.sample.member.controller.dto.user.UserLoginDTO;
+import plgrim.sample.member.controller.dto.user.UserIdLoginDTO;
 
 import javax.validation.Valid;
 
@@ -27,8 +27,8 @@ public class LoginController {
      */
     @PostMapping(ROOT_LOGIN_PATH)
     @ResponseBody
-    public String login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-        return userLoginService.localLogin(userLoginDTO);
+    public String login(@Valid @RequestBody UserIdLoginDTO userIdLoginDto) {
+        return userLoginService.localLogin(userIdLoginDto);
     }
 
     /**
@@ -37,6 +37,7 @@ public class LoginController {
     @GetMapping(ROOT_LOGIN_PATH + KAKAO)
     @ResponseBody
     public String loginKakaoAuth(@RequestParam("code") String code) {
+        System.out.println("code = " + code);
         return userLoginService.kakaoLogin(code);
     }
 

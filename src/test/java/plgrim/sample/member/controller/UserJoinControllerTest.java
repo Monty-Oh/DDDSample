@@ -21,8 +21,7 @@ import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
-import plgrim.sample.common.token.KakaoTokenProvider;
-import plgrim.sample.common.token.LocalTokenProvider;
+import plgrim.sample.common.token.TokenProviderFactory;
 import plgrim.sample.member.application.UserFindService;
 import plgrim.sample.member.application.UserJoinService;
 import plgrim.sample.member.application.UserModifyService;
@@ -30,6 +29,7 @@ import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
@@ -51,8 +51,7 @@ import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
         @MockBean(UserJoinService.class),
         @MockBean(UserModifyService.class),
         @MockBean(UserCommandMapper.class),
-        @MockBean(LocalTokenProvider.class),
-        @MockBean(KakaoTokenProvider.class),
+        @MockBean(TokenProviderFactory.class),
         @MockBean(LoginController.class),
         @MockBean(UserDetailsService.class)
 })
@@ -76,32 +75,35 @@ class UserJoinControllerTest {
     @BeforeEach
     void setup() {
         user = User.builder()
+                .userId("monty")
                 .email("monty@plgrim.com")
                 .password("12345")
+                .nickName("monty")
                 .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("dongdaemungu")
                         .gender(Gender.MALE)
-                        .snsType(Sns.LOCAL)
                         .birth(LocalDate.of(1994, 3, 30))
                         .build())
                 .build();
 
         userJoinDTO = UserJoinDTO.builder()
+                .userId(user.getUserId())
                 .email(user.getEmail())
                 .password(user.getPassword())
-                .phoneNumber(user.getMobileNo())
+                .nickName(user.getNickName())
+                .mobileNo(user.getMobileNo())
+                .snsType(user.getSnsType())
+                .refreshToken(user.getSnsInfo().getRefreshToken())
                 .address(user.getUserBasic().getAddress())
                 .gender(user.getUserBasic().getGender())
                 .birth(user.getUserBasic().getBirth())
-                .snsType(user.getUserBasic().getSnsType())
                 .build();
 
         userDTO = UserDTO.builder()
                 .usrNo(1L)
-                .email(user.getEmail())
-                .phoneNumber(user.getMobileNo())
-                .userBasic(user.getUserBasic())
                 .build();
     }
 
@@ -133,7 +135,7 @@ class UserJoinControllerTest {
     void join_fail_duplicated_id() throws Exception {
         //  given
         given(userJoinService.join(userCommandMapper.toCommand(userJoinDTO)))
-                .willThrow(new UserException(ErrorCode.DUPLICATE_ID));
+                .willThrow(new UserException(ErrorCode.DUPLICATE_EMAIL));
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
@@ -141,7 +143,7 @@ class UserJoinControllerTest {
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
-                .andExpect(content().string(ErrorCode.DUPLICATE_ID.getDetail()))
+                .andExpect(content().string(ErrorCode.DUPLICATE_EMAIL.getDetail()))
                 .andDo(print());
     }
 
@@ -150,7 +152,7 @@ class UserJoinControllerTest {
     void join_fail_duplicated_phoneNum() throws Exception {
         //  given
         given(userJoinService.join(userCommandMapper.toCommand(userJoinDTO)))
-                .willThrow(new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER));
+                .willThrow(new UserException(ErrorCode.DUPLICATE_MOBILE_NO));
         String content = objectMapper.writeValueAsString(userJoinDTO);
 
         //  when
@@ -158,7 +160,7 @@ class UserJoinControllerTest {
                         .content(content)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
-                .andExpect(content().string(ErrorCode.DUPLICATE_PHONE_NUMBER.getDetail()))
+                .andExpect(content().string(ErrorCode.DUPLICATE_MOBILE_NO.getDetail()))
                 .andDo(print());
     }
 
@@ -173,13 +175,16 @@ class UserJoinControllerTest {
     void joinFailEmailValidation(String email) throws Exception {
         //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
+                .userId(user.getUserId())
                 .email(email)
-                .password("12345")
-                .phoneNumber("01040684490")
-                .address("동대문구")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(1994, 3, 30))
-                .snsType(Sns.LOCAL)
+                .password(user.getPassword())
+                .nickName(user.getNickName())
+                .mobileNo(user.getMobileNo())
+                .snsType(user.getSnsType())
+                .refreshToken(user.getSnsInfo().getRefreshToken())
+                .address(user.getUserBasic().getAddress())
+                .gender(user.getUserBasic().getGender())
+                .birth(user.getUserBasic().getBirth())
                 .build());
 
         mockMvc.perform(post(ROOT_USER_PATH)
@@ -202,13 +207,16 @@ class UserJoinControllerTest {
     void joinFailPasswordValidation(String password) throws Exception {
         //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
-                .email("monty@plgrim.com")
+                .userId(user.getUserId())
+                .email(user.getEmail())
                 .password(password)
-                .phoneNumber("01040684490")
-                .address("동대문구")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(1994, 3, 30))
-                .snsType(Sns.LOCAL)
+                .nickName(user.getNickName())
+                .mobileNo(user.getMobileNo())
+                .snsType(user.getSnsType())
+                .refreshToken(user.getSnsInfo().getRefreshToken())
+                .address(user.getUserBasic().getAddress())
+                .gender(user.getUserBasic().getGender())
+                .birth(user.getUserBasic().getBirth())
                 .build());
 
         //  when
@@ -229,13 +237,16 @@ class UserJoinControllerTest {
     void joinFailPasswordValidationEmptyValue(String password) throws Exception {
         //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
-                .email("monty@plgrim.com")
+                .userId(user.getUserId())
+                .email(user.getEmail())
                 .password(password)
-                .phoneNumber("01040684490")
-                .address("동대문구")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(1994, 3, 30))
-                .snsType(Sns.LOCAL)
+                .nickName(user.getNickName())
+                .mobileNo(user.getMobileNo())
+                .snsType(user.getSnsType())
+                .refreshToken(user.getSnsInfo().getRefreshToken())
+                .address(user.getUserBasic().getAddress())
+                .gender(user.getUserBasic().getGender())
+                .birth(user.getUserBasic().getBirth())
                 .build());
 
         //  when
@@ -259,16 +270,19 @@ class UserJoinControllerTest {
     @DisplayName("회원가입 실패 - PhoneNumber 형식")
     @ParameterizedTest
     @ValueSource(strings = {"0", "01040684490000"})
-    void joinFailPhoneNumberValidation(String phoneNumber) throws  Exception {
+    void joinFailPhoneNumberValidation(String mobileNo) throws  Exception {
         //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
-                .email("monty@plgrim.com")
-                .password("12345")
-                .phoneNumber(phoneNumber)
-                .address("동대문구")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(1994, 3, 30))
-                .snsType(Sns.LOCAL)
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .nickName(user.getNickName())
+                .mobileNo(mobileNo)
+                .snsType(user.getSnsType())
+                .refreshToken(user.getSnsInfo().getRefreshToken())
+                .address(user.getUserBasic().getAddress())
+                .gender(user.getUserBasic().getGender())
+                .birth(user.getUserBasic().getBirth())
                 .build());
 
         //  when
@@ -286,16 +300,19 @@ class UserJoinControllerTest {
     @DisplayName("회원가입 실패 - 비어있는 PhoneNumber")
     @ParameterizedTest
     @NullAndEmptySource
-    void joinFailPhoneNumberValidationEmptyValue(String phoneNumber) throws Exception {
+    void joinFailPhoneNumberValidationEmptyValue(String mobileNo) throws Exception {
         //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
-                .email("monty@plgrim.com")
-                .password("12345")
-                .phoneNumber(phoneNumber)
-                .address("동대문구")
-                .gender(Gender.MALE)
-                .birth(LocalDate.of(1994, 3, 30))
-                .snsType(Sns.LOCAL)
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .nickName(user.getNickName())
+                .mobileNo(mobileNo)
+                .snsType(user.getSnsType())
+                .refreshToken(user.getSnsInfo().getRefreshToken())
+                .address(user.getUserBasic().getAddress())
+                .gender(user.getUserBasic().getGender())
+                .birth(user.getUserBasic().getBirth())
                 .build());
 
         //  when

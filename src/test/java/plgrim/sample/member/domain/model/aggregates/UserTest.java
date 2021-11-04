@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
@@ -19,14 +20,16 @@ class UserTest {
     @BeforeEach
     void setup() {
         user = User.builder()
+                .userId("monty")
                 .email("monty@plgrim.com")
                 .password("123456")
                 .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
     }
@@ -45,7 +48,6 @@ class UserTest {
                 .address("동대문구2")
                 .gender(Gender.FEMALE)
                 .birth(LocalDate.of(2021, 9, 10))
-                .snsType(Sns.GOOGLE)
                 .build());
     }
 }

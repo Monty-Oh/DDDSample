@@ -16,7 +16,6 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 public class UserModifyDTO {
-    private Long usrNo;
 
     @EmailValidation
     private String email;
@@ -25,6 +24,8 @@ public class UserModifyDTO {
     private String password;
 
     private String nickName;
+
+    private String mobileNo;
 
     /**
      * SnsInfo.class

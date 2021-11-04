@@ -73,8 +73,9 @@ class UserJoinServiceTest {
     void joinUser() {
         //  given
         given(passwordEncoder.encode(userJoinCommand.getPassword())).willReturn("encrypted password");
-        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getMobileNo())).willReturn(false);
+        given(userDomainService.checkDuplicateUserId(userJoinCommand.getUserId(), userJoinCommand.getSnsType())).willReturn(false);
+        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail(), userJoinCommand.getSnsType())).willReturn(false);
+        given(userDomainService.checkDuplicateMobileNo(userJoinCommand.getMobileNo(), userJoinCommand.getSnsType())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
 
         //  when
@@ -84,30 +85,45 @@ class UserJoinServiceTest {
         assertThat(result.getEmail()).isEqualTo(userJoinCommand.getEmail());
     }
 
-    @DisplayName("회원가입 실패 - id 중복가입")
+    @DisplayName("회원가입 실패 - userId 중복가입")
     @Test
-    void joinUserFailDuplicatedId() {
+    void joinUserFailDuplicatedUserId() {
         //  given
-        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(true);
+        given(userDomainService.checkDuplicateUserId(userJoinCommand.getUserId(), userJoinCommand.getSnsType())).willReturn(true);
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand)).getErrorCode();
 
         //  then
-        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_ID);
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_USER_ID);
     }
 
-    @DisplayName("회원가입 실패 - PhoneNum 중복가입")
+    @DisplayName("회원가입 실패 - email 중복가입")
     @Test
-    void joinUserFailDuplicatedPhoneNum() {
+    void joinUserFailDuplicatedEmail() {
         //  given
-        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getMobileNo())).willReturn(true);
+        given(userDomainService.checkDuplicateUserId(userJoinCommand.getUserId(), userJoinCommand.getSnsType())).willReturn(false);
+        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail(), userJoinCommand.getSnsType())).willReturn(true);
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand)).getErrorCode();
 
         //  then
-        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_PHONE_NUMBER);
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_EMAIL);
+    }
+
+    @DisplayName("회원가입 실패 - mobileNo 중복가입")
+    @Test
+    void joinUserFailDuplicatedMobileNo() {
+        //  given
+        given(userDomainService.checkDuplicateUserId(userJoinCommand.getUserId(), userJoinCommand.getSnsType())).willReturn(false);
+        given(userDomainService.checkDuplicateEmail(userJoinCommand.getEmail(), userJoinCommand.getSnsType())).willReturn(false);
+        given(userDomainService.checkDuplicateMobileNo(userJoinCommand.getMobileNo(), userJoinCommand.getSnsType())).willReturn(true);
+
+        //  when
+        ErrorCode error = assertThrows(UserException.class, () -> userJoinService.join(userJoinCommand)).getErrorCode();
+
+        //  then
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_MOBILE_NO);
     }
 }

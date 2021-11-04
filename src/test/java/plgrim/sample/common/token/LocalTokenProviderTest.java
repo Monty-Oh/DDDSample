@@ -1,18 +1,18 @@
 package plgrim.sample.common.token;
 
+import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
-import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.entities.UserRole;
 
 import java.util.List;
 
@@ -39,7 +39,14 @@ class LocalTokenProviderTest {
         ReflectionTestUtils.setField(localTokenProvider, "secretKey", "testSecretKey");
 
         //  when
-        localTokenProvider.createToken("monty@plgrim.com", List.of("USER_ROLE"));
+        String token = localTokenProvider.createToken("monty@plgrim.com", List.of(UserRole.builder().authority("USER_ROLE").build()));
+
+        //  then
+        assertThat(Jwts.parser()
+                .setSigningKey("testSecretKey")
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject()).isEqualTo("monty@plgrim.com");
     }
 
     @DisplayName("Local 토큰 생성 후 userPk 조회")
@@ -48,10 +55,10 @@ class LocalTokenProviderTest {
     void getUserPk() {
         //  given
         ReflectionTestUtils.setField(localTokenProvider, "secretKey", "testSecretKey");
-        String token = localTokenProvider.createToken("monty@plgrim.com", List.of("USER_ROLE"));
+        String token = localTokenProvider.createToken("monty@plgrim.com", List.of(UserRole.builder().authority("USER_ROLE").build()));
 
         //  when
-        String userPk = localTokenProvider.getUserPk(token);
+        String userPk = localTokenProvider.getUserInfo(token);
 
         //  then
         assertThat(userPk).isEqualTo("monty@plgrim.com");
@@ -81,7 +88,7 @@ class LocalTokenProviderTest {
     void validateToken() {
         //  given
         ReflectionTestUtils.setField(localTokenProvider, "secretKey", "testSecretKey");
-        String token = localTokenProvider.createToken("monty@plgrim.com", List.of("USER_ROLE"));
+        String token = localTokenProvider.createToken("monty@plgrim.com", List.of(UserRole.builder().authority("USER_ROLE").build()));
 
         //  when
         boolean result = localTokenProvider.validateToken(token);
@@ -112,10 +119,13 @@ class LocalTokenProviderTest {
     void getAuthentication() {
         //  given
         ReflectionTestUtils.setField(localTokenProvider, "secretKey", "testSecretKey");
-        String token = localTokenProvider.createToken("monty@plgrim.com", List.of("USER_ROLE"));
+        String token = localTokenProvider.createToken("monty@plgrim.com", List.of(UserRole.builder().authority("USER_ROLE").build()));
         UserDetails userDetails = User.builder()
                 .usrNo(1L)
                 .email("monty@plgrim.com")
+                .roles(List.of(UserRole.builder()
+                        .authority("ROLE_USER")
+                        .build()))
                 .build();
         given(userDetailsService.loadUserByUsername("monty@plgrim.com")).willReturn(userDetails);
 

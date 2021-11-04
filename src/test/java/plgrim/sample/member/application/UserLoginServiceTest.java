@@ -9,10 +9,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.common.token.LocalTokenProvider;
-import plgrim.sample.member.controller.dto.user.UserLoginDTO;
+import plgrim.sample.member.controller.dto.user.UserIdLoginDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.entities.UserRole;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
 import java.util.List;
@@ -37,19 +39,20 @@ class UserLoginServiceTest {
     @InjectMocks
     UserLoginService userLoginService;
 
-    UserLoginDTO userLoginDTO;
+    UserIdLoginDTO userIdLoginDTO;
     User user;
 
     @BeforeEach
     void setup() {
         user = User.builder()
+                .userId("monty")
                 .email("monty@plgrim.com")
                 .password("testPassword")
-                .roles(List.of("USER"))
+                .roles(List.of(UserRole.builder().authority("USER_ROLE").build()))
                 .build();
 
-        userLoginDTO = UserLoginDTO.builder()
-                .email("monty@plgrim.com")
+        userIdLoginDTO = UserIdLoginDTO.builder()
+                .id("monty")
                 .password("testPassword")
                 .build();
     }
@@ -58,12 +61,12 @@ class UserLoginServiceTest {
     @Test
     void localLogin() {
         //  given
-        given(userRepository.findByEmail(userLoginDTO.getEmail())).willReturn(Optional.ofNullable(user));
-        given(passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())).willReturn(true);
-        given(localTokenProvider.createToken(userLoginDTO.getEmail(), user.getRoles())).willReturn("test Token");
+        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(),  Sns.LOCAL)).willReturn(Optional.ofNullable(user));
+        given(passwordEncoder.matches(userIdLoginDTO.getPassword(), user.getPassword())).willReturn(true);
+        given(localTokenProvider.createToken(userIdLoginDTO.getId(), user.getRoles())).willReturn("test Token");
 
         //  when
-        String token = userLoginService.localLogin(userLoginDTO);
+        String token = userLoginService.localLogin(userIdLoginDTO);
 
         //  then
         assertThat(token).isEqualTo("test Token");
@@ -73,10 +76,10 @@ class UserLoginServiceTest {
     @Test
     void localLoginFailUserNotFound() {
         //  given
-        given(userRepository.findByEmail(userLoginDTO.getEmail())).willReturn(Optional.empty());
+        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(),  Sns.LOCAL)).willReturn(Optional.empty());
 
         //  when
-        ErrorCode error = assertThrows(UserException.class, () -> userLoginService.localLogin(userLoginDTO)).getErrorCode();
+        ErrorCode error = assertThrows(UserException.class, () -> userLoginService.localLogin(userIdLoginDTO)).getErrorCode();
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.USER_NOT_FOUND);
@@ -86,11 +89,11 @@ class UserLoginServiceTest {
     @Test
     void localLoginFailIncorrectPassword() {
         //  given
-        given(userRepository.findByEmail(userLoginDTO.getEmail())).willReturn(Optional.ofNullable(user));
-        given(passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword())).willReturn(false);
+        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(),  Sns.LOCAL)).willReturn(Optional.ofNullable(user));
+        given(passwordEncoder.matches(userIdLoginDTO.getPassword(), user.getPassword())).willReturn(false);
 
         //  when
-        ErrorCode error = assertThrows(UserException.class, () -> userLoginService.localLogin(userLoginDTO)).getErrorCode();
+        ErrorCode error = assertThrows(UserException.class, () -> userLoginService.localLogin(userIdLoginDTO)).getErrorCode();
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.INCORRECT_PASSWORD);

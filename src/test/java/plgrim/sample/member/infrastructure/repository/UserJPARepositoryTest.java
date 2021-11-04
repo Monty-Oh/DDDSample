@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
@@ -34,38 +35,47 @@ class UserJPARepositoryTest {
     @BeforeEach
     void setup() {
         user = User.builder()
+                .userId("monty")
                 .email("monty@plgrim.com")
-                .password("123456")
+                .password("12345")
+                .nickName("monty")
                 .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
-                        .address("동대문구")
+                        .address("dongdaemungu")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
 
         user2 = User.builder()
+                .userId("lizzy")
                 .email("lizzy@plgrim.com")
-                .password("123456")
-                .mobileNo("000")
+                .password("12345")
+                .nickName("lizzy")
+                .mobileNo("01040684491")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
-                        .address("동대문구")
+                        .address("dongdaemungu")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
 
         user3 = User.builder()
+                .userId("mandy")
                 .email("mandy@plgrim.com")
-                .password("123456")
-                .mobileNo("0000")
+                .password("12345")
+                .nickName("mandy")
+                .mobileNo("01040684492")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
-                        .address("동대문구")
+                        .address("dongdaemungu")
                         .gender(Gender.MALE)
                         .birth(LocalDate.of(1994, 3, 30))
-                        .snsType(Sns.LOCAL)
                         .build())
                 .build();
     }
@@ -118,7 +128,7 @@ class UserJPARepositoryTest {
     void findByPhoneNumber() {
         userRepository.save(user);
         // 저장 후 전화번호로 조회한다.
-        Optional<User> result = userRepository.findByPhoneNumber(user.getMobileNo());
+        Optional<User> result = userRepository.findByMobileNo(user.getMobileNo());
         // 저장을 했는데 결과가 없으면 에러
         assertFalse(result.isEmpty());
         // 저장한 user의 ID와 불러온 유저의 정보가 같아야 한다. 내부 값 검증.
@@ -162,7 +172,6 @@ class UserJPARepositoryTest {
                 .address("testAddress")
                 .gender(Gender.FEMALE)
                 .birth(LocalDate.of(2021, 9, 3))
-                .snsType(Sns.GOOGLE)
                 .build();
 
         user.changePassword("testPassword");
@@ -174,16 +183,16 @@ class UserJPARepositoryTest {
         assertThat(user.getUserBasic()).isSameAs(newUserBasic);
     }
 
-    @DisplayName("회원 삭제")
-    @Test
-    void deleteById() {
-        // 테스트용 user 정보 저장
-        userRepository.save(user);
-        // 삭제 시도
-        userRepository.deleteByEmail(user.getEmail());
-        // null 이어야 함.
-        Optional<User> result = userRepository.findByEmail(user.getEmail());
-        // 비어있으면 (해당 회원 정보가 없으면) 성공
-        Assertions.assertTrue(result.isEmpty());
-    }
+//    @DisplayName("회원 삭제")
+//    @Test
+//    void deleteById() {
+//        // 테스트용 user 정보 저장
+//        userRepository.save(user);
+//        // 삭제 시도
+//        userRepository.deleteByEmail(user.getEmail());
+//        // null 이어야 함.
+//        Optional<User> result = userRepository.findByEmail(user.getEmail());
+//        // 비어있으면 (해당 회원 정보가 없으면) 성공
+//        Assertions.assertTrue(result.isEmpty());
+//    }
 }

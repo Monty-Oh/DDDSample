@@ -10,9 +10,8 @@ import plgrim.sample.member.controller.validation.PasswordValidation;
 @Getter
 @Builder
 @AllArgsConstructor
-public class UserLoginDTO {
-    @EmailValidation
-    private String email;
+public class UserIdLoginDTO {
+    private String id;
 
     @PasswordValidation(min = 5, max = 20)
     private String password;

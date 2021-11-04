@@ -20,7 +20,7 @@ public interface TokenProvider {
     /**
      * 토큰에서 회원정보 추출
      */
-    String getUserPk(String token);
+    Object getUserInfo(String token);
 
     /**
      * 토큰의 유효성 체크

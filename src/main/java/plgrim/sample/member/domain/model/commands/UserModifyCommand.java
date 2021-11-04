@@ -9,7 +9,6 @@ import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 @Builder
 @Getter
 public class UserModifyCommand {
-    private Long usrNo;
     private String userId;
     private String email;
     private String password;

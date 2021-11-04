@@ -1,5 +1,6 @@
 package plgrim.sample.member.domain.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
@@ -32,31 +34,71 @@ class UserDomainServiceTest {
     @InjectMocks
     UserDomainService userDomainService;
 
-    static User user = User.builder()
-            .usrNo(1L)
-            .email("monty@plgrim.com")
-            .password("encrypted password")
-            .mobileNo("01040684490")
-            .userBasic(UserBasic.builder()
-                    .address("동대문구")
-                    .gender(Gender.MALE)
-                    .birth(LocalDate.of(1994, 3, 30))
-                    .snsType(Sns.LOCAL)
-                    .build())
-            .build();
-    static User otherUser = User.builder()
-            .usrNo(2L)
-            .email("monty@plgrim.com")
-            .build();
+    static User user;
+    User otherUser;
+
+    @BeforeEach
+    void setUp() {
+        user = User.builder()
+                .usrNo(1L)
+                .userId("monty")
+                .email("monty@plgrim.com")
+                .password("12345")
+                .nickName("monty")
+                .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
+                .userBasic(UserBasic.builder()
+                        .address("dongdaemungu")
+                        .gender(Gender.MALE)
+                        .birth(LocalDate.of(1994, 3, 30))
+                        .build())
+                .build();
+
+        otherUser = User.builder()
+                .usrNo(2L)
+                .userId("monty2")
+                .email("monty@plgrim.com2")
+                .build();
+    }
+
+    @DisplayName("회원 로그인 아이디 중복 체크(userId)")
+    @Test
+    void checkDuplicateUserId() {
+        //  given
+        given(userRepository.findByUserIdAndSnsType(user.getUserId(), user.getSnsType()))
+                .willReturn(Optional.empty());
+
+        //  when
+        Boolean result = userDomainService.checkDuplicateUserId(user.getUserId(), user.getSnsType());
+
+        //  then
+        assertFalse(result);
+    }
+
+    @DisplayName("회원 로그인 아이디 중복 체크 실패(userId)")
+    @Test
+    void checkDuplicateUserIdFail() {
+        //  given
+        given(userRepository.findByUserIdAndSnsType(user.getUserId(), user.getSnsType()))
+                .willReturn(Optional.of(user));
+
+        //  when
+        Boolean result = userDomainService.checkDuplicateUserId(user.getUserId(), user.getSnsType());
+
+        //  then
+        assertTrue(result);
+    }
 
     @DisplayName("회원 이메일 중복 체크(email)")
     @Test
     void checkDuplicateEmailPass() {
         //  given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.empty());
+        given(userRepository.findByEmailAndSnsType(user.getEmail(), user.getSnsType()))
+                .willReturn(Optional.empty());
 
         //  when
-        Boolean result = userDomainService.checkDuplicateEmail(user.getEmail());
+        Boolean result = userDomainService.checkDuplicateEmail(user.getEmail(), user.getSnsType());
 
         //  then
         assertFalse(result);
@@ -66,10 +108,11 @@ class UserDomainServiceTest {
     @Test
     void checkDuplicateEmailFail() {
         //  given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(user));
+        given(userRepository.findByEmailAndSnsType(user.getEmail(), user.getSnsType()))
+                .willReturn(Optional.of(user));
 
         //  when
-        Boolean result = userDomainService.checkDuplicateEmail(user.getEmail());
+        Boolean result = userDomainService.checkDuplicateEmail(user.getEmail(), user.getSnsType());
 
         //  then
         assertTrue(result);
@@ -77,28 +120,30 @@ class UserDomainServiceTest {
 
     @DisplayName("회원 전화번호 중복 체크(mobileNo) - 통과")
     @Test
-    void checkDuplicatePhoneNumber() {
+    void checkDuplicateMobileNo() {
         //  given
-        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.of(user));
+        given(userRepository.findByMobileNoAndSnsType(user.getMobileNo(), user.getSnsType()))
+                .willReturn(Optional.empty());
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getMobileNo());
+        Boolean result = userDomainService.checkDuplicateMobileNo(user.getMobileNo(), user.getSnsType());
 
         //  then
-        assertTrue(result);
+        assertFalse(result);
     }
 
     @DisplayName("회원 전화번호 중복 체크(mobileNo) - 실패")
     @Test
-    void checkDuplicatePhoneNumberFail() {
+    void checkDuplicateMobileNoFail() {
         //  given
-        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.empty());
+        given(userRepository.findByMobileNoAndSnsType(user.getMobileNo(), user.getSnsType()))
+                .willReturn(Optional.of(user));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumber(user.getMobileNo());
+        Boolean result = userDomainService.checkDuplicateMobileNo(user.getMobileNo(), user.getSnsType());
 
         //  then
-        assertFalse(result);
+        assertTrue(result);
     }
 
 
@@ -112,55 +157,55 @@ class UserDomainServiceTest {
         );
     }
 
-    @DisplayName("회원 이메일 중복 체크(email, usrNo) - 통과")
+    @DisplayName("회원 이메일 중복 체크(email, snsType, userId) - 통과")
     @ParameterizedTest(name = "중복 체크 통과, findByEmail return: {0}")
     @MethodSource("getUserCheckDuplicateCase")
-    void checkDuplicateEmailAndUsrNoOwnEmail(User expectedReturn) {
+    void checkDuplicateEmailExceptOwn(User expectedReturn) {
         //  given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.ofNullable(expectedReturn));
+        given(userRepository.findByEmailAndSnsType(user.getEmail(), user.getSnsType())).willReturn(Optional.ofNullable(expectedReturn));
 
         //  when
-        Boolean result = userDomainService.checkDuplicateEmailExceptOwn(user.getEmail(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicateEmailExceptOwn(user.getEmail(), user.getSnsType(), user.getUserId());
 
         //  then
         assertFalse(result);
     }
 
-    @DisplayName("회원 전화번호 중복 체크(mobileNo, usrNo) - 통과")
-    @ParameterizedTest(name = "중복 체크 통과, findByPhoneNumber return: {0}")
+    @DisplayName("회원 전화번호 중복 체크(mobileNo, snsType, userId) - 통과")
+    @ParameterizedTest(name = "중복 체크 통과, findByMobileNo return: {0}")
     @MethodSource("getUserCheckDuplicateCase")
     void checkDuplicatePhoneNumberAndUsrNoOwnPhoneNumber(User expectedReturn) {
         //  given
-        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.ofNullable(expectedReturn));
+        given(userRepository.findByMobileNoAndSnsType(user.getMobileNo(), user.getSnsType())).willReturn(Optional.ofNullable(expectedReturn));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getMobileNo(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getMobileNo(), user.getSnsType(), user.getUserId());
 
         //  then
         assertFalse(result);
     }
 
-    @DisplayName("회원 이메일 중복 체크(email, usrNo) - 실패, 이미 사용함")
+    @DisplayName("회원 이메일 중복 체크(email, snsType, userId) - 실패, 이미 사용함")
     @Test
     void checkDuplicateEmailAndUsrNoFail() {
         //  given
-        given(userRepository.findByEmail(user.getEmail())).willReturn(Optional.of(otherUser));
+        given(userRepository.findByEmailAndSnsType(user.getEmail(), user.getSnsType())).willReturn(Optional.ofNullable(otherUser));
 
         //  when
-        Boolean result = userDomainService.checkDuplicateEmailExceptOwn(user.getEmail(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicateEmailExceptOwn(user.getEmail(), user.getSnsType(), user.getUserId());
 
         //  then
         assertTrue(result);
     }
 
-    @DisplayName("회원 전화번호 중복 체크(mobileNo, usrNo) - 실패, 이미 사용함")
+    @DisplayName("회원 전화번호 중복 체크(mobileNo, snsType, userId) - 실패, 이미 사용함")
     @Test
     void checkDuplicatePhoneNumberAndUsrNoFail() {
         //  given
-        given(userRepository.findByPhoneNumber(user.getMobileNo())).willReturn(Optional.of(otherUser));
+        given(userRepository.findByMobileNoAndSnsType(user.getMobileNo(), user.getSnsType())).willReturn(Optional.ofNullable(otherUser));
 
         //  when
-        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getMobileNo(), user.getUsrNo());
+        Boolean result = userDomainService.checkDuplicatePhoneNumberExceptOwn(user.getMobileNo(), user.getSnsType(), user.getUserId());
 
         //  then
         assertTrue(result);

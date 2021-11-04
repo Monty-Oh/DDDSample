@@ -9,6 +9,7 @@ import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
+import plgrim.sample.member.domain.model.entities.UserRole;
 import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 
@@ -22,31 +23,27 @@ public class UserJoinService {
     private final PasswordEncoder passwordEncoder;
 
     /**
-     * local 일 때 email 은 유일 키
-     * local 일 때 mobileNo은 유일 키
+     * userId, email, mobileNo 중복체크
+     * Sns.Local
      */
     public UserDTO join(UserJoinCommand userJoinCommand) {
-        if (userJoinCommand.getSnsType().equals(Sns.LOCAL)) {
-            if (userDomainService.checkDuplicateEmail(userJoinCommand.getEmail()))
-                throw new UserException(ErrorCode.DUPLICATE_ID);
-
-            if (userDomainService.checkDuplicatePhoneNumber(userJoinCommand.getMobileNo()))    // 만약 중복되는 phoneNumber가 있으면? 에러
-                throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
-        }
+        this.checkDuplicate(userJoinCommand);
 
         // 엔티티 객체로 변환
         User user = User.builder()
-                .userId(userJoinCommand.getSnsType().equals(Sns.LOCAL) ?
-                        userJoinCommand.getUserId() :
-                        userJoinCommand.getUserId() + "_" + userJoinCommand.getSnsType().getValue())
+                .userId(userJoinCommand.getUserId())
                 .email(userJoinCommand.getEmail())
-                .password(passwordEncoder.encode(userJoinCommand.getPassword()))
+                .password(userJoinCommand.getSnsType().equals(Sns.LOCAL)
+                        ? passwordEncoder.encode(userJoinCommand.getPassword())
+                        : null)
                 .nickName(userJoinCommand.getNickName())
                 .mobileNo(userJoinCommand.getMobileNo())
                 .snsType(userJoinCommand.getSnsType())
                 .snsInfo(userJoinCommand.getSnsInfo())
                 .userBasic(userJoinCommand.getUserBasic())
-                .roles(Collections.singletonList("ROLE_USER"))
+                .roles(Collections.singletonList(UserRole.builder()
+                        .authority("ROLE_USER")
+                        .build()))
                 .build();
 
         // user 저장
@@ -62,5 +59,16 @@ public class UserJoinService {
                 .snsInfo(result.getSnsInfo())
                 .userBasic(result.getUserBasic())
                 .build();
+    }
+
+    private void checkDuplicate(UserJoinCommand userJoinCommand) {
+        if (userDomainService.checkDuplicateUserId(userJoinCommand.getUserId(), userJoinCommand.getSnsType()))
+            throw new UserException(ErrorCode.DUPLICATE_USER_ID);
+
+        if (userDomainService.checkDuplicateEmail(userJoinCommand.getEmail(), userJoinCommand.getSnsType()))
+            throw new UserException(ErrorCode.DUPLICATE_EMAIL);
+
+        if (userDomainService.checkDuplicateMobileNo(userJoinCommand.getMobileNo(), userJoinCommand.getSnsType()))    // 만약 중복되는 phoneNumber가 있으면? 에러
+            throw new UserException(ErrorCode.DUPLICATE_MOBILE_NO);
     }
 }

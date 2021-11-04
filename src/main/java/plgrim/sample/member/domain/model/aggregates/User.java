@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.member.domain.model.entities.UserRole;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 
@@ -36,6 +37,8 @@ public class User implements UserDetails {
      * 유일키
      */
     private String userId;
+    //  ohhanjin0330
+    //  2103809213_kakao
 
     /**
      * 회원 이메일
@@ -59,6 +62,10 @@ public class User implements UserDetails {
     @Embedded
     private UserBasic userBasic;
 
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "uid")
+    private List<UserRole> roles;
+
     // 패스워드 변경
     public void changePassword(String newPassword) {
         this.password = newPassword;
@@ -76,16 +83,13 @@ public class User implements UserDetails {
         return this.password;
     }
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
+                .map((UserRole role) -> new SimpleGrantedAuthority(role.getAuthority()))
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public String getUsername() {

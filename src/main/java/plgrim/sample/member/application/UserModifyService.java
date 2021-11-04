@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import plgrim.sample.common.enums.ErrorCode;
+import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
@@ -28,11 +29,7 @@ public class UserModifyService {
         Optional<User> user = userRepository.findByUserId(userModifyCommand.getUserId());
         if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
 
-        if (userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo()))
-            throw new UserException(ErrorCode.DUPLICATE_ID);
-
-        if (userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getUsrNo()))
-            throw new UserException(ErrorCode.DUPLICATE_PHONE_NUMBER);
+        this.checkDuplicate(userModifyCommand);
 
         User result = userRepository.save(User.builder()
                 .usrNo(user.get().getUsrNo())
@@ -59,10 +56,24 @@ public class UserModifyService {
     /**
      * 회원 탈퇴
      */
-    public void delete(Long usrNo) {
-        Optional<User> user = userRepository.findById(usrNo);   // user 조회 후 없으면? 못찾는 에러
+    public void delete(String userId, String snsType) {
+        Optional<User> user = userRepository.findByUserIdAndSnsType(userId, Sns.findSnsByValue(snsType));   // user 조회 후 없으면? 못찾는 에러
         if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
 
-        userRepository.deleteById(usrNo);
+        userRepository.deleteByUserIdAndSnsType(userId, Sns.findSnsByValue(snsType));
+    }
+
+    private void checkDuplicate(UserModifyCommand userModifyCommand) {
+        if (userDomainService.checkDuplicateEmailExceptOwn(
+                userModifyCommand.getEmail(),
+                userModifyCommand.getSnsType(),
+                userModifyCommand.getUserId()))
+            throw new UserException(ErrorCode.DUPLICATE_EMAIL);
+
+        if (userDomainService.checkDuplicatePhoneNumberExceptOwn(
+                userModifyCommand.getMobileNo(),
+                userModifyCommand.getSnsType(),
+                userModifyCommand.getUserId()))
+            throw new UserException(ErrorCode.DUPLICATE_MOBILE_NO);
     }
 }

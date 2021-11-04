@@ -8,33 +8,37 @@ import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.common.token.KakaoTokenProvider;
 import plgrim.sample.common.token.LocalTokenProvider;
-import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
-import plgrim.sample.member.controller.dto.user.UserLoginDTO;
+import plgrim.sample.member.controller.dto.user.UserDTO;
+import plgrim.sample.member.controller.dto.user.UserIdLoginDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.model.valueobjects.UserBasic;
+import plgrim.sample.member.domain.model.commands.UserJoinCommand;
+import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.service.UserDomainService;
 import plgrim.sample.member.infrastructure.repository.UserJPARepository;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
-
-import java.util.Collections;
-import java.util.Optional;
+import plgrim.sample.member.infrastructure.rest.dto.KakaoUserInfoDTO;
 
 @Service
 @RequiredArgsConstructor
 public class UserLoginService {
     private final UserJPARepository userRepository;        // 리포지토리
+    private final UserDomainService userDomainService;
     private final PasswordEncoder passwordEncoder;
     private final LocalTokenProvider localTokenProvider;
     private final KakaoTokenProvider kakaoTokenProvider;
+    private final UserJoinService userJoinService;
+    private final UserFindService userFindService;
 
     // 로컬 로그인
-    public String localLogin(UserLoginDTO userLoginDTO) {
-        User user = userRepository.findByEmail(userLoginDTO.getEmail())
+    public String localLogin(UserIdLoginDTO userIdLoginDTO) {
+
+        User user = userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(), Sns.LOCAL)
                 .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
 
-        if (!passwordEncoder.matches(userLoginDTO.getPassword(), user.getPassword()))
+        if (!passwordEncoder.matches(userIdLoginDTO.getPassword(), user.getPassword()))
             throw new UserException(ErrorCode.INCORRECT_PASSWORD);
 
-        return localTokenProvider.createToken(user.getEmail(), user.getRoles());
+        return localTokenProvider.createToken(user.getUserId(), user.getRoles());
     }
 
     /**
@@ -46,8 +50,27 @@ public class UserLoginService {
      */
     public String kakaoLogin(String code) {
         KakaoTokenDTO kakaoTokenDTO = kakaoTokenProvider.createToken(code);
-        String kakaoUserEmail = kakaoTokenProvider.getUserPk(kakaoTokenDTO.getAccess_token());
+        KakaoUserInfoDTO kakaoUserInfoDTO = kakaoTokenProvider.getUserInfo(kakaoTokenDTO.getAccess_token());
 
+        userJoinService.join(UserJoinCommand.builder()
+                .userId(kakaoUserInfoDTO.getId().toString())
+                .email(kakaoUserInfoDTO.getKakao_account().containsKey("email") ?
+                        kakaoUserInfoDTO.getKakao_account().get("email").toString() :
+                        null)
+                .nickName(kakaoUserInfoDTO.getProperties().get("nickname"))
+                .mobileNo(kakaoUserInfoDTO.getKakao_account().containsKey("phone_number") ?
+                        kakaoUserInfoDTO.getKakao_account().get("phone_number").toString() :
+                        null)
+                .snsType(Sns.KAKAO)
+                .snsInfo(SnsInfo.builder()
+                        .refreshToken(kakaoTokenDTO.getRefresh_token())
+                        .tokenType(kakaoTokenDTO.getToken_type())
+                        .scope(kakaoTokenDTO.getScope())
+                        .build())
+                .build());
+
+        UserDTO userByUserIdAndSnsType = userFindService.findUserByUserIdAndSnsType(kakaoUserInfoDTO.getId().toString(), Sns.KAKAO.getValue());
+        System.out.println("userByUserIdAndSnsType = " + userByUserIdAndSnsType);
 //        userJoinService.join(UserCommandMapper)
 //        Optional<User> result = userRepository.findByEmail(kakaoUserEmail);
 

@@ -30,9 +30,9 @@ public class UserCommandMapper {
                 .build();
     }
 
-    public UserModifyCommand toCommand(Long usrNo, UserModifyDTO userModifyDTO) {
+    public UserModifyCommand toCommand(String userId, UserModifyDTO userModifyDTO) {
         return UserModifyCommand.builder()
-                .usrNo(usrNo)
+                .userId(userId)
                 .email(userModifyDTO.getEmail())
                 .password(userModifyDTO.getPassword())
                 .nickName(userModifyDTO.getNickName())

@@ -51,11 +51,22 @@ class UserModifyServiceTest {
     @BeforeEach
     void setup() {
         user = User.builder()
+                .usrNo(1L)
+                .userId("monty")
                 .email("monty@plgrim.com")
+                .password("12345")
+                .nickName("monty")
+                .mobileNo("01040684490")
+                .snsType(Sns.LOCAL)
+                .snsInfo(SnsInfo.builder().build())
+                .userBasic(UserBasic.builder()
+                        .address("dongdaemungu")
+                        .gender(Gender.MALE)
+                        .birth(LocalDate.of(1994, 3, 30))
+                        .build())
                 .build();
 
         userModifyCommand = UserModifyCommand.builder()
-                .usrNo(1L)
                 .email("monty@plgrim.com")
                 .password("test")
                 .nickName("monty")
@@ -74,9 +85,9 @@ class UserModifyServiceTest {
     @Test
     void modify() {
         //  given
-        given(userRepository.findById(userModifyCommand.getUsrNo())).willReturn(Optional.of(user));
-        given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getUsrNo())).willReturn(false);
+        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.of(user));
+        given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(false);
+        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
         given(passwordEncoder.encode(userModifyCommand.getPassword())).willReturn("encrypt password");
 
@@ -91,7 +102,7 @@ class UserModifyServiceTest {
     @Test
     void modifyFailNotUserFound() {
         //  given
-        given(userRepository.findById(userModifyCommand.getUsrNo())).willReturn(Optional.empty());
+        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.empty());
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyCommand)).getErrorCode();
@@ -104,49 +115,50 @@ class UserModifyServiceTest {
     @Test
     void modifyFailDuplicatedEmail() {
         //  given
-        given(userRepository.findById(userModifyCommand.getUsrNo())).willReturn(Optional.of(user));
-        given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo())).willReturn(true);
+        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.of(user));
+        given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(true);
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyCommand)).getErrorCode();
 
         //  then
-        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_ID);
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_EMAIL);
     }
 
     @DisplayName("회원정보 수정 실패 - 전화번호 중복")
     @Test
     void modifyFailDuplicatedPhoneNumber() {
         //  given
-        given(userRepository.findById(userModifyCommand.getUsrNo())).willReturn(Optional.of(user));
-        given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getUsrNo())).willReturn(false);
-        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getUsrNo())).willReturn(true);
-
+        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.of(user));
+        given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(false);
+        given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(true);
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyCommand)).getErrorCode();
 
         //  then
-        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_PHONE_NUMBER);
+        assertThat(error).isEqualTo(ErrorCode.DUPLICATE_MOBILE_NO);
     }
 
     @DisplayName("회원정보 삭제")
     @Test
     void delete() {
         //  given
-        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(userRepository.findByUserIdAndSnsType(user.getUserId(), user.getSnsType()))
+                .willReturn(Optional.of(user));
 
         //  when    //  then
-        assertDoesNotThrow(() -> userModifyService.delete(1L));
+        assertDoesNotThrow(() -> userModifyService.delete(user.getUserId(), user.getSnsType().getValue()));
     }
 
     @DisplayName("회원정보 삭제 실패 - 없는 회원")
     @Test
     void deleteFailNotUserFound() {
         //  given
-        given(userRepository.findById(1L)).willReturn(Optional.empty());
+        given(userRepository.findByUserIdAndSnsType(user.getUserId(), user.getSnsType()))
+                .willReturn(Optional.empty());
 
         //  when
-        ErrorCode error = assertThrows(UserException.class, () -> userModifyService.delete(1L)).getErrorCode();
+        ErrorCode error = assertThrows(UserException.class, () ->  userModifyService.delete(user.getUserId(), user.getSnsType().getValue())).getErrorCode();
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.USER_NOT_FOUND);

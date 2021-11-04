@@ -13,7 +13,8 @@ import javax.persistence.Embeddable;
 @Getter
 public class SnsInfo {
     private String refreshToken;
-
+    private String tokenType;
+    private String scope;
     public void changeRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.MockBeans;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,14 +19,14 @@ import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
-import plgrim.sample.common.token.KakaoTokenProvider;
-import plgrim.sample.common.token.LocalTokenProvider;
+import plgrim.sample.common.token.TokenProviderFactory;
 import plgrim.sample.member.application.UserFindService;
 import plgrim.sample.member.application.UserJoinService;
 import plgrim.sample.member.application.UserModifyService;
 import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
+import plgrim.sample.member.domain.model.entities.UserRole;
 import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
-import static plgrim.sample.common.UrlValue.USRNO_PATH;
+import static plgrim.sample.common.UrlValue.USER_ID;
 
 @DisplayName("UserFindController 테스트")
 @WebMvcTest
@@ -49,8 +50,7 @@ import static plgrim.sample.common.UrlValue.USRNO_PATH;
         @MockBean(UserJoinService.class),
         @MockBean(UserModifyService.class),
         @MockBean(UserCommandMapper.class),
-        @MockBean(LocalTokenProvider.class),
-        @MockBean(KakaoTokenProvider.class),
+        @MockBean(TokenProviderFactory.class),
         @MockBean(LoginController.class),
         @MockBean(UserDetailsService.class)
 })
@@ -80,6 +80,7 @@ class UserFindControllerTest {
                 .nickName("monty")
                 .mobileNo("01040684490")
                 .snsType(Sns.LOCAL)
+                .roles(List.of(UserRole.builder().authority("ROLE_USER").build()))
                 .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
@@ -95,6 +96,7 @@ class UserFindControllerTest {
                 .nickName("monty2")
                 .mobileNo("01040684491")
                 .snsType(Sns.LOCAL)
+                .roles(List.of(UserRole.builder().authority("ROLE_USER").build()))
                 .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
@@ -110,6 +112,7 @@ class UserFindControllerTest {
                 .nickName("monty3")
                 .mobileNo("01040684492")
                 .snsType(Sns.LOCAL)
+                .roles(List.of(UserRole.builder().authority("ROLE_USER").build()))
                 .snsInfo(SnsInfo.builder().build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
@@ -124,20 +127,22 @@ class UserFindControllerTest {
                 .email(user.getEmail())
                 .nickName(user.getNickName())
                 .mobileNo(user.getMobileNo())
+                .snsType(user.getSnsType())
                 .snsInfo(user.getSnsInfo())
                 .userBasic(user.getUserBasic())
                 .build();
     }
 
-    @DisplayName("회원조회 usrNo")
+    @DisplayName("회원조회 userId")
     @Test
-//    @WithMockUser(roles = "USER")
     void findUserByUsrNo() throws Exception {
         //  given
-        given(userFindService.findUserByUsrNo(user.getUsrNo())).willReturn(userDTO);
+        given(userFindService.findUserByUserIdAndSnsType(user.getUserId(), user.getSnsType().getValue()))
+                .willReturn(userDTO);
 
         //  when
-        MvcResult mvcResult = mockMvc.perform(get(ROOT_USER_PATH + USRNO_PATH, Long.toString(user.getUsrNo())))
+        MvcResult mvcResult = mockMvc.perform(get(ROOT_USER_PATH + USER_ID, user.getUserId())
+                        .queryParam("snsType", user.getSnsType().getValue()))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andReturn();
@@ -148,23 +153,29 @@ class UserFindControllerTest {
     }
 
     @Test
-    @DisplayName("회원조회 usrNo 실패 - 없는 회원")
-//    @WithMockUser(roles = "USER")
+    @DisplayName("회원조회 userId 실패 - 없는 회원")
     void findUserByEmail() throws Exception {
         //  given
-        given(userFindService.findUserByUsrNo(user.getUsrNo())).willThrow(new UserException(ErrorCode.USER_NOT_FOUND));
+        given(userFindService.findUserByUserIdAndSnsType(user.getUserId(), user.getSnsType().getValue()))
+                .willThrow(new UserException(ErrorCode.USER_NOT_FOUND));
 
         //  when
-        mockMvc.perform(get(ROOT_USER_PATH + USRNO_PATH, Long.toString(1L)))
+        MockHttpServletResponse mvcResult = mockMvc.perform(get(ROOT_USER_PATH + USER_ID, user.getUserId())
+                        .queryParam("snsType", user.getSnsType().getValue()))
                 //  then
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(ErrorCode.USER_NOT_FOUND.getDetail()))
-                .andDo(print());
+                .andDo(print())
+                .andReturn()
+                .getResponse();
+
+        //  then
+        assertThat(mvcResult.getStatus()).isEqualTo(ErrorCode.USER_NOT_FOUND.getHttpStatus().value());
+        assertThat(mvcResult.getContentAsString()).isEqualTo(ErrorCode.USER_NOT_FOUND.getDetail());
     }
 
     @Test
     @DisplayName("회원 목록 조회")
-//    @WithMockUser(roles = "USER")
     void findUserList() throws Exception {
         // given
         List<User> getList = List.of(user, user2);
@@ -173,16 +184,13 @@ class UserFindControllerTest {
             add("page", Integer.toString(0));
             add("size", Integer.toString(2));
         }};
+        String expected = objectMapper.writeValueAsString(getList);
 
         //  when
-        MvcResult mvcResult = mockMvc.perform(get(ROOT_USER_PATH).queryParams(query))
+        mockMvc.perform(get(ROOT_USER_PATH).queryParams(query))
                 .andExpect(status().isOk())
+                .andExpect(content().string(expected))
                 .andDo(print())
                 .andReturn();
-        List<User> users = objectMapper.readValue(mvcResult.getResponse().getContentAsString(),
-                objectMapper.getTypeFactory().constructCollectionType(List.class, User.class));
-
-        //  then
-        assertThat(users.size()).isEqualTo(2);
     }
 }

@@ -14,10 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
-import plgrim.sample.common.token.KakaoTokenProvider;
-import plgrim.sample.common.token.LocalTokenProvider;
+import plgrim.sample.common.token.TokenProviderFactory;
 import plgrim.sample.member.application.UserLoginService;
-import plgrim.sample.member.controller.dto.user.UserLoginDTO;
+import plgrim.sample.member.controller.dto.user.UserIdLoginDTO;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,11 +29,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static plgrim.sample.common.KakaoValue.*;
 import static plgrim.sample.common.UrlValue.*;
 
-@DisplayName("UserLoginController 테스트")
+@DisplayName("LoginController 테스트")
 @WebMvcTest
 @MockBeans({
-        @MockBean(LocalTokenProvider.class),
-        @MockBean(KakaoTokenProvider.class),
+        @MockBean(TokenProviderFactory.class),
         @MockBean(UserDetailsService.class),
         @MockBean(UserController.class)
 })
@@ -48,12 +46,12 @@ class LoginControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    UserLoginDTO userLoginDTO;
+    UserIdLoginDTO userIdLoginDTO;
 
     @BeforeEach
     void setup() {
-        userLoginDTO = UserLoginDTO.builder()
-                .email("monty@plgrim.com")
+        userIdLoginDTO = UserIdLoginDTO.builder()
+                .id("monty")
                 .password("password for test")
                 .build();
     }
@@ -63,7 +61,7 @@ class LoginControllerTest {
     void localLogin() throws Exception {
         //  given
         given(userLoginService.localLogin(any())).willReturn("token");
-        String content = objectMapper.writeValueAsString(userLoginDTO);
+        String content = objectMapper.writeValueAsString(userIdLoginDTO);
 
         //  when
         String result = mockMvc.perform(post(ROOT_LOGIN_PATH)

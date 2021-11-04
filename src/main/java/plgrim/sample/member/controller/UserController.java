@@ -18,7 +18,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
-import static plgrim.sample.common.UrlValue.USRNO_PATH;
+import static plgrim.sample.common.UrlValue.USER_ID;
 
 @Validated
 @RestController
@@ -31,11 +31,12 @@ public class UserController {
     private final UserModifyService userModifyService;
 
     /**
-     * 유저 조회 - usrNo
+     * 유저 조회 - userId
      */
-    @GetMapping(USRNO_PATH)
-    public ResponseEntity<UserDTO> findUserByUsrNo(@PathVariable("usrNo") Long usrNo) {
-        UserDTO user = userFindService.findUserByUsrNo(usrNo);
+    @GetMapping(USER_ID)
+    public ResponseEntity<UserDTO> findUserByUsrNo(@PathVariable("userId") String userId,
+                                                   @RequestParam("snsType") String snsType) {
+        UserDTO user = userFindService.findUserByUserIdAndSnsType(userId, snsType);
         return ResponseEntity.ok(user);
     }
 
@@ -59,20 +60,22 @@ public class UserController {
     }
 
     /**
-     * 유저 수정 usrNo 필수
+     * 유저 수정 userId 필수
      */
-    @PutMapping(USRNO_PATH)
-    public ResponseEntity<UserDTO> modify(@PathVariable("usrNo") Long usrNo, @Valid @RequestBody UserModifyDTO userModifyDTO) {
-        UserDTO userDTO = userModifyService.modify(userCommandMapper.toCommand(usrNo, userModifyDTO));
+    @PutMapping(USER_ID)
+    public ResponseEntity<UserDTO> modify(@PathVariable("userId") String userId,
+                                          @Valid @RequestBody UserModifyDTO userModifyDTO) {
+        UserDTO userDTO = userModifyService.modify(userCommandMapper.toCommand(userId, userModifyDTO));
         return ResponseEntity.ok(userDTO);
     }
 
     /**
-     * 유저 삭제 usrNo 필수
+     * 유저 삭제 USER_ID 필수
      */
-    @DeleteMapping(USRNO_PATH)
-    public ResponseEntity<String> delete(@PathVariable("usrNo") Long usrNo) {
-        userModifyService.delete(usrNo);
+    @DeleteMapping(USER_ID)
+    public ResponseEntity<String> delete(@PathVariable("userId") String userId,
+                                         @RequestParam("snsType") String snsType) {
+        userModifyService.delete(userId, snsType);
         return ResponseEntity.ok(SuccessCode.DELETE_SUCCESS.getDetail());
     }
 }
