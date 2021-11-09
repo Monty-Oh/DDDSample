@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.infrastructure.rest.dto.KakaoTokenDTO;
@@ -69,14 +70,18 @@ class KakaoStrategyTest {
         HttpUrl url = mockWebServer.url(MOCK_WEB_SERVER_URL);
         String code = "code_for_test";
 
+        ReflectionTestUtils.setField(kakaoStrategy, "restApi", "restApi");
+        ReflectionTestUtils.setField(kakaoStrategy, "redirectUrl", "redirectUrl");
+        ReflectionTestUtils.setField(kakaoStrategy, "getTokenUrl", url.toString());
+
         //  when
-        kakaoStrategy.getToken(url.toString(), code);
+        kakaoStrategy.getToken(code);
         RecordedRequest request = mockWebServer.takeRequest();
 
         //  then
         assertThat(request.getRequestUrl().encodedPath()).isEqualTo(url.encodedPath());
         assertThat(request.getMethod()).isEqualTo(HttpMethod.POST.toString());
-        String params = "grant_type=authorization_code&client_id=03daa4391ed176013bd17b15f7ad39c1&redirect_uri=http://localhost:8080/login/kakao/&code=code_for_test";
+        String params = "grant_type=authorization_code&client_id=restApi&redirect_uri=redirectUrl&code=code_for_test";
         assertThat(request.getRequestUrl().encodedQuery()).isEqualTo(params);
     }
 
@@ -95,8 +100,10 @@ class KakaoStrategyTest {
         HttpUrl url = mockWebServer.url(MOCK_WEB_SERVER_URL);
         String access_token = "access_token_for_test";
 
+        ReflectionTestUtils.setField(kakaoStrategy, "accessTokenInfoUrl", url.toString());
+
         //  when
-        kakaoStrategy.validateToken(url.toString(), access_token);
+        kakaoStrategy.validateToken(access_token);
         RecordedRequest request = mockWebServer.takeRequest();
 
         //  then
@@ -115,8 +122,10 @@ class KakaoStrategyTest {
         HttpUrl url = mockWebServer.url(MOCK_WEB_SERVER_URL);
         String access_token = "access_token_for_test";
 
+        ReflectionTestUtils.setField(kakaoStrategy, "accessTokenInfoUrl", url.toString());
+
         //  when
-        ErrorCode error = assertThrows(UserException.class, () -> kakaoStrategy.validateToken(url.toString(), access_token)).getErrorCode();
+        ErrorCode error = assertThrows(UserException.class, () -> kakaoStrategy.validateToken(access_token)).getErrorCode();
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.API_SERVER);
@@ -131,8 +140,10 @@ class KakaoStrategyTest {
         HttpUrl url = mockWebServer.url(MOCK_WEB_SERVER_URL);
         String access_token = "access_token_for_test";
 
+        ReflectionTestUtils.setField(kakaoStrategy, "accessTokenInfoUrl", url.toString());
+
         //  when
-        ErrorCode error = assertThrows(UserException.class, () -> kakaoStrategy.validateToken(url.toString(), access_token)).getErrorCode();
+        ErrorCode error = assertThrows(UserException.class, () -> kakaoStrategy.validateToken(access_token)).getErrorCode();
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.EXPIRED_TOKEN);
@@ -165,8 +176,10 @@ class KakaoStrategyTest {
         HttpUrl url = mockWebServer.url(MOCK_WEB_SERVER_URL);
         String access_token = "access_token_for_test";
 
+        ReflectionTestUtils.setField(kakaoStrategy, "userInfo", url.toString());
+
         //  when
-        String nickname = kakaoStrategy.getUserInfo(url.toString(), access_token).getProperties().get("nickname");
+        String nickname = kakaoStrategy.getUserInfo(access_token).getProperties().get("nickname");
         RecordedRequest request = mockWebServer.takeRequest();
 
         //  then

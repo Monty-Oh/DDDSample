@@ -6,13 +6,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import plgrim.sample.common.enums.ErrorCode;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 @RequiredArgsConstructor
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserJPARepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

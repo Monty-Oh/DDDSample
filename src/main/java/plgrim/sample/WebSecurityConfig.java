@@ -36,9 +36,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .httpBasic().disable()  // 기본 설정 해제
+                .httpBasic().disable()  //  기본 설정 해제
                 .csrf().disable()       //  csrf 보안토큰 처리 해제
-                //  세션 사용하지 않음. (토큰 인증 기반)
+                                        //  세션 사용하지 않음. (토큰 인증 기반)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()    //  요청에 대한 사용 권한 체크
@@ -49,8 +49,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .authenticationEntryPoint(new AuthenticationEntryPointImpl())
                 .and()
-                //  JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다.
                 .addFilterBefore(new AuthenticationFilter(tokenProviderFactory), UsernamePasswordAuthenticationFilter.class);
-//                .addFilterBefore(new KakaoAuthenticationFilter(kakaoTokenProvider), UsernamePasswordAuthenticationFilter.class);
     }
 }

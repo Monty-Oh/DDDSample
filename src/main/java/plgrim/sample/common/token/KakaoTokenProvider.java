@@ -34,7 +34,7 @@ public class KakaoTokenProvider implements TokenProvider {
      * 토큰 2가지와 만료시간 등이 적혀있다.
      */
     public KakaoTokenDTO createToken(String code) {
-        return (KakaoTokenDTO) snsStrategy.getToken(KAPI_GET_TOKEN_URL, code);
+        return (KakaoTokenDTO) snsStrategy.getToken(code);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class KakaoTokenProvider implements TokenProvider {
 
     @Override
     public KakaoUserInfoDTO getUserInfo(String token) {
-        return (KakaoUserInfoDTO) snsStrategy.getUserInfo(KAPI_USER_INFO_URL, token);
+        return (KakaoUserInfoDTO) snsStrategy.getUserInfo(token);
     }
 
     /**
@@ -64,7 +64,7 @@ public class KakaoTokenProvider implements TokenProvider {
     @Override
     public boolean validateToken(String jwtToken) {
         try {
-            snsStrategy.validateToken(KAPI_CHECK_ACCESS_TOKEN_URL, jwtToken);
+            snsStrategy.validateToken(jwtToken);
             return true;
         } catch (Exception e) {
             return false;

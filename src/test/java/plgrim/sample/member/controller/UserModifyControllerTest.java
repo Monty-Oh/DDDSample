@@ -24,7 +24,7 @@ import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
@@ -36,7 +36,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static plgrim.sample.common.UrlValue.ROOT_USER_PATH;
 import static plgrim.sample.common.UrlValue.USER_ID;

@@ -6,39 +6,34 @@
       "description": "Description for token.secret-key."
     },
     {
-      "name": "token.secret-key",
+      "name": "sns.kakao.kauth.login-page",
       "type": "java.lang.String",
-      "description": "Description for token.secret-key."
+      "description": "Description for sns.kakao.kauth.login-page."
     },
     {
-      "name": "token.valid-time",
+      "name": "sns.kakao.kauth.get-token",
       "type": "java.lang.String",
-      "description": "Description for token.valid-time."
+      "description": "Description for sns.kakao.kauth.get-token."
     },
     {
-      "name": "kakao.login-url",
+      "name": "sns.kakao.kapi.rest-api",
       "type": "java.lang.String",
-      "description": "Description for kakao.login-url."
+      "description": "Description for sns.kakao.kapi.rest-api."
     },
     {
-      "name": "kakao.rest-api",
+      "name": "sns.kakao.kapi.redirect-url",
       "type": "java.lang.String",
-      "description": "Description for kakao.rest-api."
+      "description": "Description for sns.kakao.kapi.redirect-url."
     },
     {
-      "name": "kakao.redirect-url",
+      "name": "sns.kakao.kapi.access-token-info",
       "type": "java.lang.String",
-      "description": "Description for kakao.redirect-url."
+      "description": "Description for sns.kakao.kapi.access-token-info."
     },
     {
-      "name": "kakao.response-type",
+      "name": "sns.kakao.kapi.user-info",
       "type": "java.lang.String",
-      "description": "Description for kakao.response-type."
-    },
-    {
-      "name": "kakao.token-url",
-      "type": "java.lang.String",
-      "description": "Description for kakao.token-url."
+      "description": "Description for sns.kakao.kapi.user-info."
     }
   ]
 }

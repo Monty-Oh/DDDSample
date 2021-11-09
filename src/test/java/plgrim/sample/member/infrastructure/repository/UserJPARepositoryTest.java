@@ -1,6 +1,5 @@
 package plgrim.sample.member.infrastructure.repository;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
@@ -22,11 +21,11 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@DisplayName("UserJPARepository 테스트")
+@DisplayName("UserRepository 테스트")
 @DataJpaTest
 class UserJPARepositoryTest {
     @Autowired
-    UserJPARepository userRepository;
+    UserRepository userRepository;
 
     User user;
     User user2;
@@ -107,21 +106,21 @@ class UserJPARepositoryTest {
                 .isEqualTo(user);
     }
 
-    @DisplayName("회원 정보 조회(email)")
-    @Test
-    void findByEmail() {
-        // given
-        userRepository.save(user);                                      // 저장 후 조회해본다.
-
-        // when
-        Optional<User> result = userRepository.findByEmail(user.getEmail());  // 저장을 했는데 결과가 없으면 에러
-
-        // then
-        assertFalse(result.isEmpty());                                  // 저장한 user의 ID와 불러온 유저의 정보가 같아야 한다. 내부 값 검증.
-        assertThat(result.get())
-                .usingRecursiveComparison()
-                .isEqualTo(user);
-    }
+//    @DisplayName("회원 정보 조회(email)")
+//    @Test
+//    void findByEmail() {
+//        // given
+//        userRepository.save(user);                                      // 저장 후 조회해본다.
+//
+//        // when
+//        Optional<User> result = userRepository.findByEmail(user.getEmail());  // 저장을 했는데 결과가 없으면 에러
+//
+//        // then
+//        assertFalse(result.isEmpty());                                  // 저장한 user의 ID와 불러온 유저의 정보가 같아야 한다. 내부 값 검증.
+//        assertThat(result.get())
+//                .usingRecursiveComparison()
+//                .isEqualTo(user);
+//    }
 
     @DisplayName("회원 정보 조회(전화번호)")
     @Test

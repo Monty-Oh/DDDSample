@@ -6,7 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import plgrim.sample.common.enums.Sns;
-import plgrim.sample.common.token.LocalTokenProvider;
 import plgrim.sample.common.token.TokenProvider;
 import plgrim.sample.common.token.TokenProviderFactory;
 
@@ -25,13 +24,13 @@ public class AuthenticationFilter extends GenericFilterBean {
     /**
      * Header 에서 Sns 타입을 추출, TokenProvider 를 TokenProviderFactory 에서 받는다.
      * 해당 TokenProvider 로 로직을 수행한다.
-     * */
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
         String snsHeader = resolveSnsType((HttpServletRequest) request);
 
-        if(StringUtils.isNotBlank(snsHeader)) {
+        if (StringUtils.isNotBlank(snsHeader)) {
             TokenProvider tokenProvider = tokenProviderFactory.findTokenProvider(Sns.findSnsByValue(snsHeader));
             //  헤터에서 JWT 를 받아온다.
             String token = resolveToken((HttpServletRequest) request);
@@ -49,14 +48,16 @@ public class AuthenticationFilter extends GenericFilterBean {
     /**
      * Request 의 Header 에서 token 값을 가져온다. "X-AUTH-TOKEN" : "TOKEN 값'
      */
-    private String resolveToken(HttpServletRequest request) {
+    private String
+    resolveToken(HttpServletRequest request) {
         return request.getHeader("X-AUTH-TOKEN");
     }
 
     /**
      * Request 의 Header 에서 SnsType 값을 가져온다. "X-SNS-TYPE"   :   "SnsType 값"
      */
-    private String resolveSnsType(HttpServletRequest request) {
+    private String
+    resolveSnsType(HttpServletRequest request) {
         return request.getHeader("X-SNS-TYPE");
     }
 }

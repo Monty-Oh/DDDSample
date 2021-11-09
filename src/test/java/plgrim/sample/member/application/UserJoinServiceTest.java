@@ -15,10 +15,10 @@ import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 import plgrim.sample.member.domain.service.UserDomainService;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.time.LocalDate;
 
@@ -31,7 +31,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserJoinServiceTest {
     @Mock
-    UserJPARepository userRepository;
+    UserRepository userRepository;
 
     @Mock
     UserDomainService userDomainService;
@@ -44,6 +44,7 @@ class UserJoinServiceTest {
 
     // 테스트 데이터
     UserJoinCommand userJoinCommand;
+    UserJoinCommand snsJoinCommand;
     User user;
 
     @BeforeEach
@@ -56,6 +57,22 @@ class UserJoinServiceTest {
                 .mobileNo("01040684490")
                 .snsType(Sns.LOCAL)
                 .snsInfo(SnsInfo.builder().build())
+                .userBasic(UserBasic.builder()
+                        .address("동대문구")
+                        .gender(Gender.MALE)
+                        .birth(LocalDate.of(1994, 3, 30))
+                        .build())
+                .build();
+
+        snsJoinCommand = UserJoinCommand.builder()
+                .userId("monty")
+                .email("monty@plgrim.com")
+                .nickName("monty")
+                .mobileNo("0100684490")
+                .snsType(Sns.KAKAO)
+                .snsInfo(SnsInfo.builder()
+                        .refreshToken("testtesttoken")
+                        .build())
                 .userBasic(UserBasic.builder()
                         .address("동대문구")
                         .gender(Gender.MALE)
@@ -84,6 +101,23 @@ class UserJoinServiceTest {
         //  then
         assertThat(result.getEmail()).isEqualTo(userJoinCommand.getEmail());
     }
+
+    @DisplayName("회원가입 성공 - SNS 계정")
+    @Test
+    void joinUserSns() {
+        //  given
+        given(userDomainService.checkDuplicateUserId(snsJoinCommand.getUserId(), snsJoinCommand.getSnsType())).willReturn(false);
+        given(userDomainService.checkDuplicateEmail(snsJoinCommand.getEmail(), snsJoinCommand.getSnsType())).willReturn(false);
+        given(userDomainService.checkDuplicateMobileNo(snsJoinCommand.getMobileNo(), snsJoinCommand.getSnsType())).willReturn(false);
+        given(userRepository.save(any())).willReturn(user);
+
+        //  when
+        UserDTO result = userJoinService.join(snsJoinCommand);
+
+        //  then
+        assertThat(result.getEmail()).isEqualTo(snsJoinCommand.getEmail());
+    }
+
 
     @DisplayName("회원가입 실패 - userId 중복가입")
     @Test

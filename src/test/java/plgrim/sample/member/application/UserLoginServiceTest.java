@@ -15,7 +15,7 @@ import plgrim.sample.common.token.LocalTokenProvider;
 import plgrim.sample.member.controller.dto.user.UserIdLoginDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.entities.UserRole;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +28,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserLoginServiceTest {
     @Mock
-    UserJPARepository userRepository;
+    UserRepository userRepository;
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -61,7 +61,7 @@ class UserLoginServiceTest {
     @Test
     void localLogin() {
         //  given
-        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(),  Sns.LOCAL)).willReturn(Optional.ofNullable(user));
+        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(), Sns.LOCAL)).willReturn(Optional.ofNullable(user));
         given(passwordEncoder.matches(userIdLoginDTO.getPassword(), user.getPassword())).willReturn(true);
         given(localTokenProvider.createToken(userIdLoginDTO.getId(), user.getRoles())).willReturn("test Token");
 
@@ -76,7 +76,7 @@ class UserLoginServiceTest {
     @Test
     void localLoginFailUserNotFound() {
         //  given
-        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(),  Sns.LOCAL)).willReturn(Optional.empty());
+        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(), Sns.LOCAL)).willReturn(Optional.empty());
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userLoginService.localLogin(userIdLoginDTO)).getErrorCode();
@@ -89,7 +89,7 @@ class UserLoginServiceTest {
     @Test
     void localLoginFailIncorrectPassword() {
         //  given
-        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(),  Sns.LOCAL)).willReturn(Optional.ofNullable(user));
+        given(userRepository.findByUserIdAndSnsType(userIdLoginDTO.getId(), Sns.LOCAL)).willReturn(Optional.ofNullable(user));
         given(passwordEncoder.matches(userIdLoginDTO.getPassword(), user.getPassword())).willReturn(false);
 
         //  when
@@ -97,5 +97,11 @@ class UserLoginServiceTest {
 
         //  then
         assertThat(error).isEqualTo(ErrorCode.INCORRECT_PASSWORD);
+    }
+
+    @DisplayName("카카오 로그인 - 처음 로그인 시")
+    @Test
+    void kakaoLogin() {
+
     }
 }

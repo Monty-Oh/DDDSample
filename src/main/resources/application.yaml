@@ -20,9 +20,13 @@ server:
 token:
   secret-key: this is secret key for sample project
 
-kakao:
-  login-url: https://kauth.kakao.com/oauth/authorize
-  token-url: https://kauth.kakao.com/oauth/token
-  rest-api: 03daa4391ed176013bd17b15f7ad39c1
-  redirect-url: http://localhost:8080/login/kakao/auth
-  response-type: code
+sns:
+  kakao:
+    kauth:
+      login-page:   https://kauth.kakao.com/oauth/authorize
+      get-token:    https://kauth.kakao.com/oauth/token
+    kapi:
+      rest-api:     03daa4391ed176013bd17b15f7ad39c1
+      redirect-url: http://localhost:8080/login/kakao/
+      access-token-info:  https://kapi.kakao.com/v1/user/access_token_info
+      user-info:  https://kapi.kakao.com/v2/user/me

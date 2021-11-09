@@ -7,19 +7,19 @@ import plgrim.sample.common.enums.ErrorCode;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserDomainService {
-    private final UserJPARepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    
+
     /**
      * 이미 사용하는 로그인 아이디인지 체크
-     * */
+     */
     public Boolean checkDuplicateUserId(String userId, Sns snsType) {
         Optional<User> user = userRepository.findByUserIdAndSnsType(userId, snsType);
         return user.isPresent();

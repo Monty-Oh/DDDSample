@@ -5,7 +5,7 @@ import plgrim.sample.member.controller.dto.user.UserJoinDTO;
 import plgrim.sample.member.controller.dto.user.UserModifyDTO;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.commands.UserModifyCommand;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 @Component

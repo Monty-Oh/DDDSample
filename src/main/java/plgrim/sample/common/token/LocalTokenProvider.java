@@ -40,14 +40,14 @@ public class LocalTokenProvider implements TokenProvider {
 
     //  JWT 토큰 생성
     public String createToken(String userPk, List<UserRole> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk);     //  JWT payload 에 저장되는 정보 단위
+        Claims claims = Jwts.claims().setSubject(userPk);       //  JWT payload 에 저장되는 정보 단위
         claims.put("roles", roles);     //  정보는 key : value 쌍으로 저장
 
         Date now = new Date();
 
         return Jwts.builder()
-                .setClaims(claims)  //  정보저장
-                .setIssuedAt(now)   //  토큰 발행 시간 정보
+                .setClaims(claims)      //  정보저장
+                .setIssuedAt(now)       //  토큰 발행 시간 정보
                 .setExpiration(new Date(now.getTime() + validTime))    //  만료시간
                 .signWith(SignatureAlgorithm.HS256, secretKey)  //  암호화 알고리즘, 키 값 세팅
                 .compact();
@@ -71,7 +71,8 @@ public class LocalTokenProvider implements TokenProvider {
     // 토큰에서 회원 정보 추출
     @Override
     public String getUserInfo(String token) {
-        return Jwts.parser()
+        return Jwts
+                .parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody()

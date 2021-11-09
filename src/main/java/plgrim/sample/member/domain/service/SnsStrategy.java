@@ -9,16 +9,16 @@ public interface SnsStrategy {
     /**
      * code 를 사용해 토큰 요청
      */
-    Object getToken(String url, String code);
+    Object getToken(String code);
 
     /**
      * token 검증 요청
      */
-    Object validateToken(String url, String token);
+    Object validateToken(String token);
 
     /**
      * token 을 사용해서
      * user 정보 조회
      */
-    Object getUserInfo(String url, String token);
+    Object getUserInfo(String token);
 }

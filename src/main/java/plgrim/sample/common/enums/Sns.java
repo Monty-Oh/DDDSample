@@ -24,7 +24,7 @@ public enum Sns {
      * unmodifiableMap : read-only Map
      */
     private static final Map<String, Sns> SNS_MAP = Collections.unmodifiableMap(Stream.of(values())
-                    .collect(Collectors.toMap(Sns::getValue, Function.identity())));
+            .collect(Collectors.toMap(Sns::getValue, Function.identity())));
 
     /**
      * Sns value 조회

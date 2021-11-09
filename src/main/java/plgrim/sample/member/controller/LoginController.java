@@ -2,6 +2,7 @@ package plgrim.sample.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -22,6 +23,15 @@ public class LoginController {
 
     private final UserLoginService userLoginService;
 
+    @Value("${sns.kakao.kauth.login-page}")
+    String kakaoLoginPage;
+
+    @Value("${sns.kakao.kapi.rest-api}")
+    String kakaoRestApi;
+
+    @Value("${sns.kakao.kapi.redirect-url}")
+    String kakaoRedirectUrl;
+
     /**
      * 유저 로그인
      */
@@ -37,7 +47,6 @@ public class LoginController {
     @GetMapping(ROOT_LOGIN_PATH + KAKAO)
     @ResponseBody
     public String loginKakaoAuth(@RequestParam("code") String code) {
-        System.out.println("code = " + code);
         return userLoginService.kakaoLogin(code);
     }
 
@@ -47,22 +56,12 @@ public class LoginController {
     @GetMapping(ROOT_LOGIN_PATH + KAKAO_VIEW)
     public String getLoginKakaoView() {
         MultiValueMap<String, String> query = new LinkedMultiValueMap<>() {{
-            add("client_id", KAPI_REST_API);
-            add("redirect_uri", KAPI_API_REDIRECT_LOGIN_URL);
+            add("client_id", kakaoRestApi);
+            add("redirect_uri", kakaoRedirectUrl);
             add("response_type", "code");
         }};
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(KAKAO_LOGIN_PAGE_URL).queryParams(query);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(kakaoLoginPage).queryParams(query);
         return "redirect:" + builder.toUriString();
     }
-
-//    /**
-//     * 카카오 로그아웃
-//     * */
-//    @GetMapping("kakao/logout")
-//    public @ResponseBody
-//    String logoutKakao(HttpServletRequest request) {
-//        userLoginService.kakaoLogout(request);
-//        return "success!";
-//    }
 }

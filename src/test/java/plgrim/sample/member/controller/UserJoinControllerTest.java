@@ -29,7 +29,7 @@ import plgrim.sample.member.controller.dto.mapper.UserCommandMapper;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.controller.dto.user.UserJoinDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
 
 import java.time.LocalDate;
@@ -262,7 +262,6 @@ class UserJoinControllerTest {
     }
 
 
-
     /**
      * 회원가입
      * PhoneNumber validation 반복 테스트
@@ -270,7 +269,7 @@ class UserJoinControllerTest {
     @DisplayName("회원가입 실패 - PhoneNumber 형식")
     @ParameterizedTest
     @ValueSource(strings = {"0", "01040684490000"})
-    void joinFailPhoneNumberValidation(String mobileNo) throws  Exception {
+    void joinFailPhoneNumberValidation(String mobileNo) throws Exception {
         //  given
         String content = objectMapper.writeValueAsString(UserJoinDTO.builder()
                 .userId(user.getUserId())

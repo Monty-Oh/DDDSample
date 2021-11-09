@@ -13,9 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import plgrim.sample.common.enums.Gender;
 import plgrim.sample.common.enums.Sns;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -29,7 +29,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserDomainServiceTest {
     @Mock
-    UserJPARepository userRepository;
+    UserRepository userRepository;
 
     @InjectMocks
     UserDomainService userDomainService;

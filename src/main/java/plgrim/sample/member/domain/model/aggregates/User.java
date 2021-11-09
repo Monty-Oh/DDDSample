@@ -5,12 +5,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import plgrim.sample.common.enums.Sns;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.entities.UserRole;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,8 +22,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class User implements UserDetails {
     /**
-     * @PrimaryKey
-     * USR_NO 자동 생성
+     * @PrimaryKey USR_NO 자동 생성
      */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,8 +35,6 @@ public class User implements UserDetails {
      * 유일키
      */
     private String userId;
-    //  ohhanjin0330
-    //  2103809213_kakao
 
     /**
      * 회원 이메일
@@ -56,12 +52,18 @@ public class User implements UserDetails {
 
     private Sns snsType;
 
-    @Embedded
+    //    @Embedded
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "uid")
     private SnsInfo snsInfo;
 
     @Embedded
     private UserBasic userBasic;
 
+    /**
+     * fetchType 체크하기
+     * 모르면 Lazy 쓰는게 좋다.
+     * */
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "uid")
     private List<UserRole> roles;
@@ -93,7 +95,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return userId;
     }
 
     @Override

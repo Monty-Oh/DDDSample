@@ -51,7 +51,7 @@ class KakaoTokenProviderTest {
     @Test
     void createToken() {
         //  given
-        given(snsStrategy.getToken(any(), any()))
+        given(snsStrategy.getToken(any()))
                 .willReturn(KakaoTokenDTO.builder()
                         .access_token("test_token")
                         .build());
@@ -63,29 +63,11 @@ class KakaoTokenProviderTest {
         assertThat(token.getAccess_token()).isEqualTo("test_token");
     }
 
-//    @DisplayName("헤더에서 SnsType, Token 추출")
-//    @Test
-//    void resolveTokenAndSnsType() {
-//        //  given
-//        MockHttpServletRequest httpServletRequest = new MockHttpServletRequest() {{
-//            addHeader("X-AUTH-TOKEN", "test_token");
-//            addHeader("X-SNS-TYPE", Sns.LOCAL.getValue());
-//        }};
-//
-//        //  when
-//        String token = kakaoTokenProvider.resolveToken(httpServletRequest);
-//        String sns = kakaoTokenProvider.resolveSnsType(httpServletRequest);
-//
-//        //  then
-//        assertThat(token).isEqualTo("test_token");
-//        assertThat(sns).isEqualTo(Sns.LOCAL.getValue());
-//    }
-
     @DisplayName("카카오 토큰 검증 - 유효함")
     @Test
     void validateKakaoToken() {
         //  given
-        given(snsStrategy.validateToken(KAPI_CHECK_ACCESS_TOKEN_URL, "test_token")).willReturn("nothing");
+        given(snsStrategy.validateToken("test_token")).willReturn("nothing");
 
         //  when
         boolean result = kakaoTokenProvider.validateToken("test_token");
@@ -106,7 +88,7 @@ class KakaoTokenProviderTest {
     @MethodSource("getUserExceptionCase")
     void failValidateKakaoToken(ErrorCode errorCode) {
         //  given
-        given(snsStrategy.validateToken(KAPI_CHECK_ACCESS_TOKEN_URL, "test_token")).willThrow(new UserException(errorCode));
+        given(snsStrategy.validateToken("test_token")).willThrow(new UserException(errorCode));
 
         //  when
         boolean result = kakaoTokenProvider.validateToken("test_token");
@@ -121,7 +103,7 @@ class KakaoTokenProviderTest {
     void getUserPk() {
         //  given
         KakaoUserInfoDTO kakaoUserInfoDTO = KakaoUserInfoDTO.builder().id(1L).build();
-        given(snsStrategy.getUserInfo(KAPI_USER_INFO_URL, "test_token")).willReturn(kakaoUserInfoDTO);
+        given(snsStrategy.getUserInfo("test_token")).willReturn(kakaoUserInfoDTO);
 
         //  when
         KakaoUserInfoDTO userInfo = kakaoTokenProvider.getUserInfo("test_token");
@@ -137,7 +119,7 @@ class KakaoTokenProviderTest {
     @Order(1)
     void getAuthentication() {
         //  given
-        given(snsStrategy.getUserInfo(KAPI_USER_INFO_URL, "test_token")).willReturn(KakaoUserInfoDTO.builder().id(1L).build());
+        given(snsStrategy.getUserInfo("test_token")).willReturn(KakaoUserInfoDTO.builder().id(1L).build());
         given(userDetailsService.loadUserByUsername(Long.toString(1L))).willReturn(User.builder()
                 .email(Long.toString(1L))
                 .roles(List.of(UserRole.builder()

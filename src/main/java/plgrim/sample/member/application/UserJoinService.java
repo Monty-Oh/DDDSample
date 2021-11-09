@@ -11,14 +11,14 @@ import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserJoinCommand;
 import plgrim.sample.member.domain.model.entities.UserRole;
 import plgrim.sample.member.domain.service.UserDomainService;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
 public class UserJoinService {
-    private final UserJPARepository userRepository;        // 리포지토리
+    private final UserRepository userRepository;        // 리포지토리
     private final UserDomainService userDomainService;  // 도메인 서비스
     private final PasswordEncoder passwordEncoder;
 

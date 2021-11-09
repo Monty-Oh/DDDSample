@@ -15,9 +15,9 @@ import plgrim.sample.common.enums.Sns;
 import plgrim.sample.common.exceptions.UserException;
 import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
-import plgrim.sample.member.domain.model.valueobjects.SnsInfo;
+import plgrim.sample.member.domain.model.entities.SnsInfo;
 import plgrim.sample.member.domain.model.valueobjects.UserBasic;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,7 +31,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 class UserFindServiceTest {
     @Mock
-    UserJPARepository userRepository;
+    UserRepository userRepository;
 
     @InjectMocks
     UserFindService userFindService;
@@ -88,6 +88,7 @@ class UserFindServiceTest {
                         .build())
                 .build();
     }
+
     @DisplayName("단일 유저 조회")
     @Test
     void findUserByUserIdAndSnsType() {

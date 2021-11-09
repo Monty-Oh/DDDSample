@@ -10,14 +10,14 @@ import plgrim.sample.member.controller.dto.user.UserDTO;
 import plgrim.sample.member.domain.model.aggregates.User;
 import plgrim.sample.member.domain.model.commands.UserModifyCommand;
 import plgrim.sample.member.domain.service.UserDomainService;
-import plgrim.sample.member.infrastructure.repository.UserJPARepository;
+import plgrim.sample.member.infrastructure.repository.UserRepository;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserModifyService {
-    private final UserJPARepository userRepository;        // 리포지토리
+    private final UserRepository userRepository;        // 리포지토리
     private final UserDomainService userDomainService;
     private final PasswordEncoder passwordEncoder;
 
@@ -26,13 +26,14 @@ public class UserModifyService {
      * 회원정보 수정
      */
     public UserDTO modify(UserModifyCommand userModifyCommand) {
-        Optional<User> user = userRepository.findByUserId(userModifyCommand.getUserId());
-        if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
+        User user = userRepository.findByUserIdAndSnsType(userModifyCommand.getUserId(), userModifyCommand.getSnsType())
+                .orElseThrow(() -> new UserException(ErrorCode.USER_NOT_FOUND));
+//        if (user.isEmpty()) throw new UserException(ErrorCode.USER_NOT_FOUND);
 
         this.checkDuplicate(userModifyCommand);
 
         User result = userRepository.save(User.builder()
-                .usrNo(user.get().getUsrNo())
+                .usrNo(user.getUsrNo())
                 .email(userModifyCommand.getEmail())
                 .password(passwordEncoder.encode(userModifyCommand.getPassword()))
                 .nickName(userModifyCommand.getNickName())

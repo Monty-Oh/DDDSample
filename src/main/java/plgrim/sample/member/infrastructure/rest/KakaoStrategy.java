@@ -1,5 +1,6 @@
 package plgrim.sample.member.infrastructure.rest;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -27,21 +28,36 @@ public class KakaoStrategy implements SnsStrategy {
         return Sns.KAKAO;
     }
 
+    @Value("${sns.kakao.kapi.rest-api}")
+    String restApi;
+
+    @Value("${sns.kakao.kapi.redirect-url}")
+    String redirectUrl;
+
+    @Value("${sns.kakao.kauth.get-token}")
+    String getTokenUrl;
+
+    @Value("${sns.kakao.kapi.access-token-info}")
+    String accessTokenInfoUrl;
+
+    @Value("${sns.kakao.kapi.user-info}")
+    String userInfo;
+
     /**
      * 카카오 토큰 요청
      * 엑세스 토큰 - 로그인 하는데 필요한 짧은 만료시간을 가진 토큰
      * 리프레시 토큰 - 상대적으로 긴 시간을 가짐. 리프레시 토큰으로 엑세스 토큰을 재발급 받을 수 있음.
      */
     @Override
-    public KakaoTokenDTO getToken(String url, String code) {
+    public KakaoTokenDTO getToken(String code) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
             add("grant_type", "authorization_code");
-            add("client_id", KAPI_REST_API);
-            add("redirect_uri", KAPI_API_REDIRECT_LOGIN_URL);
+            add("client_id", restApi);
+            add("redirect_uri", redirectUrl);
             add("code", code);
         }};
 
-        Flux<KakaoTokenDTO> response = WebClient.create(url)
+        Flux<KakaoTokenDTO> response = WebClient.create(getTokenUrl)
                 .post()
                 .uri(uriBuilder -> uriBuilder.queryParams(params).build())
                 .headers(httpHeaders -> httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE))
@@ -55,9 +71,9 @@ public class KakaoStrategy implements SnsStrategy {
      * 카카오 엑세스 토큰 검증
      */
     @Override
-    public KakaoValidateTokenDTO validateToken(String url, String token) {
+    public KakaoValidateTokenDTO validateToken(String token) {
         try {
-            Flux<KakaoValidateTokenDTO> response = WebClient.create(url)
+            Flux<KakaoValidateTokenDTO> response = WebClient.create(accessTokenInfoUrl)
                     .get()
                     .headers(httpHeaders -> {
                         httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
@@ -68,7 +84,6 @@ public class KakaoStrategy implements SnsStrategy {
             return response.blockFirst();
 
         } catch (WebClientResponseException exception) {
-            System.out.println("exception = " + exception);
             throw exception.getStatusCode().value() == 401
                     ? new UserException(ErrorCode.EXPIRED_TOKEN)
                     : new UserException(ErrorCode.API_SERVER);
@@ -80,9 +95,9 @@ public class KakaoStrategy implements SnsStrategy {
      * 엑세스 토큰 사용
      */
     @Override
-    public KakaoUserInfoDTO getUserInfo(String url, String token) {
+    public KakaoUserInfoDTO getUserInfo(String token) {
         try {
-            Flux<KakaoUserInfoDTO> response = WebClient.create(url)
+            Flux<KakaoUserInfoDTO> response = WebClient.create(userInfo)
                     .get()
                     .headers(httpHeaders -> {
                         httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);

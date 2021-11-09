@@ -133,6 +133,6 @@ class LocalTokenProviderTest {
         Authentication authentication = localTokenProvider.getAuthentication(token);
 
         //  then
-        assertThat(((User) authentication.getPrincipal()).getEmail()).isEqualTo(userDetails.getUsername());
+        assertThat(((User) authentication.getPrincipal()).getUserId()).isEqualTo(userDetails.getUsername());
     }
 }
