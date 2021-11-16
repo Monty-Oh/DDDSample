@@ -48,6 +48,7 @@ public enum ErrorCode {
     /**
      * 500 Server Error :   서버 에러
      */
+    EXIST_DUPLICATE_MOBILE_NO_DB(HttpStatus.INTERNAL_SERVER_ERROR, "중복된 전화번호의 데이터가 존재합니다."),
     API_SERVER(HttpStatus.INTERNAL_SERVER_ERROR, "외부 API 서버에 문제가 생겼습니다.");
 
     private final HttpStatus httpStatus;

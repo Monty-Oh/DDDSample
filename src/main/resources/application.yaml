@@ -1,12 +1,20 @@
+# database setting
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost/~/plgrim/sample
-    driver-class-name: org.h2.Driver
-    username: sa
+    # H2 Database
+#    url: jdbc:h2:tcp://localhost/~/plgrim/sample
+#    driver-class-name: org.h2.Driver
+#    username: sa
+
+    # Mysql Database
+    url:  jdbc:mysql://localhost:3306/dddsample?useSSL=false&useUnicode=true&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+    username: monty
+    password: monty
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: create
+
 
 #------------------------------------------------------------
 

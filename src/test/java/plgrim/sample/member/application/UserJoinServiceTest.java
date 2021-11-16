@@ -63,6 +63,7 @@ class UserJoinServiceTest {
                         .birth(LocalDate.of(1994, 3, 30))
                         .build())
                 .build();
+      
 
         snsJoinCommand = UserJoinCommand.builder()
                 .userId("monty")

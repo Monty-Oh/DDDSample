@@ -1,6 +1,7 @@
 plugins {
     id "org.springframework.boot" version "2.5.4"
     id "io.spring.dependency-management" version "1.0.11.RELEASE"
+//    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id "java"
 }
 
@@ -16,6 +17,13 @@ dependencies {
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor:2.5.5'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
+    // QueryDSL
+    implementation "com.querydsl:querydsl-jpa:4.4.0"
+    annotationProcessor(
+            "javax.persistence:javax.persistence-api",
+            "javax.annotation:javax.annotation-api",
+            "com.querydsl:querydsl-apt:4.4.0:jpa")
+
 //    implementation 'com.querydsl:querydsl-jpa' // 추가
     implementation 'org.springframework.boot:spring-boot-starter-web:2.5.5'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -26,6 +34,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security:2.5.5'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'mysql:mysql-connector-java'
 
     compileOnly 'org.projectlombok:lombok:1.18.22'
 
@@ -34,6 +43,15 @@ dependencies {
     testImplementation 'com.squareup.okhttp3:mockwebserver'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:2.5.5'
     testImplementation 'org.springframework.security:spring-security-test:5.5.1'
+}
+
+// QueryDSL
+sourceSets {
+    main {
+        java {
+            srcDirs = ["$projectDir/src/main/java", "$projectDir/build/generated"]
+        }
+    }
 }
 
 test {

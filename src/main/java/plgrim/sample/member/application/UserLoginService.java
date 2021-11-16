@@ -59,6 +59,8 @@ public class UserLoginService {
 
         Optional<User> result = userRepository.findByUserIdAndSnsType(kakaoUserInfoDTO.getId().toString(), Sns.KAKAO);
 
+        System.out.println("kakaoUserInfoDTO = " + kakaoUserInfoDTO);
+
         if (result.isEmpty()) {
             userJoinService.join(UserJoinCommand.builder()
                     .userId(kakaoUserInfoDTO.getId().toString())

@@ -85,7 +85,7 @@ class UserModifyServiceTest {
     @Test
     void modify() {
         //  given
-        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.of(user));
+        given(userRepository.findByUserIdAndSnsType(userModifyCommand.getUserId(), userModifyCommand.getSnsType())).willReturn(Optional.of(user));
         given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(false);
         given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(false);
         given(userRepository.save(any())).willReturn(user);
@@ -102,7 +102,7 @@ class UserModifyServiceTest {
     @Test
     void modifyFailNotUserFound() {
         //  given
-        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.empty());
+        given(userRepository.findByUserIdAndSnsType(userModifyCommand.getUserId(), userModifyCommand.getSnsType())).willReturn(Optional.empty());
 
         //  when
         ErrorCode error = assertThrows(UserException.class, () -> userModifyService.modify(userModifyCommand)).getErrorCode();
@@ -115,7 +115,7 @@ class UserModifyServiceTest {
     @Test
     void modifyFailDuplicatedEmail() {
         //  given
-        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.of(user));
+        given(userRepository.findByUserIdAndSnsType(userModifyCommand.getUserId(), userModifyCommand.getSnsType())).willReturn(Optional.of(user));
         given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(true);
 
         //  when
@@ -129,7 +129,7 @@ class UserModifyServiceTest {
     @Test
     void modifyFailDuplicatedPhoneNumber() {
         //  given
-        given(userRepository.findByUserId(userModifyCommand.getUserId())).willReturn(Optional.of(user));
+        given(userRepository.findByUserIdAndSnsType(userModifyCommand.getUserId(), userModifyCommand.getSnsType())).willReturn(Optional.of(user));
         given(userDomainService.checkDuplicateEmailExceptOwn(userModifyCommand.getEmail(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(false);
         given(userDomainService.checkDuplicatePhoneNumberExceptOwn(userModifyCommand.getMobileNo(), userModifyCommand.getSnsType(), userModifyCommand.getUserId())).willReturn(true);
         //  when
